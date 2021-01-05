@@ -43,6 +43,9 @@ dependencies:
   # Auto text resize
   auto_size_text: ^2.1.0
 
+  #Google Maps
+  google_maps_flutter: ^1.0.6
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

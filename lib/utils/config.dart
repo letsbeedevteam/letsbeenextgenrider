@@ -19,12 +19,17 @@ class Config {
   static const DASHBOARD_ROUTE = 'dashboard';
   static const SPLASH_ROUTE = 'splash';
   static const ORDER_DETAIL_ROUTE = "order_detail";
+  static const CHAT_ROUTE = "chat";
+  static const LOCATION_ROUTE = "location";
 
   //Colors
   static const LETSBEE_COLOR = 0xFBD10B;
 
   //Network
-  static const BASE_URL = 'http://192.168.0.2:8000';
+  // static const BASE_URL =
+  //     'https://serene-caverns-10194.herokuapp.com'; // cloud
+  static const BASE_URL = 'http://192.168.100.14:8000'; // local
+  // static const BASE_URL = 'http://192.168.0.17:8000'; // demo
   static const SIGN_IN = '/auth/rider/signin';
   static const SOCKET_NAMESPACE = '/rider';
 }

@@ -1,32 +1,40 @@
-import 'package:flutter/services.dart';
+import 'dart:async';
+
 import 'package:get/get.dart';
-import 'package:letsbeenextgenrider/models/location.dart';
-import 'package:letsbeenextgenrider/models/order_data.dart';
-import 'package:letsbeenextgenrider/models/request/base/base_order_change_status_request.dart';
-import 'package:letsbeenextgenrider/models/request/deliver_order_request.dart';
-import 'package:letsbeenextgenrider/models/request/location_request.dart';
-import 'package:letsbeenextgenrider/models/request/pick_up_order_request.dart';
-import 'package:letsbeenextgenrider/models/response/update_order_status_response.dart';
-import 'package:letsbeenextgenrider/service/socket_service.dart';
+import 'package:letsbeenextgenrider/data/app_repository.dart';
+import 'package:letsbeenextgenrider/data/models/order_data.dart';
+import 'package:letsbeenextgenrider/data/models/request/base/base_order_change_status_request.dart';
+import 'package:letsbeenextgenrider/data/models/request/deliver_order_request.dart';
+import 'package:letsbeenextgenrider/data/models/request/pick_up_order_request.dart';
 import 'package:letsbeenextgenrider/ui/dashboard/dashboard_controller.dart';
 
 class OrderDetailController extends GetxController {
-  final SocketService _socketService = Get.find();
+  final DashboardController dashboardController = Get.find();
+  final AppRepository _appRepository = Get.find();
+
   final _argument = Get.arguments;
-  final DashboardController _dashboardController = Get.find();
 
   var order = OrderData().obs;
   var updateOrderStatusButtonText = 'Marked as Picked-Up'.obs;
 
+  Timer locationTimer;
+
+  var locations = List<LocationsRequestData>();
+
   @override
   void onInit() {
     order.value = OrderData.fromJson(_argument);
+    sendMyOrderLocation();
     super.onInit();
   }
 
+  @override
+  void onClose() {
+    locationTimer?.cancel();
+    super.onClose();
+  }
+
   void updateOrderStatus() {
-    print('UPDATING STATUS ......');
-    print(order.value.status);
     switch (order.value.status) {
       case 'rider-accepted':
         {
@@ -36,17 +44,14 @@ class OrderDetailController extends GetxController {
         break;
       case 'rider-picked-up':
         {
-          var locations = List<LocationRequest>()
-            ..add(LocationRequest(
-                lat: "100", lng: "200", datetime: DateTime.now()));
-          var request =
-              DeliverOrderRequest(orderId: order.value.id, location: locations);
+          var request = DeliverOrderRequest(
+              orderId: order.value.id, locations: locations);
           _updateOrderStatus('delivered', request);
         }
         break;
       default:
         {
-          _dashboardController.fetchAllOrders();
+          dashboardController.onInit();
           Get.back();
         }
         break;
@@ -54,20 +59,30 @@ class OrderDetailController extends GetxController {
   }
 
   void _updateOrderStatus(String room, BaseOrderChangeStatusRequest request) {
-    _dashboardController.socketService.socket
-        .emitWithAck(room, request.toJson(), ack: (response) {
+    _appRepository.updateOrderStatus(room, request, (response) {
       print(response);
-      // Clipboard.setData(ClipboardData(text: response.toString()));
-
-      final updateOrderStatusResponse =
-          UpdateOrderStatusResponse.fromJson(response);
-      if (updateOrderStatusResponse.status == 200) {
-        order.value = updateOrderStatusResponse.data;
+      if (response.status == 200) {
+        order.value = response.data;
       } else {
         print("Failed to update order status");
       }
+    }, (error) {
+      print("Failed to update order status $error");
+    });
+  }
 
-      Clipboard.setData(ClipboardData(text: response.toString()));
+  void sendMyOrderLocation() {
+    dashboardController.locationTimer?.cancel();
+    Timer.periodic(Duration(seconds: 5), (timer) {
+      locationTimer = timer;
+      _appRepository.getCurrentPosition().then((currentLocation) {
+        locations.add(LocationsRequestData(
+            lat: currentLocation.latitude,
+            lng: currentLocation.longitude,
+            datetime: DateTime.now().toUtc()));
+
+        _appRepository.sendMyOrderLocation(order.value.userId);
+      });
     });
   }
 

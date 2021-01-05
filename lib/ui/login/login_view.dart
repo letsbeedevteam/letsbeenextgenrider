@@ -116,7 +116,7 @@ class LoginView extends GetView<LoginController> {
                                     : Text('LOGIN',
                                         style: TextStyle(color: Colors.white)),
                               ),
-                              onPressed: () => controller.login("letsbee-johndoe@gmail.com","123123123")),
+                              onPressed: () => controller.login()),
                         );
                       },
                     )

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:letsbeenextgenrider/models/additional.dart';
-import 'package:letsbeenextgenrider/models/choice.dart';
-import 'package:letsbeenextgenrider/models/menu.dart';
-import 'package:letsbeenextgenrider/models/pick.dart';
+import 'package:letsbeenextgenrider/data/models/additional.dart';
+import 'package:letsbeenextgenrider/data/models/choice.dart';
+import 'package:letsbeenextgenrider/data/models/menu.dart';
+import 'package:letsbeenextgenrider/data/models/pick.dart';
 import 'package:letsbeenextgenrider/ui/dashboard/subviews/pending_detail/order_detail_controller.dart';
 import 'package:intl/intl.dart';
 import 'package:letsbeenextgenrider/utils/config.dart';
@@ -23,13 +23,15 @@ class OrderDetailView extends GetView<OrderDetailController> {
                   icon: ImageIcon(
                       AssetImage(Config.PNG_PATH + 'location_button.png'),
                       size: 20),
-                  onPressed: () => print('Go to location page'),
+                  onPressed: () => Get.toNamed(Config.LOCATION_ROUTE,
+                      arguments: controller.order.value.toJson()),
                   splashColor: Colors.black.withOpacity(0.3)),
               IconButton(
                   icon: ImageIcon(
                       AssetImage(Config.PNG_PATH + 'chat_button.png'),
                       size: 20),
-                  onPressed: () => print('Go to chat page'),
+                  onPressed: () => Get.toNamed(Config.CHAT_ROUTE,
+                      arguments: controller.order.value.toJson()),
                   splashColor: Colors.black.withOpacity(0.3))
             ],
             title: Text('"ORDER NO. ${controller.order.value.id}"',
@@ -52,7 +54,7 @@ class OrderDetailView extends GetView<OrderDetailController> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                  "${controller.order.value.restaurant.name} - ${controller.order.value.restaurant.location.name}",
+                                  "${controller.order.value.restaurant.name} - ${controller.order.value.restaurant.locationName}",
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
@@ -188,7 +190,7 @@ class OrderDetailView extends GetView<OrderDetailController> {
                                         padding:
                                             EdgeInsets.symmetric(vertical: 2)),
                                     Text(
-                                        'Address: ${controller.order.value.address.street} ${controller.order.value.address.barangay}, ${controller.order.value.address.city}, ${controller.order.value.address.state}, ${controller.order.value.address.country}',
+                                        'Address: ${controller.order.value.address.street}, ${controller.order.value.address.barangay}, ${controller.order.value.address.city}, ${controller.order.value.address.state}, ${controller.order.value.address.country}',
                                         style: TextStyle(
                                             color: Colors.black,
                                             fontStyle: FontStyle.italic,
@@ -448,7 +450,7 @@ class OrderDetailView extends GetView<OrderDetailController> {
       children: [
         Expanded(
           child: Container(
-            child: Text(choice.name,
+            child: Text('${choice.name}: ${choice.pick}',
                 style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,

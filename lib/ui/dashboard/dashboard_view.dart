@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:letsbeenextgenrider/models/order_data.dart';
-import 'package:letsbeenextgenrider/models/request/accept_order_request.dart';
+import 'package:letsbeenextgenrider/data/models/order_data.dart';
+import 'package:letsbeenextgenrider/data/models/request/accept_order_request.dart';
 import 'package:letsbeenextgenrider/ui/dashboard/dashboard_controller.dart';
 import 'package:letsbeenextgenrider/utils/config.dart';
 import 'package:intl/intl.dart';
@@ -23,6 +23,14 @@ class DashboardView extends GetView<DashboardController> {
             ],
           ),
           centerTitle: false,
+          actions: [
+            IconButton(
+                icon: ImageIcon(
+                    AssetImage(Config.PNG_PATH + 'logout_button.png'),
+                    size: 20),
+                onPressed: () => controller.logOut(),
+                splashColor: Colors.black.withOpacity(0.3)),
+          ],
         ),
         body: Scrollbar(child: GetX<DashboardController>(
           builder: (_) {
@@ -46,7 +54,7 @@ class DashboardView extends GetView<DashboardController> {
         children: [
           Container(
             padding: EdgeInsets.all(10),
-            child: Text("Order NO. ${order.id}",
+            child: Text('Order NO. ${order.id}',
                 style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
