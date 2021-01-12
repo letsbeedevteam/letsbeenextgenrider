@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:letsbeenextgenrider/data/models/address.dart';
 import 'package:letsbeenextgenrider/data/models/fee.dart';
 import 'package:letsbeenextgenrider/data/models/menu.dart';
@@ -5,6 +7,11 @@ import 'package:letsbeenextgenrider/data/models/payment.dart';
 import 'package:letsbeenextgenrider/data/models/restaurant.dart';
 import 'package:letsbeenextgenrider/data/models/timeframe.dart';
 import 'package:letsbeenextgenrider/data/models/user.dart';
+
+OrderData orderDataFromJson(String str) =>
+    OrderData.fromJson(json.decode(str));
+
+String orderDataToJson(OrderData data) => json.encode(data.toJson());
 
 class OrderData {
   OrderData({

@@ -1,3 +1,4 @@
+import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:letsbeenextgenrider/data/models/additional.dart';
@@ -7,6 +8,7 @@ import 'package:letsbeenextgenrider/data/models/pick.dart';
 import 'package:letsbeenextgenrider/ui/dashboard/subviews/pending_detail/order_detail_controller.dart';
 import 'package:intl/intl.dart';
 import 'package:letsbeenextgenrider/utils/config.dart';
+import 'package:letsbeenextgenrider/utils/utils.dart';
 
 class OrderDetailView extends GetView<OrderDetailController> {
   @override
@@ -26,13 +28,20 @@ class OrderDetailView extends GetView<OrderDetailController> {
                   onPressed: () => Get.toNamed(Config.LOCATION_ROUTE,
                       arguments: controller.order.value.toJson()),
                   splashColor: Colors.black.withOpacity(0.3)),
-              IconButton(
-                  icon: ImageIcon(
-                      AssetImage(Config.PNG_PATH + 'chat_button.png'),
-                      size: 20),
-                  onPressed: () => Get.toNamed(Config.CHAT_ROUTE,
-                      arguments: controller.order.value.toJson()),
-                  splashColor: Colors.black.withOpacity(0.3))
+              Badge(
+                showBadge: false,
+                position: BadgePosition.topEnd(top: 5, end: 5),
+                badgeContent: Text(
+                  '1',
+                  style: TextStyle(color: Colors.white),
+                ),
+                child: IconButton(
+                    icon: ImageIcon(
+                        AssetImage(Config.PNG_PATH + 'chat_button.png'),
+                        size: 20),
+                    onPressed: () => controller.goToChatPage(),
+                    splashColor: Colors.black.withOpacity(0.3)),
+              )
             ],
             title: Text('"ORDER NO. ${controller.order.value.id}"',
                 style: TextStyle(
@@ -287,7 +296,11 @@ class OrderDetailView extends GetView<OrderDetailController> {
                                   return _textStatus();
                                 },
                               )),
-                          onPressed: () => controller.updateOrderStatus()),
+                          onPressed: () => {
+                                controller.order.value.status != "delivered"
+                                    ? _showUpdateOrderStatusDialog()
+                                    : controller.goToDashboard()
+                              }),
                     ],
                   ))
             ],
@@ -295,11 +308,29 @@ class OrderDetailView extends GetView<OrderDetailController> {
         ));
   }
 
-  Widget _textStatus() {
-    var text = 'Mark as PickUp';
+  void _showUpdateOrderStatusDialog() {
+    var message = 'Do you want to mark this as ';
     switch (controller.order.value.status) {
       case 'rider-accepted':
-        text = 'Mark As PickUp';
+        message += 'Picked-up';
+        break;
+      case 'rider-picked-up':
+        message += 'Delivered';
+        break;
+      default:
+        message = "";
+        break;
+    }
+    showAlertDialog(message, onConfirm: () {
+      controller.updateOrderStatus();
+    });
+  }
+
+  Widget _textStatus() {
+    var text = 'Mark as Picked-up';
+    switch (controller.order.value.status) {
+      case 'rider-accepted':
+        text = 'Mark As Picked-up';
         break;
       case 'rider-picked-up':
         text = 'Mark As Delivered';

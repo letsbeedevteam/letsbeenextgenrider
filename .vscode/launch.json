@@ -15,6 +15,13 @@
             "deviceId": "D70350E4-824D-4421-98D0-5815B17290CE",
             "type": "dart",
             "request": "launch"
+        },
+        {
+            "name": "Run Dev Iphone 12 Max Pro",
+            "flutterMode": "debug",
+            "deviceId": "7F37DBD0-FE52-4A41-91FD-8908E6590E68",
+            "type": "dart",
+            "request": "launch"
         }
     ]
 }

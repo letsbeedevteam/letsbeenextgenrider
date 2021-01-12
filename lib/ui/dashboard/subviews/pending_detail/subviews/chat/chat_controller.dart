@@ -18,16 +18,19 @@ class ChatController extends GetxController {
   @override
   void onInit() {
     order.value = OrderData.fromJson(_argument);
+    super.onInit();
     riderId.value = _appRepository.getRiderId();
 
     _fetchAllMessages();
     _receiveNewMessages();
-
-    super.onInit();
   }
 
   void _receiveNewMessages() {
-    _appRepository.receiveNewMessages((response) {
+    _appRepository.receiveNewMessages((response) async {
+      // await _appRepository.showNotification(
+      //     title: 'Message from ${order.value.user.name}',
+      //     body: "${response.data.message}",
+      //     payload: orderDataToJson(order.value));
       messages.value.add(response.data);
     });
   }
@@ -45,8 +48,13 @@ class ChatController extends GetxController {
   }
 
   void sendMessage() {
-    _appRepository.sendMessage(
-        order.value.id, order.value.userId, messageTF.text);
+    _appRepository
+        .sendMessage(order.value.id, order.value.userId, messageTF.text,
+            onComplete: (response) {
+      if (response.status == 200) {
+        messages.value.add(response.data);
+      }
+    });
     messageTF.clear();
   }
 }

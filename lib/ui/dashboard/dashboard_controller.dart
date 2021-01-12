@@ -4,16 +4,17 @@ import 'package:letsbeenextgenrider/data/app_repository.dart';
 import 'package:letsbeenextgenrider/data/models/order_data.dart';
 import 'package:letsbeenextgenrider/data/models/request/base/base_order_change_status_request.dart';
 import 'package:letsbeenextgenrider/data/models/response/get_active_order_response.dart';
+import 'package:letsbeenextgenrider/data/models/response/get_new_order_response.dart';
 import 'package:letsbeenextgenrider/data/models/response/get_orders_response.dart';
 import 'package:letsbeenextgenrider/utils/config.dart';
+import 'package:letsbeenextgenrider/utils/utils.dart';
 
-class DashboardController extends GetxController {
+class DashboardController extends GetxController{
   static DashboardController get to => Get.find();
   AppRepository _appRepository = Get.find();
-  // final PushNotificationService pushNotificationService = Get.find();
 
   var isLoading = true.obs;
-  var message = 'No Orders Available'.obs;
+  var message = 'Loading...'.obs;
   var orders = RxList<OrderData>().obs;
 
   Timer locationTimer;
@@ -21,7 +22,7 @@ class DashboardController extends GetxController {
   // View Functions
   @override
   void onInit() {
-    _initSocket();
+    initSocket();
     super.onInit();
   }
 
@@ -33,7 +34,7 @@ class DashboardController extends GetxController {
   }
 
   // Private Functions
-  void _initSocket() {
+  void initSocket() {
     // pushNotificationService.initialize();
     _appRepository.connectSocket(
         onConnected: (_) {
@@ -58,25 +59,60 @@ class DashboardController extends GetxController {
   }
 
   void _receiveNewOrders() {
-    _appRepository.receiveNewOrder(() => {fetchAllOrders()});
+    _appRepository.receiveNewOrder((response) async {
+      ///identify if the [response] was an update of an existing order or a completely new order
+      ///if the received order is new, show notification and add the order to [orders] list
+      ///else if the received order is an update, modify the order in the [orders] list
+
+      if (isNewOrder(response)) {
+        final orderResponse = OrderData.fromJson(response);
+        if (orders.value.isNotEmpty) {
+          var newOrder = orders.value.firstWhere(
+              (order) => order.id == orderResponse.id,
+              orElse: () => null);
+          if (newOrder == null) {
+            orders.value.add(orderResponse);
+          }
+        } else {
+          orders.value.add(orderResponse);
+        }
+        await _appRepository.showNotification(
+            title: 'Hi!',
+            body:
+                "Order No. ${orderResponse.id} is now available for delivery");
+      } else if (isUpdatedOrder(response)) {
+        final orderUpdate = GetNewOrderResponse.fromJson(response);
+        orders.value.map((order) => {
+              if (order.id == orderUpdate.data.id) {order = orderUpdate.data}
+            });
+        orders.value.refresh();
+      } else {
+        print(
+            "Error cannot be converted to neither Order nor NewOrderResponse");
+      }
+    });
   }
 
-  void _disconnectSocket() {
+  void _sendMyLocation() {
+    locationTimer = Timer.periodic(Duration(seconds: 30), (_) {
+      _appRepository.sendMyLocation();
+    });
+  }
+
+  Future _disconnectSocket() {
     _appRepository.disconnectSocket();
+    return Future.value(_appRepository.isSocketConnected());
   }
 
   // Public Functions
   void fetchAllOrders() {
     _appRepository.fetchAllOrders((response) {
       print(response.toString());
-      // Clipboard.setData(ClipboardData(text: response.toString()));
       try {
         final activeOrderResponse = GetActiveOrderResponse.fromJson(response);
-        if (activeOrderResponse.status == 200) {
-          if (!activeOrderResponse.isBlank) {
-            Get.toNamed(Config.ORDER_DETAIL_ROUTE,
-                arguments: activeOrderResponse.data.toJson());
-          }
+        if (activeOrderResponse.status == 200 && activeOrderResponse != null) {
+          Get.toNamed(Config.ORDER_DETAIL_ROUTE,
+              arguments: activeOrderResponse.data.toJson());
         } else {
           message.value = "Failed to fetch active order";
           print("Failed to fetch active order");
@@ -103,22 +139,38 @@ class DashboardController extends GetxController {
   }
 
   void updateOrderStatus(
-      String room, BaseOrderChangeStatusRequest request, OrderData order) {
-    _appRepository.updateOrderStatus(room, request, (response) {
-      locationTimer?.cancel();
-      Get.toNamed(Config.ORDER_DETAIL_ROUTE, arguments: response.data.toJson());
-    }, (error) => {print(error)});
+    String room,
+    BaseOrderChangeStatusRequest request,
+    OrderData order,
+  ) async {
+    var isTimerActive = await canceLocationTimer();
+
+    if (!isTimerActive) {
+      _appRepository.updateOrderStatus(room, request, (response) async {
+        var isSocketConnected = await _disconnectSocket();
+        if (!isSocketConnected) {
+          Get.toNamed(Config.ORDER_DETAIL_ROUTE,
+              arguments: response.data.toJson());
+        }
+      }, (error) {
+        _sendMyLocation();
+        print(error);
+      });
+    }
   }
 
-  void _sendMyLocation() {
-    Timer.periodic(Duration(seconds: 30), (timer) {
-      locationTimer = timer;
-      _appRepository.sendMyLocation();
-    });
+  Future canceLocationTimer() {
+    locationTimer.cancel();
+    return Future<bool>.value(locationTimer.isActive);
   }
 
   void logOut() {
     _appRepository.logOut();
     Get.offAllNamed(Config.LOGIN_ROUTE);
+  }
+
+  @override
+  void onSelectNotification(String payload) {
+    // TODO: implement onSelectNotification
   }
 }

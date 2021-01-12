@@ -5,6 +5,7 @@ import 'package:letsbeenextgenrider/data/models/request/accept_order_request.dar
 import 'package:letsbeenextgenrider/ui/dashboard/dashboard_controller.dart';
 import 'package:letsbeenextgenrider/utils/config.dart';
 import 'package:intl/intl.dart';
+import 'package:letsbeenextgenrider/utils/utils.dart';
 
 class DashboardView extends GetView<DashboardController> {
   @override
@@ -28,7 +29,11 @@ class DashboardView extends GetView<DashboardController> {
                 icon: ImageIcon(
                     AssetImage(Config.PNG_PATH + 'logout_button.png'),
                     size: 20),
-                onPressed: () => controller.logOut(),
+                onPressed: () {
+                  showAlertDialog("Are you sure you want to logout?", onConfirm: () {
+                    controller.logOut();
+                  });
+                },
                 splashColor: Colors.black.withOpacity(0.3)),
           ],
         ),
@@ -65,7 +70,7 @@ class DashboardView extends GetView<DashboardController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Name: ${order.user.name}',
+                Text('Name: ${order.userId}',
                     style: TextStyle(fontStyle: FontStyle.italic)),
                 Text(
                     'Date and Time: ' +

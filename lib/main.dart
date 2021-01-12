@@ -7,6 +7,9 @@ import 'package:letsbeenextgenrider/data/souce/local/sharedpref.dart';
 import 'package:letsbeenextgenrider/data/souce/remote/api_service.dart';
 import 'package:letsbeenextgenrider/service/google_map_service.dart';
 import 'package:letsbeenextgenrider/data/souce/remote/socket_service.dart';
+import 'package:letsbeenextgenrider/service/push_notification_service.dart';
+import 'package:letsbeenextgenrider/ui/dashboard/dashboard_controller.dart';
+import 'package:letsbeenextgenrider/ui/dashboard/subviews/pending_detail/subviews/chat/chat_controller.dart';
 import 'package:letsbeenextgenrider/utils/config.dart';
 import 'package:letsbeenextgenrider/utils/routes.dart';
 import 'package:get/get.dart';
@@ -19,16 +22,19 @@ void main() async {
 }
 
 Future initServices() async {
-  print('Starting services...');
-  // await Get.putAsync<PushNotificationService>(() async => PushNotificationService());
+  print('Initializing Dependencies');
   await Get.putAsync<GetStorage>(() async => GetStorage());
   await Get.putAsync<Location>(() async => Location());
+  await Get.putAsync<PushNotificationService>(
+      () async => PushNotificationService());
+  await Get.putAsync<PushNotificationService>(
+      () async => PushNotificationService());
   await Get.putAsync<GoogleMapsServices>(() async => GoogleMapsServices());
   await Get.putAsync<ApiService>(() async => ApiService());
   await Get.putAsync<SocketService>(() async => SocketService());
   await Get.putAsync<SharedPref>(() async => SharedPref());
-  await Get.putAsync<AppRepository>(() async => AppRepository());
-  print('All services started...');
+  Get.put<AppRepository>(AppRepository(), permanent: true);
+  print('Dependencies Intialized');
 }
 
 class MyApp extends StatelessWidget {

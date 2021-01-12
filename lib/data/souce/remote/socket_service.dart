@@ -27,6 +27,8 @@ class SocketService extends GetxController {
 
   IO.Socket socket;
 
+  bool isConnected;
+
   void connectSocket(
       {Function(dynamic) onConnected,
       Function(dynamic) onConnecting,
@@ -47,22 +49,27 @@ class SocketService extends GetxController {
     this.socket
       ..on(CONNECTED, (_) {
         print('connected');
+        isConnected = true;
         onConnected(_);
       })
       ..on(CONNECTING, (_) {
         print('connecting');
+         isConnected = false;
         onConnecting(_);
       })
       ..on(RECONNECTING, (_) {
         print('reconnecting');
+        isConnected = false;
         onReconnecting(_);
       })
       ..on(DISCONNECTED, (_) {
         print('disconnected');
+        isConnected = false;
         onDisconnected(_);
       })
       ..on(ERROR, (_) {
         print('socket error = $_');
+        isConnected = false;
         onError(_);
       });
   }

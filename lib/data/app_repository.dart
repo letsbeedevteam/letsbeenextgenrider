@@ -13,6 +13,7 @@ import 'package:letsbeenextgenrider/data/souce/local/sharedpref.dart';
 import 'package:letsbeenextgenrider/data/souce/remote/api_service.dart';
 import 'package:letsbeenextgenrider/data/souce/remote/socket_service.dart';
 import 'package:letsbeenextgenrider/service/google_map_service.dart';
+import 'package:letsbeenextgenrider/service/push_notification_service.dart';
 import 'package:letsbeenextgenrider/utils/google_map_utils.dart';
 import 'package:location/location.dart';
 
@@ -22,9 +23,12 @@ class AppRepository {
   SharedPref _sharedPref = Get.find();
   Location _location = Get.find();
   GoogleMapsServices _googleMapsServices = Get.find();
+  PushNotificationService _pushNotificationService = Get.find();
 
+// SharedPref
   int getRiderId() => _sharedPref.getRiderId();
 
+// ApiService
   Future login(LoginRequest loginRequest) {
     return _apiService.login(loginRequest).then((response) {
       if (response.status == 200) {
@@ -39,6 +43,7 @@ class AppRepository {
     });
   }
 
+// SocketService
   void connectSocket(
       {Function(dynamic) onConnected,
       Function(dynamic) onConnecting,
@@ -57,6 +62,11 @@ class AppRepository {
     _socketService.socket.close();
   }
 
+  bool isSocketConnected() {
+    return _socketService.isConnected;
+  }
+
+  // SocketService - Orders
   void fetchAllOrders(
     Function(dynamic) success,
     Function(String) failed,
@@ -71,6 +81,31 @@ class AppRepository {
     });
   }
 
+  void updateOrderStatus(
+    String room,
+    BaseOrderChangeStatusRequest request,
+    Function(UpdateOrderStatusResponse) onSuccess,
+    Function(String) onFailed,
+  ) {
+    _socketService.socket.emitWithAck(room, request.toJson(), ack: (response) {
+      final updateOrderStatusResponse =
+          UpdateOrderStatusResponse.fromJson(response);
+      if (updateOrderStatusResponse.status == 200) {
+        onSuccess(updateOrderStatusResponse);
+      } else {
+        onFailed("Failed to update order status");
+      }
+    });
+  }
+
+  void receiveNewOrder(Function(dynamic) onComplete) {
+    _socketService.socket.on(SocketService.RECEIVE_NEW_ORDER, (response) {
+      print(response);
+      onComplete(response);
+    });
+  }
+
+  // // SocketService - Messages
   void fetchAllMessages(
     int orderId,
     Function(GetMessagesResponse) onSuccess,
@@ -91,38 +126,18 @@ class AppRepository {
     });
   }
 
-  void sendMessage(
-    int orderId,
-    int customerUserId,
-    String message,
-  ) {
+  void sendMessage(int orderId, int customerUserId, String message,
+      {Function(GetNewMessageResponse) onComplete}) {
     print('sending message');
     var request = SendMessageRequest(
         orderId: orderId, customerUserId: customerUserId, message: message);
 
-    _socketService.socket.emit(SocketService.SEND_MESSAGE, request.toJson());
-  }
-
-  void updateOrderStatus(
-    String room,
-    BaseOrderChangeStatusRequest request,
-    Function(UpdateOrderStatusResponse) onSuccess,
-    Function(String) onFailed,
-  ) {
-    _socketService.socket.emitWithAck(room, request.toJson(), ack: (response) {
-      final updateOrderStatusResponse =
-          UpdateOrderStatusResponse.fromJson(response);
-      if (updateOrderStatusResponse.status == 200) {
-        onSuccess(updateOrderStatusResponse);
-      } else {
-        onFailed("Failed to update order status");
-      }
-    });
-  }
-
-  void receiveNewOrder(Function() onComplete) {
-    _socketService.socket.on(SocketService.RECEIVE_NEW_ORDER, (response) {
-      onComplete();
+    // _socketService.socket.emit(SocketService.SEND_MESSAGE, request.toJson());
+    _socketService.socket.emitWithAck(
+        SocketService.SEND_MESSAGE, request.toJson(), ack: (response) {
+      print(response);
+      final getNewMessageResponse = GetNewMessageResponse.fromJson(response);
+      onComplete(getNewMessageResponse);
     });
   }
 
@@ -134,6 +149,7 @@ class AppRepository {
     });
   }
 
+  // Locations
   void sendMyLocation() {
     print("sending my location");
     getCurrentPosition().then((currentLocation) {
@@ -147,23 +163,37 @@ class AppRepository {
   void sendMyOrderLocation(int userId) {
     print("sending my order location");
     getCurrentPosition().then((currentLocation) {
-      final request = SendOrderLocationRequest(
-          location: OrderLocationRequestData(
-              lat: currentLocation.latitude, lng: currentLocation.longitude),
-          userId: userId);
-      _socketService.socket
-          .emit(SocketService.SEND_ORDER_LOCATION, request.toJson());
+      if (currentLocation != null) {
+        final request = SendOrderLocationRequest(
+            location: OrderLocationRequestData(
+                lat: currentLocation.latitude, lng: currentLocation.longitude),
+            userId: userId);
+        _socketService.socket
+            .emit(SocketService.SEND_ORDER_LOCATION, request.toJson());
+      }
     });
   }
 
+// Location
   Future<LocationData> getCurrentPosition() async =>
       await _location.getLocation();
 
+// GoogleMapsServices
   Future<List<LatLng>> getRouteCoordinates(
       {LatLng source, LatLng destination}) async {
     return await _googleMapsServices
         .getRouteCoordinates(source, destination)
         .then((encodedPoly) => convertToLatLng(decodePoly(encodedPoly)));
+  }
+
+// Push Notification
+  void initPushNotification() {
+    _pushNotificationService.initialize();
+  }
+
+  Future<void> showNotification({String title, String body, String payload}) {
+    return _pushNotificationService.showNotification(
+        title: title, body: body, payload: payload);
   }
 
   void logOut() {

@@ -60,11 +60,11 @@ class SharedPref {
   }
 
   String getRiderName() {
-   return _getStorage.read(RIDER_NAME);
+    return _getStorage.read(RIDER_NAME);
   }
 
   String getRiderEmail() {
-   return _getStorage.read(RIDER_EMAIL);
+    return _getStorage.read(RIDER_EMAIL);
   }
 
   String getRiderCellphoneNumber() {

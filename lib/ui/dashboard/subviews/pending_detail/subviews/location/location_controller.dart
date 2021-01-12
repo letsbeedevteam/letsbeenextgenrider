@@ -6,10 +6,16 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:letsbeenextgenrider/data/app_repository.dart';
 import 'package:letsbeenextgenrider/data/models/order_data.dart';
 
-class LocationController extends GetxController {
+class LocationController extends GetxController
+    with SingleGetTickerProviderMixin {
   final AppRepository _appRepository = Get.find();
 
   final _argument = Get.arguments;
+  final bottomSheetKey = GlobalKey();
+  final userInfoBottomSheetKey = GlobalKey();
+
+  AnimationController controller;
+  Animation<double> animation;
 
   OrderData order;
 
@@ -24,8 +30,12 @@ class LocationController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    print("LocationController");
     order = OrderData.fromJson(_argument);
+
+    controller = AnimationController(
+        duration: const Duration(milliseconds: 300), vsync: this);
+    animation = CurvedAnimation(parent: controller, curve: Curves.easeInBack);
+
     createRoute();
     updateMyLocationMarker();
   }

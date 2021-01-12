@@ -14,6 +14,12 @@
       "languageVersion": "2.0"
     },
     {
+      "name": "badges",
+      "rootUri": "file:///Users/marcjacobmanalo/Downloads/flutter/.pub-cache/hosted/pub.dartlang.org/badges-1.1.6",
+      "packageUri": "lib/",
+      "languageVersion": "2.8"
+    },
+    {
       "name": "boolean_selector",
       "rootUri": "file:///Users/marcjacobmanalo/Downloads/flutter/.pub-cache/hosted/pub.dartlang.org/boolean_selector-2.1.0-nullsafety.1",
       "packageUri": "lib/",
@@ -404,7 +410,7 @@
       "languageVersion": "2.7"
     }
   ],
-  "generated": "2021-01-05T08:22:43.125360Z",
+  "generated": "2021-01-12T07:05:52.513641Z",
   "generator": "pub",
   "generatorVersion": "2.10.4"
 }
