@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:letsbeenextgenrider/data/app_repository.dart';
 import 'package:letsbeenextgenrider/data/models/order_data.dart';
+import 'package:letsbeenextgenrider/utils/config.dart';
 
 class LocationController extends GetxController
     with SingleGetTickerProviderMixin {
@@ -37,7 +38,11 @@ class LocationController extends GetxController
     animation = CurvedAnimation(parent: controller, curve: Curves.easeInBack);
 
     createRoute();
-    updateMyLocationMarker();
+    BitmapDescriptor.fromAssetImage(
+            ImageConfiguration(size: Size(48, 48)), Config.PNG_PATH + 'driver_marker.png')
+        .then((icon) {
+      updateMyLocationMarker(icon);
+    });
   }
 
   void onMapCreated(GoogleMapController controller) {
@@ -116,7 +121,7 @@ class LocationController extends GetxController
 
 // bug on location plugin
 // https://github.com/Lyokone/flutterlocation/issues/422
-  void updateMyLocationMarker() {
+  void updateMyLocationMarker(BitmapDescriptor icon) {
     Timer.periodic(Duration(seconds: 5), (timer) {
       _appRepository.getCurrentPosition().then((currentLocation) {
         LatLng currentPositionCoordinates =
@@ -138,7 +143,7 @@ class LocationController extends GetxController
           infoWindow: InfoWindow(
             title: 'You',
           ),
-          icon: BitmapDescriptor.defaultMarker,
+          icon: icon,
         ));
         update();
       });

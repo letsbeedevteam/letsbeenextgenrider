@@ -3,6 +3,7 @@ import 'package:letsbeenextgenrider/data/models/message_data.dart';
 import 'package:letsbeenextgenrider/ui/dashboard/subviews/pending_detail/subviews/chat/chat_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:letsbeenextgenrider/utils/config.dart';
+import 'package:intl/intl.dart';
 
 class ChatView extends GetView<ChatController> {
   @override
@@ -136,7 +137,9 @@ Widget _buildChatItem(MessageData messageData) {
                         Padding(padding: EdgeInsets.symmetric(vertical: 5)),
                         Align(
                           alignment: Alignment.centerRight,
-                          child: Text("${messageData.createdAt}",
+                          child: Text(
+                              DateFormat('MMMM dd, yyyy h:mm a').format(
+                                  messageData.createdAt.toUtc().toLocal()),
                               style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.normal,
@@ -185,7 +188,8 @@ Widget _buildChatItem(MessageData messageData) {
                         Padding(padding: EdgeInsets.symmetric(vertical: 5)),
                         Align(
                           alignment: Alignment.centerRight,
-                          child: Text("${messageData.createdAt}",
+                          child: Text(DateFormat('MMMM dd, yyyy h:mm a').format(
+                                  messageData.createdAt.toUtc().toLocal()),
                               style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.normal,

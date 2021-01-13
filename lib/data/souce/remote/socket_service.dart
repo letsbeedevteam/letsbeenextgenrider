@@ -44,7 +44,7 @@ class SocketService extends GetxController {
       }
     });
 
-    this.socket.connect();
+    // this.socket.connect();
 
     this.socket
       ..on(CONNECTED, (_) {

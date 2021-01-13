@@ -1,10 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:letsbeenextgenrider/data/models/message_data.dart';
 import 'package:letsbeenextgenrider/data/models/order_data.dart';
 import 'package:letsbeenextgenrider/data/models/response/get_new_order_response.dart';
 
 import 'config.dart';
+
+Widget dismissKeyboard(BuildContext context, {child: Widget}) {
+  return GestureDetector(
+    onTap: () {
+      FocusScopeNode currentFocus = FocusScope.of(context);
+      if (!currentFocus.hasPrimaryFocus) {
+        currentFocus.unfocus();
+      }
+    },
+    child: child,
+  );
+}
 
 void showAlertDialog(String message, {Function() onConfirm}) {
   Get.dialog(AlertDialog(
@@ -47,6 +58,17 @@ void showAlertDialog(String message, {Function() onConfirm}) {
           ),
         ],
       )));
+}
+
+void showSnackbar(String title, String message) {
+  Get.snackbar(title, message,
+      duration: Duration(seconds: 5),
+      backgroundColor: Color(Config.LETSBEE_COLOR).withOpacity(1.0),
+      isDismissible: true,
+      icon: Icon(
+        Icons.error,
+        color: Colors.redAccent,
+      ));
 }
 
 bool isNewOrder(dynamic response) {

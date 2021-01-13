@@ -6,7 +6,6 @@ import 'package:letsbeenextgenrider/data/models/choice.dart';
 import 'package:letsbeenextgenrider/data/models/menu.dart';
 import 'package:letsbeenextgenrider/data/models/pick.dart';
 import 'package:letsbeenextgenrider/ui/dashboard/subviews/pending_detail/order_detail_controller.dart';
-import 'package:intl/intl.dart';
 import 'package:letsbeenextgenrider/utils/config.dart';
 import 'package:letsbeenextgenrider/utils/utils.dart';
 
