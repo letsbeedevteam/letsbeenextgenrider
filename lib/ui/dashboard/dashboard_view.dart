@@ -30,26 +30,35 @@ class DashboardView extends GetView<DashboardController> {
                     AssetImage(Config.PNG_PATH + 'logout_button.png'),
                     size: 20),
                 onPressed: () {
-                  showAlertDialog("Are you sure you want to logout?", onConfirm: () {
+                  showAlertDialog("Are you sure you want to logout?",
+                      onConfirm: () {
                     controller.logOut();
                   });
                 },
                 splashColor: Colors.black.withOpacity(0.3)),
           ],
         ),
-        body: Scrollbar(child: GetX<DashboardController>(
-          builder: (_) {
-            return _.orders.value.isEmpty
-                ? Center(
-                    child: Text(_.message.value),
-                  )
-                : ListView(
-                    children: _.orders.value
-                        .map((order) => _buildDeliveryItem(order))
-                        .toList(),
-                  );
-          },
-        )));
+        body: GetX<DashboardController>(builder: (_) {
+          return Stack(
+            children: [
+              RefreshIndicator(
+                onRefresh: controller.onRefresh,
+                child: Scrollbar(
+                    child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: _.orders.value
+                      .map((order) => _buildDeliveryItem(order))
+                      .toList(),
+                )),
+              ),
+              _.orders.value.isEmpty
+                  ? Center(
+                      child: Text(_.message.value),
+                    )
+                  : Container()
+            ],
+          );
+        }));
   }
 
   Widget _buildDeliveryItem(OrderData order) {
@@ -70,12 +79,12 @@ class DashboardView extends GetView<DashboardController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Name: ${order.userId}',
+                Text('Name: ${order.user.name}',
                     style: TextStyle(fontStyle: FontStyle.italic)),
                 Text(
                     'Date and Time: ' +
                         DateFormat('MMMM dd, yyyy h:mm a')
-                            .format(order.createdAt),
+                            .format(order.updatedAt.toUtc().toLocal()),
                     style: TextStyle(fontStyle: FontStyle.italic)),
                 Text('Total Amount: ₱${order.fee.total}',
                     style: TextStyle(fontStyle: FontStyle.italic)),
@@ -85,26 +94,30 @@ class DashboardView extends GetView<DashboardController> {
               ],
             ),
           ),
-          Container(
-            alignment: Alignment.centerRight,
-            margin: EdgeInsets.symmetric(horizontal: 20),
-            child: RaisedButton(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                    side: BorderSide(color: Colors.black)),
-                color: Colors.green.withOpacity(1.0),
-                child: Text('Accept',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    )),
-                onPressed: () => {
-                      controller.updateOrderStatus(
-                          'order-choice',
-                          AcceptOrderRequest(
-                              orderId: order.id, choice: 'accept'),
-                          order),
-                    }),
-          ),
+          GetX<DashboardController>(builder: (_) {
+            return Container(
+              alignment: Alignment.centerRight,
+              margin: EdgeInsets.symmetric(horizontal: 20),
+              child: RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                      side: BorderSide(color: Colors.black)),
+                  color: Colors.green.withOpacity(1.0),
+                  child: Text('Accept',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      )),
+                  onPressed: _.isLoading.value
+                      ? null
+                      : () => {
+                            controller.updateOrderStatus(
+                                'order-choice',
+                                AcceptOrderRequest(
+                                    orderId: order.id, choice: 'accept'),
+                                order),
+                          }),
+            );
+          }),
           Divider()
         ],
       ),

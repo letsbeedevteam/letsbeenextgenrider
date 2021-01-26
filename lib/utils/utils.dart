@@ -76,6 +76,7 @@ bool isNewOrder(dynamic response) {
     OrderData.fromJson(response);
     return true;
   } catch (e) {
+    print('isNewOrder = $e');
     return false;
   }
 }

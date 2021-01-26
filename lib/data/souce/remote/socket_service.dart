@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:letsbeenextgenrider/utils/config.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
-class SocketService extends GetxController {
+class SocketService {
   // Events
   static const FETCH_ALL_ORDERS = 'orders';
   static const RECEIVE_NEW_ORDER = 'order';
@@ -44,8 +46,6 @@ class SocketService extends GetxController {
       }
     });
 
-    // this.socket.connect();
-
     this.socket
       ..on(CONNECTED, (_) {
         print('connected');
@@ -54,7 +54,7 @@ class SocketService extends GetxController {
       })
       ..on(CONNECTING, (_) {
         print('connecting');
-         isConnected = false;
+        isConnected = false;
         onConnecting(_);
       })
       ..on(RECONNECTING, (_) {
@@ -70,6 +70,9 @@ class SocketService extends GetxController {
       ..on(ERROR, (_) {
         print('socket error = $_');
         isConnected = false;
+        if (_ is SocketException) {
+          print("no internet connection");
+        }
         onError(_);
       });
   }

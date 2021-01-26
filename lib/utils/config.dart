@@ -31,5 +31,6 @@ class Config {
   // static const BASE_URL = 'http://192.168.100.14:8000'; // local
   // static const BASE_URL = 'http://192.168.0.17:8000'; // demo
   static const SIGN_IN = '/auth/rider/signin';
+  static const REFRESH_ACCESS_TOKEN = '/auth/rider/refresh-token';
   static const SOCKET_NAMESPACE = '/rider';
 }

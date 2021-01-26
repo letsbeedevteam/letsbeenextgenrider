@@ -22,6 +22,13 @@
             "deviceId": "7F37DBD0-FE52-4A41-91FD-8908E6590E68",
             "type": "dart",
             "request": "launch"
+        },
+        {
+            "name": "Android Emulator",
+            "flutterMode": "debug",
+            "deviceId": "emulator-5554",
+            "type": "dart",
+            "request": "launch"
         }
     ]
 }

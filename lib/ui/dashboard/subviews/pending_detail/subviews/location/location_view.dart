@@ -39,12 +39,24 @@ class LocationView extends GetView<LocationController> {
           GetBuilder<LocationController>(
             builder: (_) {
               return GoogleMap(
+                onCameraIdle: () {
+                  controller.isCameraMoving = false;
+                },
+                onCameraMove: (_) {
+                  controller.isCameraMoving = true;
+                },
                 markers: controller.markers,
                 polylines: controller.polylines,
                 mapType: MapType.normal,
                 myLocationButtonEnabled: false,
                 initialCameraPosition: CameraPosition(
-                    target: controller.initialcameraposition, zoom: 18),
+                  target: controller.initialcameraposition,
+                  tilt: 80.0,
+                  zoom: 21.0,
+                ),
+                // onCameraMove: (position) {
+                //   controller.onCameraMove(position);
+                // },
                 onMapCreated: (GoogleMapController controller) {
                   this.controller.onMapCreated(controller);
                 },

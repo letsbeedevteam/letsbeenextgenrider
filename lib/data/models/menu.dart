@@ -14,7 +14,7 @@ class Menu {
 
     int menuId;
     String name;
-    double price;
+    dynamic price; // needs to be changed to double
     int quantity;
     List<Choice> choices;
     List<Additional> additionals;
@@ -23,7 +23,7 @@ class Menu {
     factory Menu.fromJson(Map<String, dynamic> json) => Menu(
         menuId: json["menu_id"],
         name: json["name"],
-        price: json["price"].toDouble(),
+        price: json["price"],
         quantity: json["quantity"],
         choices: List<Choice>.from(json["choices"].map((x) => Choice.fromJson(x))),
         additionals: List<Additional>.from(json["additionals"].map((x) => Additional.fromJson(x))),

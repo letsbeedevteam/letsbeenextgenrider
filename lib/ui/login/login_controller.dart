@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:letsbeenextgenrider/data/app_repository.dart';
@@ -28,9 +30,17 @@ class LoginController extends GetxController {
         isLoading.value = false;
         Get.offNamed(Config.DASHBOARD_ROUTE);
       }).catchError((error) {
+        print('login error $error');
         isLoading.value = false;
-        showSnackbar("Try Again!",
-            "We didn't find your email and password in our records. Please double-check them and try again.");
+        String title = 'Try Again!';
+        String message =
+            "We didn't find your email and password in our records. Please double-check them and try again.";
+        if (error is SocketException) {
+          title = 'Login Failed!';
+          message = "You don't have an internet access.";
+        }
+        
+        showSnackbar(title, message);
       });
     }
   }

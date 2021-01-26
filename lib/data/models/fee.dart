@@ -7,18 +7,18 @@ class Fee {
         this.total,
     });
 
-    double subTotal;
+    dynamic subTotal;
     int delivery;
     dynamic discountCode;
     int discountPrice;
-    double total;
+    dynamic total;
 
     factory Fee.fromJson(Map<String, dynamic> json) => Fee(
-        subTotal: json["sub_total"] == null ? null : json["sub_total"].toDouble(),
+        subTotal: json["sub_total"] == null ? null : json["sub_total"],
         delivery: json["delivery"],
         discountCode: json["discount_code"],
         discountPrice: json["discount_price"],
-        total: json["total"] == null ? null : json["total"]?.toDouble(),
+        total: json["total"] == null ? null : json["total"],
     );
 
     Map<String, dynamic> toJson() => {

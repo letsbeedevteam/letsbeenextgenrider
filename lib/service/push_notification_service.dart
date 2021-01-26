@@ -7,28 +7,18 @@ import 'package:letsbeenextgenrider/data/models/order_data.dart';
 import 'package:letsbeenextgenrider/utils/config.dart';
 import 'package:letsbeenextgenrider/utils/utils.dart';
 
-class PushNotificationService extends GetxController {
+class PushNotificationService {
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   var initializationSettingsAndroid;
   var initializationSettingsIOS;
   var initializesationSettings;
 
-  @override
-  void onInit() async{
+  PushNotificationService() {
     if (Platform.isIOS) {
       _requestIOSPermission();
     }
-     _init();
-    super.onInit();
-  }
-
-  void initialize() async{
-    if (Platform.isIOS) {
-      _requestIOSPermission();
-    }
-     _init();
-    super.onInit();
+    _init();
   }
 
   void _requestIOSPermission() {
@@ -43,16 +33,16 @@ class PushNotificationService extends GetxController {
   }
 
   void _init() {
-    initializationSettingsAndroid = AndroidInitializationSettings('app_icon');
+    initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
     initializationSettingsIOS = IOSInitializationSettings();
     initializesationSettings = InitializationSettings(
         android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
     _flutterLocalNotificationsPlugin.initialize(initializesationSettings,
-        onSelectNotification: onSelectionNotification);
+        onSelectNotification: _onSelectionNotification);
   }
 
-  Future onSelectionNotification(String payload) async {
-    print('Notification payload: $payload');
+  Future _onSelectionNotification(String payload) async {
     if (payload != null) {
       if (isOrderData(payload)) {
         var orderData = orderDataFromJson(payload);

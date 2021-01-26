@@ -97,7 +97,7 @@ class ChatView extends GetView<ChatController> {
 }
 
 Widget _buildChatItem(MessageData messageData) {
-  return GetBuilder<ChatController>(
+  return GetX<ChatController>(
     builder: (_) {
       return _.riderId.value != messageData.userId
           ? Container(
@@ -188,12 +188,15 @@ Widget _buildChatItem(MessageData messageData) {
                         Padding(padding: EdgeInsets.symmetric(vertical: 5)),
                         Align(
                           alignment: Alignment.centerRight,
-                          child: Text(DateFormat('MMMM dd, yyyy h:mm a').format(
-                                  messageData.createdAt.toUtc().toLocal()),
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.normal,
-                                  fontStyle: FontStyle.italic)),
+                          child: messageData.isSent
+                              ? Text(
+                                  DateFormat('MMMM dd, yyyy h:mm a').format(
+                                      messageData.createdAt.toUtc().toLocal()),
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.normal,
+                                      fontStyle: FontStyle.italic))
+                              : Text('Sending...'),
                         )
                       ],
                     ),

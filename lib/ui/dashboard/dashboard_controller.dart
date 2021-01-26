@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:letsbeenextgenrider/data/app_repository.dart';
 import 'package:letsbeenextgenrider/data/models/order_data.dart';
@@ -7,41 +8,47 @@ import 'package:letsbeenextgenrider/data/models/response/get_active_order_respon
 import 'package:letsbeenextgenrider/data/models/response/get_new_order_response.dart';
 import 'package:letsbeenextgenrider/data/models/response/get_orders_response.dart';
 import 'package:letsbeenextgenrider/utils/config.dart';
-import 'package:letsbeenextgenrider/utils/utils.dart';
+import 'package:letsbeenextgenrider/utils/extensions.dart';
 
-class DashboardController extends GetxController{
-  static DashboardController get to => Get.find();
+class DashboardController extends GetxController {
+  static const CLASS_NAME = 'DashboardController';
+
   AppRepository _appRepository = Get.find();
 
-  var isLoading = true.obs;
-  var message = 'Loading...'.obs;
-  var orders = RxList<OrderData>().obs;
+  Timer _locationTimer;
 
-  Timer locationTimer;
+  RxBool isLoading = true.obs;
+  RxString message = 'Loading...'.obs;
+  Rx<RxList<OrderData>> orders = RxList<OrderData>().obs;
 
-  // View Functions
+  // GetxController Overrides
   @override
   void onInit() {
-    initSocket();
+    print('$CLASS_NAME, onInit');
+    _initSocket();
+    // refresh token is not working
+    // _appRepository.refreshAccessToken().then((_) {
+    //   _initSocket();
+    // });
     super.onInit();
   }
 
   @override
-  void onClose() {
-    _disconnectSocket();
-    locationTimer?.cancel();
+  void onClose() async {
+    print('$CLASS_NAME, onClose');
+    await _appRepository.disconnectSocket();
+    await _canceLocationTimer();
     super.onClose();
   }
 
   // Private Functions
-  void initSocket() {
-    // pushNotificationService.initialize();
+  void _initSocket() {
+    print('$CLASS_NAME, _initSocket');
     _appRepository.connectSocket(
         onConnected: (_) {
           isLoading.value = false;
-          message.value = 'Connected';
 
-          fetchAllOrders();
+          _fetchAllOrders();
         },
         onConnecting: (_) {
           isLoading.value = true;
@@ -50,6 +57,7 @@ class DashboardController extends GetxController{
         onReconnecting: (_) {
           isLoading.value = true;
           message.value = 'Reconnecting';
+          _appRepository.refreshAccessToken();
         },
         onDisconnected: (_) {},
         onError: (_) {
@@ -59,60 +67,60 @@ class DashboardController extends GetxController{
   }
 
   void _receiveNewOrders() {
+    print('$CLASS_NAME, _receiveNewOrders');
     _appRepository.receiveNewOrder((response) async {
-      ///identify if the [response] was an update of an existing order or a completely new order
-      ///if the received order is new, show notification and add the order to [orders] list
-      ///else if the received order is an update, modify the order in the [orders] list
-
-      if (isNewOrder(response)) {
-        final orderResponse = OrderData.fromJson(response);
+      final orderUpdateResponse = GetNewOrderResponse.fromJson(response);
+      if (orderUpdateResponse.isNewOrder()) {
         if (orders.value.isNotEmpty) {
+          //checks if the new order is already existing on the list
+          //before adding it
           var newOrder = orders.value.firstWhere(
-              (order) => order.id == orderResponse.id,
+              (order) => order.id == orderUpdateResponse.data.id,
               orElse: () => null);
-          if (newOrder == null) {
-            orders.value.add(orderResponse);
+          if (newOrder != null) {
+            return;
           }
-        } else {
-          orders.value.add(orderResponse);
         }
+        orders.value.add(orderUpdateResponse.data);
         await _appRepository.showNotification(
-            title: 'Hi!',
-            body:
-                "Order No. ${orderResponse.id} is now available for delivery");
-      } else if (isUpdatedOrder(response)) {
-        final orderUpdate = GetNewOrderResponse.fromJson(response);
-        orders.value.map((order) => {
-              if (order.id == orderUpdate.data.id) {order = orderUpdate.data}
-            });
-        orders.value.refresh();
+          title: 'Hi!',
+          body:
+              "Order No. ${orderUpdateResponse.data.id} is now available for delivery",
+          payload: "N/A",
+        );
       } else {
-        print(
-            "Error cannot be converted to neither Order nor NewOrderResponse");
+        //executed when the received order was an update of an existing order
+        //if the received order status update from server is rider-accepted
+        //and the received order id matches an order from the list
+        //this order would be removed from the list
+        var oldOrder = orders.value.firstWhere(
+            (order) =>
+                orderUpdateResponse.data.status == "rider-accepted" &&
+                order.id == orderUpdateResponse.data.id,
+            orElse: () => null);
+        if (oldOrder != null) {
+          orders.value.remove(oldOrder);
+        }
       }
     });
   }
 
   void _sendMyLocation() {
-    locationTimer = Timer.periodic(Duration(seconds: 30), (_) {
+    print('$CLASS_NAME, _sendMyLocation');
+    _locationTimer = Timer.periodic(Duration(seconds: 30), (_) {
       _appRepository.sendMyLocation();
     });
   }
 
-  Future _disconnectSocket() {
-    _appRepository.disconnectSocket();
-    return Future.value(_appRepository.isSocketConnected());
-  }
-
-  // Public Functions
-  void fetchAllOrders() {
+  void _fetchAllOrders() {
+    print('$CLASS_NAME, _fetchAllOrders');
     _appRepository.fetchAllOrders((response) {
       print(response.toString());
+      Clipboard.setData(ClipboardData(text: response.toString()));
       try {
         final activeOrderResponse = GetActiveOrderResponse.fromJson(response);
         if (activeOrderResponse.status == 200 && activeOrderResponse != null) {
-          Get.toNamed(Config.ORDER_DETAIL_ROUTE,
-              arguments: activeOrderResponse.data.toJson());
+          _goToOrderDetail(arguments: activeOrderResponse.data.toJson());
         } else {
           message.value = "Failed to fetch active order";
           print("Failed to fetch active order");
@@ -138,39 +146,60 @@ class DashboardController extends GetxController{
     }, (error) => {print(error)});
   }
 
+  Future<bool> _canceLocationTimer() {
+    print('$CLASS_NAME, _canceLocationTimer');
+    _locationTimer?.cancel();
+    return Future<bool>.value(_locationTimer?.isActive);
+  }
+
+  void _goToOrderDetail({dynamic arguments}) {
+    print('$CLASS_NAME, _goToOrderDetail');
+    Get.toNamed(Config.ORDER_DETAIL_ROUTE, arguments: arguments).then((_) {
+      _initSocket();
+    });
+  }
+
+  // Public Functions
   void updateOrderStatus(
     String room,
     BaseOrderChangeStatusRequest request,
     OrderData order,
-  ) async {
-    var isTimerActive = await canceLocationTimer();
+  ) {
+    isLoading.value = true;
+    print('$CLASS_NAME, updateOrderStatus');
+    _appRepository.updateOrderStatus(room, request, (response) async {
+      isLoading.value = false;
+      bool isTimerActive = await _canceLocationTimer();
+      if (!isTimerActive) {
+        _appRepository.disconnectSocket().then((isDisconnected) {
+          if (isDisconnected) {
+            _goToOrderDetail(arguments: response.data.toJson());
+          }
+        });
+      }
+    }, (error) {
+      print(error);
+    });
+  }
 
-    if (!isTimerActive) {
-      _appRepository.updateOrderStatus(room, request, (response) async {
-        var isSocketConnected = await _disconnectSocket();
-        if (!isSocketConnected) {
-          Get.toNamed(Config.ORDER_DETAIL_ROUTE,
-              arguments: response.data.toJson());
-        }
-      }, (error) {
-        _sendMyLocation();
-        print(error);
-      });
+  Future<void> onRefresh() async {
+    print('$CLASS_NAME, onRefresh');
+    bool isTimerActive = await _canceLocationTimer();
+    bool isSocketDisconnected = await _appRepository.disconnectSocket();
+
+    if (!isTimerActive && isSocketDisconnected) {
+      _initSocket();
     }
   }
 
-  Future canceLocationTimer() {
-    locationTimer.cancel();
-    return Future<bool>.value(locationTimer.isActive);
-  }
-
   void logOut() {
-    _appRepository.logOut();
-    Get.offAllNamed(Config.LOGIN_ROUTE);
-  }
-
-  @override
-  void onSelectNotification(String payload) {
-    // TODO: implement onSelectNotification
+    print('$CLASS_NAME, logOut');
+    _appRepository.logOut(
+        onSuccess: () {
+          Get.offAllNamed(Config.LOGIN_ROUTE);
+        },
+        onError: (_) => () {
+              print('logout error');
+            });
   }
 }

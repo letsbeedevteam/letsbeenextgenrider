@@ -11,6 +11,12 @@ class GoogleMapsServices {
         "https://maps.googleapis.com/maps/api/directions/json?origin=${source.latitude},${source.longitude}&destination=${destination.latitude},${destination.longitude}&key=$apiKey";
     http.Response response = await http.get(url);
     Map values = jsonDecode(response.body);
-    return values["routes"][0]["overview_polyline"]["points"];
+    print(values);
+    String points = '';
+
+    if ((values["routes"] as List).isNotEmpty) {
+      points = values["routes"][0]["overview_polyline"]["points"];
+    }
+    return points;
   }
 }

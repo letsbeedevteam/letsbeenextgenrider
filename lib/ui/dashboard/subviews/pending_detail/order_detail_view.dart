@@ -7,6 +7,7 @@ import 'package:letsbeenextgenrider/data/models/menu.dart';
 import 'package:letsbeenextgenrider/data/models/pick.dart';
 import 'package:letsbeenextgenrider/ui/dashboard/subviews/pending_detail/order_detail_controller.dart';
 import 'package:letsbeenextgenrider/utils/config.dart';
+import 'package:letsbeenextgenrider/utils/extensions.dart';
 import 'package:letsbeenextgenrider/utils/utils.dart';
 
 class OrderDetailView extends GetView<OrderDetailController> {
@@ -38,7 +39,8 @@ class OrderDetailView extends GetView<OrderDetailController> {
                     icon: ImageIcon(
                         AssetImage(Config.PNG_PATH + 'chat_button.png'),
                         size: 20),
-                    onPressed: () => controller.goToChatPage(),
+                    onPressed: () => Get.toNamed(Config.CHAT_ROUTE,
+                        arguments: controller.order.value.toJson()),
                     splashColor: Colors.black.withOpacity(0.3)),
               )
             ],
@@ -57,9 +59,10 @@ class OrderDetailView extends GetView<OrderDetailController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
+                          width: double.infinity,
                           padding: EdgeInsets.all(15),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
                                   "${controller.order.value.restaurant.name} - ${controller.order.value.restaurant.locationName}",
@@ -69,17 +72,19 @@ class OrderDetailView extends GetView<OrderDetailController> {
                                       fontSize: 15)),
                               Padding(
                                   padding: EdgeInsets.symmetric(vertical: 15)),
-                              Text('Items',
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15)),
                             ],
                           ),
                         ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: Text('Items',
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15)),
+                        ),
                         Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                          padding: EdgeInsets.symmetric(horizontal: 30),
                           child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: controller.order.value.menus
@@ -87,8 +92,7 @@ class OrderDetailView extends GetView<OrderDetailController> {
                                   .toList()),
                         ),
                         Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                          padding: EdgeInsets.symmetric(horizontal: 30),
                           child: Column(
                             children: [
                               Row(
@@ -172,8 +176,7 @@ class OrderDetailView extends GetView<OrderDetailController> {
                               thickness: 2, color: Colors.grey.shade200),
                         ),
                         Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                          padding: EdgeInsets.symmetric(horizontal: 30),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -206,11 +209,17 @@ class OrderDetailView extends GetView<OrderDetailController> {
                                     Padding(
                                         padding:
                                             EdgeInsets.symmetric(vertical: 2)),
-                                    Text('Contact Number: +23542345345345',
-                                        style: TextStyle(
-                                            color: Colors.black,
-                                            fontStyle: FontStyle.italic,
-                                            fontSize: 14))
+                                    GestureDetector(
+                                      onTap: () {
+                                        controller.makePhoneCall();
+                                      },
+                                      child: Text(
+                                          'Contact Number: ${controller.order.value.user.cellphoneNumber}',
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontStyle: FontStyle.italic,
+                                              fontSize: 14)),
+                                    )
                                   ],
                                 ),
                               )
@@ -223,8 +232,7 @@ class OrderDetailView extends GetView<OrderDetailController> {
                               thickness: 2, color: Colors.grey.shade200),
                         ),
                         Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                          padding: EdgeInsets.symmetric(horizontal: 30),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -233,7 +241,8 @@ class OrderDetailView extends GetView<OrderDetailController> {
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 15)),
-                              Text('${controller.order.value.payment.method}',
+                              Text(
+                                  '${controller.order.value.payment.method.asReadablePaymentMethod()}',
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
@@ -247,8 +256,7 @@ class OrderDetailView extends GetView<OrderDetailController> {
                               thickness: 2, color: Colors.grey.shade200),
                         ),
                         Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                          padding: EdgeInsets.symmetric(horizontal: 30),
                           child: Row(
                             children: [
                               Text('Status: ',
@@ -258,9 +266,11 @@ class OrderDetailView extends GetView<OrderDetailController> {
                                       fontSize: 14)),
                               GetX<OrderDetailController>(
                                 builder: (_) {
-                                  return Text('${_.order.value.status}',
+                                  return Text(
+                                      '${_.order.value.status.asReadableOrderStatus()}',
                                       style: TextStyle(
-                                          color: Colors.green,
+                                          color: _.order.value.status
+                                              .getOrderStatusColor(),
                                           fontStyle: FontStyle.italic,
                                           fontSize: 14));
                                 },
@@ -275,31 +285,32 @@ class OrderDetailView extends GetView<OrderDetailController> {
               ),
               Container(
                   padding: EdgeInsets.all(5),
-                  decoration: BoxDecoration(color: Colors.white, boxShadow: [
-                    BoxShadow(
-                        color: Colors.black,
-                        blurRadius: 10.0,
-                        offset: Offset(3.0, 3.0))
-                  ]),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      RaisedButton(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                          color: Color(Config.LETSBEE_COLOR).withOpacity(1.0),
-                          child: Padding(
-                              padding: EdgeInsets.all(10),
-                              child: GetX<OrderDetailController>(
-                                builder: (_) {
-                                  return _textStatus();
-                                },
-                              )),
-                          onPressed: () => {
-                                controller.order.value.status != "delivered"
-                                    ? _showUpdateOrderStatusDialog()
-                                    : controller.goToDashboard()
-                              }),
+                      GetX<OrderDetailController>(builder: (_) {
+                        return FlatButton(
+                            disabledColor: Colors.grey,
+                            disabledTextColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                                side: BorderSide(),
+                                borderRadius: BorderRadius.circular(10)),
+                            color: Color(Config.LETSBEE_COLOR).withOpacity(1.0),
+                            child: Padding(
+                                padding: EdgeInsets.all(10),
+                                child: _textStatus()),
+                            onPressed: _.isLoading.value
+                                ? null
+                                : () => {
+                                      controller.order.value.status !=
+                                              "delivered"
+                                          ? _showUpdateOrderStatusDialog()
+                                          : controller.goBackToDashboard()
+                                    });
+                      }),
                     ],
                   ))
             ],

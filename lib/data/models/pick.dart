@@ -7,12 +7,12 @@ class Pick {
 
     int id;
     String name;
-    double price;
+    dynamic price;
 
     factory Pick.fromJson(Map<String, dynamic> json) => Pick(
         id: json["id"],
         name: json["name"],
-        price: json["price"].toDouble(),
+        price: json["price"],
     );
 
     Map<String, dynamic> toJson() => {
