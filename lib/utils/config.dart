@@ -26,8 +26,8 @@ class Config {
   static const LETSBEE_COLOR = 0xFBD10B;
 
   //Network
-  static const BASE_URL =
-      'https://serene-caverns-10194.herokuapp.com'; // cloud
+  static const BASE_URL = 'https://quiet-meadow-89567.herokuapp.com'; // cloud
+
   // static const BASE_URL = 'http://192.168.100.14:8000'; // local
   // static const BASE_URL = 'http://192.168.0.17:8000'; // demo
   static const SIGN_IN = '/auth/rider/signin';
