@@ -21,28 +21,31 @@ class OrderDetailView extends GetView<OrderDetailController> {
             elevation: 0,
             backgroundColor: Color(Config.LETSBEE_COLOR).withOpacity(1.0),
             actions: [
-              IconButton(
-                  icon: ImageIcon(
-                      AssetImage(Config.PNG_PATH + 'location_button.png'),
-                      size: 20),
-                  onPressed: () => Get.toNamed(Config.LOCATION_ROUTE,
-                      arguments: controller.order.value.toJson()),
-                  splashColor: Colors.black.withOpacity(0.3)),
-              Badge(
-                showBadge: false,
-                position: BadgePosition.topEnd(top: 5, end: 5),
-                badgeContent: Text(
-                  '1',
-                  style: TextStyle(color: Colors.white),
-                ),
-                child: IconButton(
-                    icon: ImageIcon(
-                        AssetImage(Config.PNG_PATH + 'chat_button.png'),
-                        size: 20),
-                    onPressed: () => Get.toNamed(Config.CHAT_ROUTE,
-                        arguments: controller.order.value.toJson()),
-                    splashColor: Colors.black.withOpacity(0.3)),
-              )
+              Obx(() => controller.order.value.status == 'delivered'
+                  ? Container()
+                  : IconButton(
+                      icon: ImageIcon(
+                          AssetImage(Config.PNG_PATH + 'location_button.png'),
+                          size: 20),
+                      onPressed: () => controller.showMap(),
+                      splashColor: Colors.black.withOpacity(0.3))),
+              Obx(() => controller.order.value.status == 'delivered'
+                  ? Container()
+                  : Badge(
+                      showBadge: false,
+                      position: BadgePosition.topEnd(top: 5, end: 5),
+                      badgeContent: Text(
+                        '1',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      child: IconButton(
+                          icon: ImageIcon(
+                              AssetImage(Config.PNG_PATH + 'chat_button.png'),
+                              size: 20),
+                          onPressed: () => Get.toNamed(Config.CHAT_ROUTE,
+                              arguments: controller.order.value.toJson()),
+                          splashColor: Colors.black.withOpacity(0.3)),
+                    ))
             ],
             title: Text('"ORDER NO. ${controller.order.value.id}"',
                 style: TextStyle(
