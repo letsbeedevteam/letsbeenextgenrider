@@ -12,7 +12,7 @@
         {
             "name": "Run Dev Iphone 8",
             "flutterMode": "debug",
-            "deviceId": "D70350E4-824D-4421-98D0-5815B17290CE",
+            "deviceId": "DFB00663-8ECD-4D01-B42D-4B6172DC01D1",
             "type": "dart",
             "request": "launch"
         },
@@ -27,6 +27,13 @@
             "name": "Android Emulator",
             "flutterMode": "debug",
             "deviceId": "emulator-5554",
+            "type": "dart",
+            "request": "launch"
+        },
+        {
+            "name": "Android SmartMini",
+            "flutterMode": "debug",
+            "deviceId": "MINI20042400023",
             "type": "dart",
             "request": "launch"
         }

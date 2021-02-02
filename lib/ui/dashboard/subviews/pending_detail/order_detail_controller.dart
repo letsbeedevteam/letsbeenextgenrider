@@ -1,12 +1,13 @@
 import 'dart:async';
 
-import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:get/get.dart';
 import 'package:letsbeenextgenrider/data/app_repository.dart';
 import 'package:letsbeenextgenrider/data/models/order_data.dart';
 import 'package:letsbeenextgenrider/data/models/request/base/base_order_change_status_request.dart';
 import 'package:letsbeenextgenrider/data/models/request/deliver_order_request.dart';
 import 'package:letsbeenextgenrider/data/models/request/pick_up_order_request.dart';
+import 'package:location/location.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class OrderDetailController extends GetxController {
   static const CLASS_NAME = 'OrderDetailController';
@@ -147,7 +148,38 @@ class OrderDetailController extends GetxController {
   }
 
   Future<void> makePhoneCall() async {
-    String number = '${order.value.user.cellphoneNumber}';
-    await FlutterPhoneDirectCaller.callNumber(number);
+    var uri = 'tel:${order.value.user.cellphoneNumber}';
+    if (await canLaunch(uri)) {
+      await launch(uri);
+    } else {
+      throw 'Could not launch';
+    }
+  }
+
+  void showMap() async {
+    var dLat;
+    var dLong;
+    if (order.value.status == 'rider-accepted') {
+      dLat = order.value.restaurant.latitude;
+      dLong = order.value.restaurant.longitude;
+    } else if (order.value.status == 'rider-picked-up') {
+      dLat = order.value.address.location.lat;
+      dLong = order.value.address.location.lng;
+    } else {
+      return;
+    }
+
+    LocationData currentLocation = await _appRepository.getCurrentPosition();
+
+    var androidGoogleMapUri = 'google.navigation:q=$dLat,$dLong&mode=l';
+    var defaultMapUri =
+        'http://maps.google.com/maps?saddr=${currentLocation.latitude},${currentLocation.longitude}&daddr=$dLat,$dLong';
+    if (await canLaunch(androidGoogleMapUri)) {
+      await launch(androidGoogleMapUri);
+    } else if (await canLaunch(defaultMapUri)) {
+      await launch(defaultMapUri);
+    } else {
+      throw 'Could not launch';
+    }
   }
 }

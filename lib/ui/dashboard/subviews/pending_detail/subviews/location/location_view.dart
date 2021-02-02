@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:letsbeenextgenrider/ui/dashboard/subviews/pending_detail/subviews/location/location_controller.dart';
 import 'package:letsbeenextgenrider/utils/config.dart';
+import 'package:letsbeenextgenrider/utils/extensions.dart';
 
 class LocationView extends GetView<LocationController> {
   @override
@@ -187,7 +188,7 @@ class LocationView extends GetView<LocationController> {
               ),
               Flexible(
                   child: Text(
-                "${controller.order.payment.method}",
+                "${controller.order.payment.method.asReadablePaymentMethod()}",
                 style: TextStyle(fontStyle: FontStyle.italic),
               ))
             ],
