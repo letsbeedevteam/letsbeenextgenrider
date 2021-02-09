@@ -2,20 +2,32 @@ import 'package:letsbeenextgenrider/data/models/pick.dart';
 
 class Additional {
   Additional({
+    this.id,
     this.name,
-    this.picks,
+    this.price,
+    this.customerPrice,
+    this.sellerPrice,
   });
 
+  int id;
   String name;
-  List<Pick> picks;
+  dynamic price;
+  dynamic customerPrice;
+  dynamic sellerPrice;
 
   factory Additional.fromJson(Map<String, dynamic> json) => Additional(
+        id: json["id"],
         name: json["name"],
-        picks: List<Pick>.from(json["picks"].map((x) => Pick.fromJson(x))),
+        price: json["price"],
+        customerPrice: json["customer_price"],
+        sellerPrice: json["seller_price"],
       );
 
   Map<String, dynamic> toJson() => {
+        "id": id,
         "name": name,
-        "picks": List<dynamic>.from(picks.map((x) => x.toJson())),
+        "price": price,
+        "customer_price": customerPrice,
+        "seller_price": sellerPrice,
       };
 }

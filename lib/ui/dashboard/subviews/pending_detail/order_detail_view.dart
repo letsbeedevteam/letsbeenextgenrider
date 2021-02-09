@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:letsbeenextgenrider/data/models/additional.dart';
 import 'package:letsbeenextgenrider/data/models/choice.dart';
-import 'package:letsbeenextgenrider/data/models/menu.dart';
-import 'package:letsbeenextgenrider/data/models/pick.dart';
+import 'package:letsbeenextgenrider/data/models/product.dart';
 import 'package:letsbeenextgenrider/ui/dashboard/subviews/pending_detail/order_detail_controller.dart';
 import 'package:letsbeenextgenrider/utils/config.dart';
 import 'package:letsbeenextgenrider/utils/extensions.dart';
@@ -68,7 +67,7 @@ class OrderDetailView extends GetView<OrderDetailController> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
-                                  "${controller.order.value.restaurant.name} - ${controller.order.value.restaurant.locationName}",
+                                  "${controller.order.value.store.name} - ${controller.order.value.store.locationName}",
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
@@ -90,7 +89,7 @@ class OrderDetailView extends GetView<OrderDetailController> {
                           padding: EdgeInsets.symmetric(horizontal: 30),
                           child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: controller.order.value.menus
+                              children: controller.order.value.products
                                   .map((e) => _buildMenuItem(e))
                                   .toList()),
                         ),
@@ -357,7 +356,7 @@ class OrderDetailView extends GetView<OrderDetailController> {
             color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15));
   }
 
-  Widget _buildMenuItem(Menu menu) {
+  Widget _buildMenuItem(Product product) {
     return Container(
       margin: EdgeInsets.only(bottom: 20),
       child: Column(
@@ -368,14 +367,14 @@ class OrderDetailView extends GetView<OrderDetailController> {
             children: [
               Expanded(
                 child: Container(
-                  child: Text('${menu.quantity}x ${menu.name}',
+                  child: Text('${product.quantity}x ${product.name}',
                       style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
                           fontSize: 16)),
                 ),
               ),
-              Text('₱ ${menu.price}',
+              Text('₱ ${product.price}',
                   style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
@@ -384,14 +383,14 @@ class OrderDetailView extends GetView<OrderDetailController> {
           ),
           Container(
             margin: EdgeInsets.only(left: 20),
-            child: _buildAdditionalColumn(menu.additionals),
+            child: _buildAdditionalColumn(product.additionals),
           ),
           Container(
             margin: EdgeInsets.only(left: 20),
-            child: _buildChoiceColumn(menu.choices),
+            child: _buildChoiceColumn(product.choices),
           ),
           Padding(padding: EdgeInsets.only(top: 10)),
-          menu.note == null
+          product.note == null
               ? Container()
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -408,7 +407,7 @@ class OrderDetailView extends GetView<OrderDetailController> {
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all()),
-                        child: Text('${menu.note}',
+                        child: Text('${product.note}',
                             style: TextStyle(
                                 fontStyle: FontStyle.italic, fontSize: 15))),
                   ],
@@ -432,42 +431,42 @@ class OrderDetailView extends GetView<OrderDetailController> {
     );
   }
 
-  Widget _buildAdditional(Additional additional) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        additional.picks.isEmpty
-            ? Container()
-            : Text(additional.name,
-                style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14)),
-        Padding(padding: EdgeInsets.symmetric(horizontal: 10)),
-        Expanded(
-            child: Column(
-          children: additional.picks.map((e) => _buildAddsOn(e)).toList(),
-        ))
-      ],
-    );
-  }
+  // Widget _buildAdditional(Additional additional) {
+  //   return Row(
+  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       additional.picks.isEmpty
+  //           ? Container()
+  //           : Text(additional.name,
+  //               style: TextStyle(
+  //                   color: Colors.black,
+  //                   fontWeight: FontWeight.bold,
+  //                   fontSize: 14)),
+  //       Padding(padding: EdgeInsets.symmetric(horizontal: 10)),
+  //       Expanded(
+  //           child: Column(
+  //         children: additional.picks.map((e) => _buildAddsOn(e)).toList(),
+  //       ))
+  //     ],
+  //   );
+  // }
 
-  Widget _buildAddsOn(Pick pick) {
+  Widget _buildAdditional(Additional additional) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           child: Container(
-            child: Text(pick.name,
+            child: Text(additional.name,
                 style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
                     fontSize: 14)),
           ),
         ),
-        Text('+₱ ${pick.price}',
+        Text('+₱ ${additional.price}',
             style: TextStyle(
                 color: Colors.black, fontWeight: FontWeight.bold, fontSize: 14))
       ],
