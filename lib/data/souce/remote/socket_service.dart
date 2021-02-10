@@ -7,8 +7,9 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class SocketService {
   // Events
-  static const FETCH_ALL_ORDERS = 'orders';
+  static const RECEIVE_NEARBY_ORDERS = 'orders';
   static const RECEIVE_NEW_ORDER = 'order';
+  static const GET_CURRENT_ACTIVE_ORDER = 'current-order';
   static const UPDATE_ORDER_STATUS_TO_RIDER_ACCEPTED = '';
   static const UPDATE_ORDER_STATUS_TO_RIDER_PICK_UP = '';
   static const UPDATE_ORDER_STATUS_TO_DELIVERED = '';

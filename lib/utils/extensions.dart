@@ -5,7 +5,7 @@ import 'package:letsbeenextgenrider/data/models/response/get_orders_response.dar
 
 extension receiveOrder on GetNewOrderResponse {
   bool isNewOrder() {
-    return this.data.status == 'restaurant-accepted';
+    return this.data.status == 'store-accepted';
   }
 }
 
@@ -20,7 +20,7 @@ extension fetchOrdersResponseChecker on dynamic {
   }
 
   bool isOrdersListResponse() {
-     try {
+    try {
       GetOrdersResponse.fromJson(this);
       return true;
     } catch (e) {
