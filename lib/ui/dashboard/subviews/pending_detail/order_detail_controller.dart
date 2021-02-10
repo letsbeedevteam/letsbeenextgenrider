@@ -160,8 +160,8 @@ class OrderDetailController extends GetxController {
     var dLat;
     var dLong;
     if (order.value.status == 'rider-accepted') {
-      dLat = order.value.restaurant.latitude;
-      dLong = order.value.restaurant.longitude;
+      dLat = order.value.store.latitude;
+      dLong = order.value.store.longitude;
     } else if (order.value.status == 'rider-picked-up') {
       dLat = order.value.address.location.lat;
       dLong = order.value.address.location.lng;

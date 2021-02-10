@@ -1,5 +1,5 @@
-class Restaurant {
-  Restaurant({
+class Store {
+  Store({
     // this.location,
     this.name,
     this.longitude,
@@ -13,7 +13,7 @@ class Restaurant {
   String longitude;
   String latitude;
 
-  factory Restaurant.fromJson(Map<String, dynamic> json) => Restaurant(
+  factory Store.fromJson(Map<String, dynamic> json) => Store(
         // location: Location.fromJson(json["location"]),
         name: json["name"],
         locationName: json["location_name"],

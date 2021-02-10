@@ -88,9 +88,17 @@ class DashboardView extends GetView<DashboardController> {
                     style: TextStyle(fontStyle: FontStyle.italic)),
                 Text('Total Amount: ₱${order.fee.total}',
                     style: TextStyle(fontStyle: FontStyle.italic)),
-                Text(
-                    'Estimated cooking time: ${order.timeframe.restaurantEstimatedTime}',
-                    style: TextStyle(fontStyle: FontStyle.italic))
+                if (order.timeframe == null)
+                  Container()
+                else
+                  order.timeframe.restaurantEstimatedTime == null
+                      ? Container()
+                      : Text(
+                          'Estimated cooking time: ${order.timeframe.restaurantEstimatedTime}',
+                          style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
               ],
             ),
           ),

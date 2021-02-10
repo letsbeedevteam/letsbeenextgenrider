@@ -16,8 +16,8 @@ class Timeframe {
     dynamic deliveredTime;
 
     factory Timeframe.fromJson(Map<String, dynamic> json) => Timeframe(
-        restaurantPickTime: json["restaurant_pick_time"],
-        restaurantEstimatedTime: json["restaurant_estimated_time"],
+        restaurantPickTime: json["store_pick_time"],
+        restaurantEstimatedTime: json["store_estimated_time"],
         riderPickTime: json["rider_pick_time"],
         riderPickUpTime: json["rider_pick_up_time"],
         riderEstimatedTime: json["rider_estimated_time"],
@@ -25,8 +25,8 @@ class Timeframe {
     );
 
     Map<String, dynamic> toJson() => {
-        "restaurant_pick_time": restaurantPickTime,
-        "restaurant_estimated_time": restaurantEstimatedTime,
+        "store_pick_time": restaurantPickTime,
+        "store_estimated_time": restaurantEstimatedTime,
         "rider_pick_time": riderPickTime,
         "rider_pick_up_time": riderPickUpTime,
         "rider_estimated_time": riderEstimatedTime,

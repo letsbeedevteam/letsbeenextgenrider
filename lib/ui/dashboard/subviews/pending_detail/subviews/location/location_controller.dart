@@ -41,8 +41,8 @@ class LocationController extends GetxController
     animation = CurvedAnimation(parent: controller, curve: Curves.easeInBack);
 
     _restaurantCoordinates = LatLng(
-      double.parse(order.restaurant.latitude),
-      double.parse(order.restaurant.longitude),
+      double.parse(order.store.latitude),
+      double.parse(order.store.longitude),
     );
 
     _customerCoordinates = LatLng(
