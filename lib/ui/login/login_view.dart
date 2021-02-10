@@ -8,18 +8,23 @@ class LoginView extends GetView<LoginController> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        alignment: Alignment.topCenter,
+        alignment: Alignment.center,
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                alignment: Alignment.center,
-                child: SizedBox(
-                  height: 240,
-                  width: 240,
-                  child: Image.asset(Config.PNG_PATH + 'letsbee_logo.png'),
+              Obx(
+                () => Container(
+                  alignment: Alignment.center,
+                  child: controller.isKeyboardActive.value
+                      ? Container()
+                      : SizedBox(
+                          height: 240,
+                          width: 240,
+                          child:
+                              Image.asset(Config.PNG_PATH + 'letsbee_logo.png'),
+                        ),
                 ),
               ),
               Container(
@@ -42,6 +47,7 @@ class LoginView extends GetView<LoginController> {
                                 ignoring: _.isLoading.value,
                                 child: TextFormField(
                                   controller: controller.emailTF,
+                                  focusNode: controller.emailTFFocusNode,
                                   decoration: InputDecoration(
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
@@ -73,6 +79,7 @@ class LoginView extends GetView<LoginController> {
                                 ignoring: _.isLoading.value,
                                 child: TextFormField(
                                   controller: controller.passwordTF,
+                                  focusNode: controller.passwordTFFocusNode,
                                   decoration: InputDecoration(
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
