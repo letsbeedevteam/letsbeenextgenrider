@@ -133,7 +133,7 @@ class OrderDetailController extends GetxController {
 
   void goBackToDashboard() async {
     print('$CLASS_NAME, goBackToDashboard');
-    _appRepository.disconnectSocket().then((isDisconnected) {
+    await _appRepository.disconnectSocket().then((isDisconnected) {
       if (isDisconnected) {
         Get.back();
       }

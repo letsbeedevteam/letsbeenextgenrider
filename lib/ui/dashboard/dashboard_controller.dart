@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:letsbeenextgenrider/data/app_repository.dart';
 import 'package:letsbeenextgenrider/data/models/order_data.dart';
@@ -36,7 +35,6 @@ class DashboardController extends GetxController {
   @override
   void onClose() async {
     print('$CLASS_NAME, onClose');
-    await _appRepository.disconnectSocket();
     await _canceLocationTimer();
     super.onClose();
   }
@@ -70,7 +68,7 @@ class DashboardController extends GetxController {
     print('$CLASS_NAME, _receiveNewOrders');
     _appRepository.receiveNewOrder((response) async {
       print('response = $response');
-      Clipboard.setData(ClipboardData(text: response.toString()));
+      // Clipboard.setData(ClipboardData(text: response.toString()));
       final orderUpdateResponse = GetNewOrderResponse.fromJson(response);
       if (orderUpdateResponse.isNewOrder()) {
         if (orders.value.isNotEmpty) {
@@ -196,27 +194,31 @@ class DashboardController extends GetxController {
     print('$CLASS_NAME, updateOrderStatus');
     _appRepository.updateOrderStatus(room, request, (response) async {
       isLoading.value = false;
-      bool isTimerActive = await _canceLocationTimer();
-      if (!isTimerActive) {
-        _appRepository.disconnectSocket().then((isDisconnected) {
-          if (isDisconnected) {
-            _goToOrderDetail(arguments: response.data.toJson());
-          }
-        });
+      if (response.data != null) {
+        bool isTimerActive = await _canceLocationTimer();
+        if (!isTimerActive) {
+          await _appRepository.disconnectSocket().then((isDisconnected) {
+            if (isDisconnected) {
+              _goToOrderDetail(arguments: response.data.toJson());
+            }
+          });
+        }
       }
     }, (error) {
+      isLoading.value = false;
       print(error);
     });
   }
 
   Future<void> onRefresh() async {
     print('$CLASS_NAME, onRefresh');
-    bool isTimerActive = await _canceLocationTimer();
-    bool isSocketDisconnected = await _appRepository.disconnectSocket();
+    _appRepository.sendMyLocation();
+    // bool isTimerActive = await _canceLocationTimer();
+    // bool isSocketDisconnected = await _appRepository.disconnectSocket();
 
-    if (!isTimerActive && isSocketDisconnected) {
-      _initSocket();
-    }
+    // if (!isTimerActive && isSocketDisconnected) {
+    //   _initSocket();
+    // }
   }
 
   void logOut() {
