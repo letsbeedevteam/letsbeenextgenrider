@@ -48,7 +48,7 @@ class DashboardController extends GetxController {
         onConnected: (_) {
           isLoading.value = false;
 
-          _fetchAllOrders();
+          _getCurrentActiveOrder();
         },
         onConnecting: (_) {
           isLoading.value = true;
@@ -69,6 +69,8 @@ class DashboardController extends GetxController {
   void _receiveNewOrders() {
     print('$CLASS_NAME, _receiveNewOrders');
     _appRepository.receiveNewOrder((response) async {
+      print('response = $response');
+      Clipboard.setData(ClipboardData(text: response.toString()));
       final orderUpdateResponse = GetNewOrderResponse.fromJson(response);
       if (orderUpdateResponse.isNewOrder()) {
         if (orders.value.isNotEmpty) {
@@ -106,29 +108,18 @@ class DashboardController extends GetxController {
   }
 
   void _sendMyLocation() {
+    _appRepository.sendMyLocation();
     print('$CLASS_NAME, _sendMyLocation');
     _locationTimer = Timer.periodic(Duration(seconds: 30), (_) {
       _appRepository.sendMyLocation();
     });
   }
 
-  void _fetchAllOrders() {
-    print('$CLASS_NAME, _fetchAllOrders');
-    _appRepository.fetchAllOrders((response) {
-      print(response.toString());
-      Clipboard.setData(ClipboardData(text: response.toString()));
+  void _receiveNearbyOrders() {
+    print('$CLASS_NAME, _receiveNearbyOrders');
+    _appRepository.receiveNearbyOrders((response) {
+      print('orderss ${response.toString()}');
       try {
-        final activeOrderResponse = GetActiveOrderResponse.fromJson(response);
-        if (activeOrderResponse.status == 200 && activeOrderResponse != null) {
-          _goToOrderDetail(arguments: activeOrderResponse.data.toJson());
-        } else {
-          message.value = "Failed to fetch active order";
-          print("Failed to fetch active order");
-        }
-      } catch (e) {
-        print(e);
-        _receiveNewOrders();
-        _sendMyLocation();
         final ordersResponse = GetOrdersResponse.fromJson(response);
         if (ordersResponse.status == 200) {
           orders.value.clear();
@@ -142,14 +133,50 @@ class DashboardController extends GetxController {
           message.value = "Failed to fetch orders";
           print("Failed to fetch orders");
         }
+      } catch (e) {
+        print(e);
       }
     }, (error) => {print(error)});
+  }
+
+  void _getCurrentActiveOrder() {
+    print('$CLASS_NAME, _getCurrentActiveOrder');
+    _appRepository.getCurrentActiveOrder((response) async {
+      print(response);
+      try {
+        final activeOrderResponse = GetActiveOrderResponse.fromJson(response);
+        if (activeOrderResponse.status == 200 && activeOrderResponse != null) {
+          _goToOrderDetail(arguments: activeOrderResponse.data.toJson());
+        } else {
+          message.value = "Failed to fetch active order";
+          print("Failed to fetch active order");
+        }
+      } catch (e) {
+        print(e);
+        _receiveNearbyOrders();
+        _receiveNewOrders();
+        _sendMyLocation();
+        // final ordersResponse = GetOrdersResponse.fromJson(response);
+        // if (ordersResponse.status == 200) {
+        //   orders.value.clear();
+        //   if (ordersResponse.data.isNotEmpty) {
+        //     orders.value.addAll(ordersResponse.data);
+        //   } else {
+        //     orders.value.clear();
+        //     message.value = "No Orders Available";
+        //   }
+        // } else {
+        //   message.value = "Failed to fetch orders";
+        //   print("Failed to fetch orders");
+        // }
+      }
+    });
   }
 
   Future<bool> _canceLocationTimer() {
     print('$CLASS_NAME, _canceLocationTimer');
     _locationTimer?.cancel();
-    return Future<bool>.value(_locationTimer?.isActive);
+    return Future<bool>.value(_locationTimer?.isActive ?? false);
   }
 
   void _goToOrderDetail({dynamic arguments}) {

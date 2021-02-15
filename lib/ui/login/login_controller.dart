@@ -12,8 +12,37 @@ class LoginController extends GetxController {
 
   final emailTF = TextEditingController();
   final passwordTF = TextEditingController();
+  final emailTFFocusNode = FocusNode();
+  final passwordTFFocusNode = FocusNode();
+
+  RxBool isKeyboardActive = false.obs;
 
   var isLoading = false.obs;
+
+  @override
+  void onInit() {
+    emailTFFocusNode.addListener(() {
+      isKeyboardActive.value =
+          emailTFFocusNode.hasFocus || passwordTFFocusNode.hasFocus;
+    });
+
+    passwordTFFocusNode.addListener(() {
+      isKeyboardActive.value =
+          emailTFFocusNode.hasFocus || passwordTFFocusNode.hasFocus;
+    });
+    super.onInit();
+  }
+
+  @override
+  void onClose() {
+    // TODO: implement onClose
+    emailTF.dispose();
+    passwordTF.dispose();
+    emailTFFocusNode.dispose();
+    passwordTFFocusNode.dispose();
+
+    super.onClose();
+  }
 
   void login() {
     // "letsbee-carl@gmail.com","123123123"
@@ -39,7 +68,7 @@ class LoginController extends GetxController {
           title = 'Login Failed!';
           message = "You don't have an internet access.";
         }
-        
+
         showSnackbar(title, message);
       });
     }

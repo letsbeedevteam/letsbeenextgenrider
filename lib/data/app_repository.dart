@@ -86,12 +86,11 @@ class AppRepository {
   // SocketService - Orders
   //returns a GetActiveOrderResponse if an order is already accepted by THE rider
   //returns a GetOrdersResponse if there is NO order accepted by THE rider
-  void fetchAllOrders(
+  void receiveNearbyOrders(
     Function(dynamic) success,
     Function(String) failed,
   ) {
-    _socketService.socket.emitWithAck(SocketService.FETCH_ALL_ORDERS, '',
-        ack: (response) {
+    _socketService.socket.on(SocketService.RECEIVE_NEARBY_ORDERS, (response) {
       if (response["status"] == 200) {
         success(response);
       } else {
@@ -120,6 +119,14 @@ class AppRepository {
 
   void receiveNewOrder(Function(dynamic) onComplete) {
     _socketService.socket.on(SocketService.RECEIVE_NEW_ORDER, (response) {
+      print(response);
+      onComplete(response);
+    });
+  }
+
+  void getCurrentActiveOrder(Function(dynamic) onComplete) {
+    _socketService.socket.emitWithAck(
+        SocketService.GET_CURRENT_ACTIVE_ORDER, '', ack: (response) {
       print(response);
       onComplete(response);
     });
@@ -182,6 +189,7 @@ class AppRepository {
           lat: currentLocation.latitude,
           lng: currentLocation.longitude,
         ));
+        print(request.toJson());
         _socketService.socket
             .emit(SocketService.SEND_LOCATION, request.toJson());
       }
