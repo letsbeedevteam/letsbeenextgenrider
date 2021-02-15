@@ -75,7 +75,7 @@ class AppRepository {
   }
 
   Future<bool> disconnectSocket() {
-    _socketService.socket.close();
+    _socketService.socket?.close();
     return Future<bool>.value(_socketService.socket.disconnected);
   }
 
