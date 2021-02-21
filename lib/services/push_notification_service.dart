@@ -3,10 +3,9 @@ import 'dart:math';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
+import 'package:letsbeenextgenrider/core/utils/utils.dart';
 import 'package:letsbeenextgenrider/data/models/order_data.dart';
-import 'package:letsbeenextgenrider/utils/config.dart';
-import 'package:letsbeenextgenrider/utils/utils.dart';
-
+import 'package:letsbeenextgenrider/routing/pages.dart';
 class PushNotificationService {
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
@@ -46,7 +45,7 @@ class PushNotificationService {
     if (payload != null) {
       if (isOrderData(payload)) {
         var orderData = orderDataFromJson(payload);
-        Get.toNamed(Config.CHAT_ROUTE, arguments: orderData.toJson());
+        Get.toNamed(Routes.CHAT_ROUTE, arguments: orderData.toJson());
       }
     }
   }

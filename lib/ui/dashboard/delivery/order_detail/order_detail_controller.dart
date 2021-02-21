@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:letsbeenextgenrider/core/error/base/failure.dart';
 import 'package:letsbeenextgenrider/data/app_repository.dart';
 import 'package:letsbeenextgenrider/data/models/order_data.dart';
 import 'package:letsbeenextgenrider/data/models/request/base/base_order_change_status_request.dart';
@@ -41,19 +42,19 @@ class OrderDetailController extends GetxController {
   // Private Functions
   void _initSocket() {
     print('$CLASS_NAME, _initSocket');
-    _appRepository.connectSocket(onConnected: (_) {
-      _sendMyOrderLocation();
-      _receiveNewMessages();
-      isLoading.value = false;
-    }, onConnecting: (_) {
-      isLoading.value = true;
-    }, onReconnecting: (_) {
-      isLoading.value = true;
-    }, onDisconnected: (_) {
-      isLoading.value = true;
-    }, onError: (_) {
-      isLoading.value = false;
-    });
+    // _appRepository.connectSocket(onConnected: (_) {
+    //   _sendMyOrderLocation();
+    //   _receiveNewMessages();
+    //   isLoading.value = false;
+    // }, onConnecting: (_) {
+    //   isLoading.value = true;
+    // }, onReconnecting: (_) {
+    //   isLoading.value = true;
+    // }, onDisconnected: (_) {
+    //   isLoading.value = true;
+    // }, onError: (_) {
+    //   isLoading.value = false;
+    // });
   }
 
   void _receiveNewMessages() {
@@ -66,19 +67,42 @@ class OrderDetailController extends GetxController {
     });
   }
 
-  void _updateOrderStatus(String room, BaseOrderChangeStatusRequest request) {
-    print('$CLASS_NAME, _updateOrderStatus');
-    _appRepository.updateOrderStatus(room, request, (response) {
-      isLoading.value = false;
-      print(response);
-      if (response.status == 200) {
-        order.value = response.data;
-      } else {
-        print("Failed to update order status = $response");
+  void pickUpOrder(
+    OrderData order,
+  ) async {
+    isLoading.value = true;
+    await _appRepository.pickupOrder(order.id).then((response) async {
+      if (response.data != null) {
+        this.order.value = response.data;
+        isLoading.value = false;
       }
-    }, (error) {
+    }).catchError((error) {
+      print('${(error as Failure).errorMessage}');
       isLoading.value = false;
-      print("Failed to update order status == $error");
+    });
+  }
+
+  void deliverOrder(
+    OrderData order,
+    List<LocationsRequestData> locations,
+  ) async {
+    isLoading.value = true;
+    _appRepository.getCurrentPosition().then((currentLocation) {
+        _locations.add(LocationsRequestData(
+            lat: currentLocation.latitude,
+            lng: currentLocation.longitude,
+            datetime: DateTime.now().toUtc()));
+      });
+    await _appRepository
+        .deliverOrder(order.id, locations)
+        .then((response) async {
+      if (response.data != null) {
+        this.order.value = response.data;
+        isLoading.value = false;
+      }
+    }).catchError((error) {
+      print('${(error as Failure).errorMessage}');
+      isLoading.value = false;
     });
   }
 
@@ -107,17 +131,12 @@ class OrderDetailController extends GetxController {
     switch (order.value.status) {
       case 'rider-accepted':
         {
-          isLoading.value = true;
-          var request = PickUpOrderRequest(orderId: order.value.id);
-          _updateOrderStatus('pick-up-order', request);
+          pickUpOrder(order.value);
         }
         break;
       case 'rider-picked-up':
         {
-          isLoading.value = true;
-          var request = DeliverOrderRequest(
-              orderId: order.value.id, locations: _locations);
-          _updateOrderStatus('delivered', request);
+          deliverOrder(order.value, _locations);
         }
         break;
       default:
@@ -133,10 +152,8 @@ class OrderDetailController extends GetxController {
 
   void goBackToDashboard() async {
     print('$CLASS_NAME, goBackToDashboard');
-    await _appRepository.disconnectSocket().then((isDisconnected) {
-      if (isDisconnected) {
-        Get.back();
-      }
+    await _appRepository.disconnectSocket().then((_) {
+      Get.back();
     });
   }
 

@@ -1,19 +1,23 @@
+import 'package:data_connection_checker/data_connection_checker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:letsbeenextgenrider/bindings/splash_binding.dart';
+import 'package:letsbeenextgenrider/core/utils/network_info.dart';
+import 'package:letsbeenextgenrider/ui/splash/splash_binding.dart';
 import 'package:letsbeenextgenrider/data/app_repository.dart';
 import 'package:letsbeenextgenrider/data/souce/local/sharedpref.dart';
 import 'package:letsbeenextgenrider/data/souce/remote/api_service.dart';
-import 'package:letsbeenextgenrider/service/google_map_service.dart';
 import 'package:letsbeenextgenrider/data/souce/remote/socket_service.dart';
-import 'package:letsbeenextgenrider/service/location_service.dart';
-import 'package:letsbeenextgenrider/service/push_notification_service.dart';
-import 'package:letsbeenextgenrider/utils/config.dart';
-import 'package:letsbeenextgenrider/utils/routes.dart';
 import 'package:get/get.dart';
-import 'package:letsbeenextgenrider/utils/utils.dart';
 import 'package:location/location.dart';
+
+import 'core/utils/config.dart';
+import 'core/utils/utils.dart';
+import 'core/utils/extensions.dart';
+import 'routing/pages.dart';
+import 'services/google_map_service.dart';
+import 'services/location_service.dart';
+import 'services/push_notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +29,9 @@ Future initServices() async {
   print('Initializing Dependencies');
   await Get.putAsync<GetStorage>(() async => GetStorage(), permanent: true);
   await Get.putAsync<Location>(() async => Location(), permanent: true);
+  await Get.putAsync<NetworkInfo>(
+      () async => NetworkInfo(dataConnectionChecker: DataConnectionChecker()),
+      permanent: true);
   await Get.putAsync<PushNotificationService>(
       () async => PushNotificationService(),
       permanent: true);
@@ -32,11 +39,21 @@ Future initServices() async {
       permanent: true);
   await Get.putAsync<LocationService>(() async => LocationService(),
       permanent: true);
-  await Get.putAsync<ApiService>(() async => ApiService(), permanent: true);
+  await Get.putAsync<ApiService>(() async => ApiService(getStorage: Get.find()),
+      permanent: true);
   await Get.putAsync<SocketService>(() async => SocketService(),
       permanent: true);
   await Get.putAsync<SharedPref>(() async => SharedPref(), permanent: true);
-  Get.put<AppRepository>(AppRepository(), permanent: true);
+  await Get.putAsync<AppRepository>(
+      () async => AppRepository(
+          apiService: Get.find(),
+          googleMapsServices: Get.find(),
+          locationService: Get.find(),
+          networkInfo: Get.find(),
+          pushNotificationService: Get.find(),
+          sharedPref: Get.find(),
+          socketService: Get.find()),
+      permanent: true);
   print('Dependencies Intialized');
 }
 
@@ -49,16 +66,17 @@ class MyApp extends StatelessWidget {
       child: GetMaterialApp(
         title: Config.APP_NAME,
         theme: ThemeData(
-            appBarTheme: AppBarTheme(brightness: Brightness.light),
+            appBarTheme: const AppBarTheme(brightness: Brightness.light),
             scaffoldBackgroundColor: Colors.white,
-            primarySwatch: Colors.yellow),
+            primarySwatch: 
+            Color(Config.LETSBEE_COLOR).withOpacity(1).toMaterialColor()),
         enableLog: true,
         debugShowCheckedModeBanner: false,
-        getPages: routes(),
-        transitionDuration: Duration(milliseconds: 500),
+        getPages: Pages.pages,
+        transitionDuration: const Duration(milliseconds: 500),
         defaultTransition: Transition.fade,
         initialBinding: SplashBinding(),
-        initialRoute: Config.SPLASH_ROUTE,
+        initialRoute: Routes.SPLASH_ROUTE,
       ),
     );
   }

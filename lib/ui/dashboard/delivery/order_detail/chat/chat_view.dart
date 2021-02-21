@@ -1,9 +1,10 @@
 import 'package:get/get.dart';
+import 'package:letsbeenextgenrider/core/utils/config.dart';
 import 'package:letsbeenextgenrider/data/models/message_data.dart';
-import 'package:letsbeenextgenrider/ui/dashboard/subviews/pending_detail/subviews/chat/chat_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:letsbeenextgenrider/utils/config.dart';
 import 'package:intl/intl.dart';
+
+import 'chat_controller.dart';
 
 class ChatView extends GetView<ChatController> {
   @override

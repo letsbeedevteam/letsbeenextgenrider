@@ -1,44 +1,64 @@
-import 'dart:io';
-
-import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:get/get_connect/http/src/exceptions/exceptions.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:letsbeenextgenrider/data/models/request/base/base_order_change_status_request.dart';
-import 'package:letsbeenextgenrider/data/models/request/fetch_all_messages_request.dart';
-import 'package:letsbeenextgenrider/data/models/request/login_request.dart';
-import 'package:letsbeenextgenrider/data/models/request/refresh_token_request.dart';
-import 'package:letsbeenextgenrider/data/models/request/send_location_request.dart';
-import 'package:letsbeenextgenrider/data/models/request/send_message_request.dart';
-import 'package:letsbeenextgenrider/data/models/request/send_order_location_request.dart';
-import 'package:letsbeenextgenrider/data/models/response/get_messages_response.dart';
-import 'package:letsbeenextgenrider/data/models/response/get_new_message_response.dart';
-import 'package:letsbeenextgenrider/data/models/response/update_order_status_response.dart';
-import 'package:letsbeenextgenrider/data/souce/local/sharedpref.dart';
-import 'package:letsbeenextgenrider/data/souce/remote/api_service.dart';
-import 'package:letsbeenextgenrider/data/souce/remote/socket_service.dart';
-import 'package:letsbeenextgenrider/service/google_map_service.dart';
-import 'package:letsbeenextgenrider/service/location_service.dart';
-import 'package:letsbeenextgenrider/service/push_notification_service.dart';
-import 'package:letsbeenextgenrider/utils/google_map_utils.dart';
+import 'package:letsbeenextgenrider/core/error/exceptions.dart';
+import 'package:letsbeenextgenrider/core/error/failures.dart';
+import 'package:letsbeenextgenrider/core/utils/google_map_utils.dart';
+import 'package:letsbeenextgenrider/core/utils/network_info.dart';
+import 'package:letsbeenextgenrider/data/models/request/accept_order_request.dart';
+import 'package:letsbeenextgenrider/data/models/request/deliver_order_request.dart';
+import 'package:letsbeenextgenrider/data/models/request/pick_up_order_request.dart';
+import 'package:letsbeenextgenrider/data/models/response/get_active_order_response.dart';
+import 'package:letsbeenextgenrider/services/google_map_service.dart';
+import 'package:letsbeenextgenrider/services/location_service.dart';
+import 'package:letsbeenextgenrider/services/push_notification_service.dart';
 import 'package:location/location.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
+
+import 'models/request/base/base_order_change_status_request.dart';
+import 'models/request/fetch_all_messages_request.dart';
+import 'models/request/get_nearby_orders_request.dart';
+import 'models/request/login_request.dart';
+import 'models/request/refresh_token_request.dart';
+import 'models/request/send_location_request.dart';
+import 'models/request/send_message_request.dart';
+import 'models/request/send_order_location_request.dart';
+import 'models/response/get_messages_response.dart';
+import 'models/response/get_nearby_orders.dart';
+import 'models/response/get_new_message_response.dart';
+import 'models/response/refresh_token_response.dart';
+import 'models/response/update_order_status_response.dart';
+import 'souce/local/sharedpref.dart';
+import 'souce/remote/api_service.dart';
+import 'souce/remote/socket_service.dart';
 
 class AppRepository {
-  ApiService _apiService = Get.find();
-  SocketService _socketService = Get.find();
-  SharedPref _sharedPref = Get.find();
-  LocationService _locationService = Get.find();
-  GoogleMapsServices _googleMapsServices = Get.find();
-  PushNotificationService _pushNotificationService = Get.find();
+  final ApiService apiService;
+  final SocketService socketService;
+  final SharedPref sharedPref;
+  final LocationService locationService;
+  final GoogleMapsServices googleMapsServices;
+  final PushNotificationService pushNotificationService;
+  final NetworkInfo networkInfo;
+
+  AppRepository({
+    @required this.apiService,
+    @required this.socketService,
+    @required this.sharedPref,
+    @required this.locationService,
+    @required this.googleMapsServices,
+    @required this.pushNotificationService,
+    @required this.networkInfo,
+  });
 
 // SharedPref
-  int getRiderId() => _sharedPref.getRiderId();
+  int getRiderId() => sharedPref.getRiderId();
 
 // ApiService
   Future login(LoginRequest loginRequest) {
-    return _apiService.login(loginRequest).then((response) {
+    return apiService.login(loginRequest).then((response) {
       if (response.status == 200) {
-        _sharedPref.saveRiderInfo(
+        sharedPref.saveRiderInfo(
             id: response.data.id,
             name: response.data.name,
             email: response.data.email,
@@ -49,84 +69,154 @@ class AppRepository {
     });
   }
 
-  Future refreshAccessToken() {
-    RefreshTokenrequest refreshTokenrequest =
-        RefreshTokenrequest(_sharedPref.getRiderAccessToken());
-    return _apiService.refreshAccessToken(refreshTokenrequest).then((response) {
-      if (response.status == 401) {
-        _sharedPref.saveRiderAccessToken(response.token);
+  Future<GetActiveOrderResponse> getCurrentOrder() async {
+    if (await networkInfo.isConnected) {
+      try {
+        return await apiService.getCurrentOrder();
+      } on ServerException catch (e) {
+        throw ServerFailure(e.cause);
+      } on UnauthorizedException catch (_) {
+        return refreshAccessToken().then((response) {
+          sharedPref.saveRiderAccessToken(response.token);
+          getCurrentOrder();
+        }).catchError((error) {
+          throw error;
+        });
       }
-    });
+    } else {
+      throw ConnectionFailure('You don\'t have internet access');
+    }
+  }
+
+  Future<GetNearbyOrdersResponse> getNearbyOrders(
+    double lat,
+    double lng,
+  ) async {
+    final GetNearbyOrdersRequests request = GetNearbyOrdersRequests(
+      lat: lat,
+      lng: lng,
+    );
+
+    if (await networkInfo.isConnected) {
+      try {
+        return await apiService.getNearbyOrders(request);
+      } on ServerException catch (e) {
+        throw ServerFailure(e.cause);
+      } on UnauthorizedException catch (_) {
+        return refreshAccessToken().then((response) {
+          sharedPref.saveRiderAccessToken(response.token);
+          getNearbyOrders(lat, lng);
+        }).catchError((error) {
+          throw error;
+        });
+      }
+    } else {
+      throw ConnectionFailure('You don\'t have internet access');
+    }
+  }
+
+  Future<RefreshTokenResponse> refreshAccessToken() async {
+    RefreshTokenrequest request =
+        RefreshTokenrequest(sharedPref.getRiderAccessToken());
+
+    if (await networkInfo.isConnected) {
+      try {
+        return await apiService.refreshAccessToken(request);
+      } on ServerException catch (e) {
+        throw ServerFailure(e.cause);
+      }
+    } else {
+      throw ConnectionFailure('You don\'t have internet access');
+    }
+  }
+
+  Future<UpdateOrderStatusResponse> acceptOrder(int orderId) async {
+    AcceptOrderRequest request =
+        AcceptOrderRequest(orderId: orderId, choice: 'accept');
+
+    if (await networkInfo.isConnected) {
+      try {
+        return await apiService.acceptOrder(request);
+      } on ServerException catch (e) {
+        throw ServerFailure(e.cause);
+      } on UnauthorizedException catch (_) {
+        return refreshAccessToken().then((response) {
+          sharedPref.saveRiderAccessToken(response.token);
+          acceptOrder(orderId);
+        }).catchError((error) {
+          throw error;
+        });
+      }
+    } else {
+      throw ConnectionFailure('You don\'t have internet access');
+    }
+  }
+
+  Future<UpdateOrderStatusResponse> pickupOrder(int orderId) async {
+    PickUpOrderRequest request = PickUpOrderRequest(orderId: orderId);
+
+    if (await networkInfo.isConnected) {
+      try {
+        return await apiService.pickupOrder(request);
+      } on ServerException catch (e) {
+        throw ServerFailure(e.cause);
+      } on UnauthorizedException catch (_) {
+        return refreshAccessToken().then((response) {
+          sharedPref.saveRiderAccessToken(response.token);
+          pickupOrder(orderId);
+        }).catchError((error) {
+          throw error;
+        });
+      }
+    } else {
+      throw ConnectionFailure('You don\'t have internet access');
+    }
+  }
+
+  Future<UpdateOrderStatusResponse> deliverOrder(
+    int orderId,
+    List<LocationsRequestData> locations,
+  ) async {
+    DeliverOrderRequest request =
+        DeliverOrderRequest(orderId: orderId, locations: locations);
+
+    if (await networkInfo.isConnected) {
+      try {
+        return await apiService.deliverOrder(request);
+      } on ServerException catch (e) {
+        throw ServerFailure(e.cause);
+      } on UnauthorizedException catch (_) {
+        return refreshAccessToken().then((response) {
+          sharedPref.saveRiderAccessToken(response.token);
+          deliverOrder(orderId, locations);
+        }).catchError((error) {
+          throw error;
+        });
+      }
+    } else {
+      throw ConnectionFailure('You don\'t have internet access');
+    }
   }
 
 // SocketService
-  void connectSocket(
-      {Function(dynamic) onConnected,
-      Function(dynamic) onConnecting,
-      Function(dynamic) onReconnecting,
-      Function(dynamic) onDisconnected,
-      Function(dynamic) onError}) {
-    _socketService.connectSocket(
-        onConnected: onConnected,
-        onConnecting: onConnecting,
-        onReconnecting: onReconnecting,
-        onDisconnected: onDisconnected,
-        onError: onError);
+  Future<IO.Socket> connectSocket() async {
+    return socketService.connectSocket();
   }
 
-  Future<bool> disconnectSocket() {
-    _socketService.socket?.close();
-    return Future<bool>.value(_socketService.socket.disconnected);
-  }
-
-  bool isSocketConnected() {
-    return _socketService.isConnected;
-  }
-
-  // SocketService - Orders
-  //returns a GetActiveOrderResponse if an order is already accepted by THE rider
-  //returns a GetOrdersResponse if there is NO order accepted by THE rider
-  void receiveNearbyOrders(
-    Function(dynamic) success,
-    Function(String) failed,
-  ) {
-    _socketService.socket.on(SocketService.RECEIVE_NEARBY_ORDERS, (response) {
-      if (response["status"] == 200) {
-        success(response);
-      } else {
-        failed("Failed to fetch orders");
-      }
-    });
-  }
-
-  void updateOrderStatus(
-    String room,
-    BaseOrderChangeStatusRequest request,
-    Function(UpdateOrderStatusResponse) onSuccess,
-    Function(String) onFailed,
-  ) {
-    _socketService.socket.emitWithAck(room, request.toJson(), ack: (response) {
-      print('apprepo, update order status response == $response');
-      final updateOrderStatusResponse =
-          UpdateOrderStatusResponse.fromJson(response);
-      if (updateOrderStatusResponse.status == 200) {
-        onSuccess(updateOrderStatusResponse);
-      } else {
-        onFailed("Failed to update order status");
-      }
-    });
+  Future<void> disconnectSocket() async {
+    socketService.socket?.close();
   }
 
   void receiveNewOrder(Function(dynamic) onComplete) {
-    _socketService.socket.on(SocketService.RECEIVE_NEW_ORDER, (response) {
+    socketService.socket.on(SocketService.RECEIVE_NEW_ORDER, (response) {
       print(response);
       onComplete(response);
     });
   }
 
   void getCurrentActiveOrder(Function(dynamic) onComplete) {
-    _socketService.socket.emitWithAck(
-        SocketService.GET_CURRENT_ACTIVE_ORDER, '', ack: (response) {
+    socketService.socket.emitWithAck(SocketService.GET_CURRENT_ACTIVE_ORDER, '',
+        ack: (response) {
       print(response);
       onComplete(response);
     });
@@ -140,7 +230,7 @@ class AppRepository {
   ) {
     final request = FetchAllMessagesRequest(orderId: orderId);
 
-    _socketService.socket.emitWithAck(
+    socketService.socket.emitWithAck(
         SocketService.FETCH_ALL_MESSAGES, request.toJson(), ack: (response) {
       print(response);
       final getMessagesResponse = GetMessagesResponse.fromJson(response);
@@ -163,7 +253,7 @@ class AppRepository {
     var request = SendMessageRequest(
         orderId: orderId, customerUserId: customerUserId, message: message);
 
-    _socketService.socket.emitWithAck(
+    socketService.socket.emitWithAck(
         SocketService.SEND_MESSAGE, request.toJson(), ack: (response) {
       print(response);
       final getNewMessageResponse = GetNewMessageResponse.fromJson(response);
@@ -172,7 +262,7 @@ class AppRepository {
   }
 
   void receiveNewMessages(Function(GetNewMessageResponse) onComplete) {
-    _socketService.socket.on(SocketService.RECEIVE_NEW_MESSAGES, (response) {
+    socketService.socket.on(SocketService.RECEIVE_NEW_MESSAGES, (response) {
       print(response);
       final getNewMessageResponse = GetNewMessageResponse.fromJson(response);
       onComplete(getNewMessageResponse);
@@ -190,7 +280,7 @@ class AppRepository {
           lng: currentLocation.longitude,
         ));
         print(request.toJson());
-        _socketService.socket
+        socketService.socket
             .emit(SocketService.SEND_LOCATION, request.toJson());
       }
     });
@@ -205,7 +295,7 @@ class AppRepository {
                 lat: currentLocation.latitude, lng: currentLocation.longitude),
             userId: userId,
             orderId: orderId);
-        _socketService.socket
+        socketService.socket
             .emit(SocketService.SEND_ORDER_LOCATION, request.toJson());
       }
     });
@@ -213,12 +303,12 @@ class AppRepository {
 
 // Location
   Future<LocationData> getCurrentPosition() async =>
-      await _locationService.getCurrentLocation();
+      await locationService.getCurrentLocation();
 
 // GoogleMapsServices
   Future<List<LatLng>> getRouteCoordinates(
       {LatLng source, LatLng destination}) async {
-    return await _googleMapsServices
+    return await googleMapsServices
         .getRouteCoordinates(source, destination)
         .then((encodedPoly) {
       print(encodedPoly);
@@ -231,16 +321,12 @@ class AppRepository {
   }
 
   Future<void> showNotification({String title, String body, String payload}) {
-    return _pushNotificationService.showNotification(
+    return pushNotificationService.showNotification(
         title: title, body: body, payload: payload);
   }
 
-  void logOut({Function onSuccess, Function onError(dynamic error)}) {
-    disconnectSocket().then((isDisconnected) {
-      _sharedPref.clearUserInfo();
-      onSuccess();
-    }, onError: (_) {
-      onError(_);
-    });
+  Future<void> logOut() async {
+    await disconnectSocket();
+    sharedPref.clearUserInfo();
   }
 }

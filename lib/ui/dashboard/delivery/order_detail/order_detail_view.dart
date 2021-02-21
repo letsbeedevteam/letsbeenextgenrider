@@ -1,13 +1,14 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:letsbeenextgenrider/core/utils/config.dart';
+import 'package:letsbeenextgenrider/core/utils/utils.dart';
 import 'package:letsbeenextgenrider/data/models/additional.dart';
 import 'package:letsbeenextgenrider/data/models/choice.dart';
 import 'package:letsbeenextgenrider/data/models/product.dart';
-import 'package:letsbeenextgenrider/ui/dashboard/subviews/pending_detail/order_detail_controller.dart';
-import 'package:letsbeenextgenrider/utils/config.dart';
-import 'package:letsbeenextgenrider/utils/extensions.dart';
-import 'package:letsbeenextgenrider/utils/utils.dart';
+import 'package:letsbeenextgenrider/routing/pages.dart';
+import 'package:letsbeenextgenrider/ui/dashboard/delivery/order_detail/order_detail_controller.dart';
+import 'package:letsbeenextgenrider/core/utils/extensions.dart';
 
 class OrderDetailView extends GetView<OrderDetailController> {
   @override
@@ -41,7 +42,7 @@ class OrderDetailView extends GetView<OrderDetailController> {
                           icon: ImageIcon(
                               AssetImage(Config.PNG_PATH + 'chat_button.png'),
                               size: 20),
-                          onPressed: () => Get.toNamed(Config.CHAT_ROUTE,
+                          onPressed: () => Get.toNamed(Routes.CHAT_ROUTE,
                               arguments: controller.order.value.toJson()),
                           splashColor: Colors.black.withOpacity(0.3)),
                     ))
@@ -430,27 +431,6 @@ class OrderDetailView extends GetView<OrderDetailController> {
       ],
     );
   }
-
-  // Widget _buildAdditional(Additional additional) {
-  //   return Row(
-  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       additional.picks.isEmpty
-  //           ? Container()
-  //           : Text(additional.name,
-  //               style: TextStyle(
-  //                   color: Colors.black,
-  //                   fontWeight: FontWeight.bold,
-  //                   fontSize: 14)),
-  //       Padding(padding: EdgeInsets.symmetric(horizontal: 10)),
-  //       Expanded(
-  //           child: Column(
-  //         children: additional.picks.map((e) => _buildAddsOn(e)).toList(),
-  //       ))
-  //     ],
-  //   );
-  // }
 
   Widget _buildAdditional(Additional additional) {
     return Row(

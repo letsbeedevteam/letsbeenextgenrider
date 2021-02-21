@@ -1,41 +1,38 @@
-import 'package:get/get_navigation/src/routes/get_route.dart';
+import 'package:get/get.dart';
 import 'package:letsbeenextgenrider/bindings/chat_binding.dart';
 import 'package:letsbeenextgenrider/bindings/dashboard_binding.dart';
-import 'package:letsbeenextgenrider/bindings/location_binding.dart';
 import 'package:letsbeenextgenrider/bindings/login_binding.dart';
 import 'package:letsbeenextgenrider/bindings/order_detail_binding.dart';
-import 'package:letsbeenextgenrider/bindings/splash_binding.dart';
+import 'package:letsbeenextgenrider/ui/dashboard/delivery/order_detail/chat/chat_view.dart';
+import 'package:letsbeenextgenrider/ui/splash/splash_binding.dart';
 import 'package:letsbeenextgenrider/ui/dashboard/dashboard_view.dart';
-import 'package:letsbeenextgenrider/ui/dashboard/subviews/pending_detail/order_detail_view.dart';
-import 'package:letsbeenextgenrider/ui/dashboard/subviews/pending_detail/subviews/chat/chat_view.dart';
-import 'package:letsbeenextgenrider/ui/dashboard/subviews/pending_detail/subviews/location/location_view.dart';
+import 'package:letsbeenextgenrider/ui/dashboard/delivery/order_detail/order_detail_view.dart';
 import 'package:letsbeenextgenrider/ui/login/login_view.dart';
 import 'package:letsbeenextgenrider/ui/splash/splash_view.dart';
-import 'package:letsbeenextgenrider/utils/config.dart';
 
-routes() => [
+part 'routes.dart';
+
+class Pages{
+  static final pages = [
       GetPage(
-          name: Config.SPLASH_ROUTE,
+          name: Routes.SPLASH_ROUTE,
           page: () => SplashView(),
           binding: SplashBinding()),
       GetPage(
-          name: Config.LOGIN_ROUTE,
+          name: Routes.LOGIN_ROUTE,
           page: () => LoginView(),
           binding: LoginBinding()),
       GetPage(
-          name: Config.DASHBOARD_ROUTE,
+          name: Routes.DASHBOARD_ROUTE,
           page: () => DashboardView(),
           binding: DashboardBinding()),
       GetPage(
-          name: Config.ORDER_DETAIL_ROUTE,
+          name: Routes.ORDER_DETAIL_ROUTE,
           page: () => OrderDetailView(),
           binding: OrderDetailBinding()),
       GetPage(
-          name: Config.CHAT_ROUTE,
+          name: Routes.CHAT_ROUTE,
           page: () => ChatView(),
           binding: ChatBinding()),
-      GetPage(
-          name: Config.LOCATION_ROUTE,
-          page: () => LocationView(),
-          binding: LocationBinding()),
     ];
+}

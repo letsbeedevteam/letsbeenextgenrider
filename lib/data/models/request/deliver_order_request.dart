@@ -28,9 +28,12 @@ class LocationsRequestData implements BaseLocationRequest {
   double lat;
   @override
   double lng;
-  
+
   DateTime datetime;
 
-  Map<String, dynamic> toJson() =>
-      {"lat": lat, "lng": lng, "datetime": datetime.toIso8601String()};
+  Map<String, dynamic> toJson() => {
+        "lat": lat,
+        "lng": lng,
+        "datetime": datetime.toIso8601String(),
+      };
 }
