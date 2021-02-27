@@ -1,7 +1,7 @@
 import 'package:letsbeenextgenrider/data/models/location.dart';
 
- class Address {
-    Address({
+ class OrderAddress {
+    OrderAddress({
         this.location,
         this.street,
         this.country,
@@ -19,7 +19,7 @@ import 'package:letsbeenextgenrider/data/models/location.dart';
     String city;
     String barangay;
 
-    factory Address.fromJson(Map<String, dynamic> json) => Address(
+    factory OrderAddress.fromJson(Map<String, dynamic> json) => OrderAddress(
         location: Location.fromJson(json["location"]),
         street: json["street"],
         country: json["country"],

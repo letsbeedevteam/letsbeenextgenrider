@@ -42,7 +42,6 @@ extension readablePaymentMethod on String {
       case "cod":
         readablePaymentMethod = "Cash on Delivery";
         break;
-      default:
     }
     return readablePaymentMethod;
   }
@@ -62,7 +61,7 @@ extension readableOrderStatus on String {
         readableOrderStatus = "Restaurant Declined";
         break;
       case "rider-accepted":
-        readableOrderStatus = "Rider Accepted";
+        readableOrderStatus = "Accepted";
         break;
       case "rider-picked-up":
         readableOrderStatus = "Rider Picked up";
@@ -111,6 +110,52 @@ extension orderStatusColor on String {
         break;
     }
     return orderStatusColor;
+  }
+}
+
+extension convertStatus on String {
+  int toIntByPriorityForRestaurant() {
+    int priority = 0;
+    switch (this) {
+      case "pending":
+        priority = 0;
+        break;
+      case "rider-accepted":
+        priority = 1;
+        break;
+      case "rider-picked-up":
+        priority = 2;
+        break;
+      case "delivered":
+        priority = 3;
+        break;
+      default:
+        priority = -1;
+        break;
+    }
+    return priority;
+  }
+
+  int toIntByPriorityForMart() {
+    int priority = 0;
+    switch (this) {
+      case "pending":
+        priority = -1;
+        break;
+      case "rider-accepted":
+        priority = 0;
+        break;
+      case "rider-picked-up":
+        priority = 2;
+        break;
+      case "delivered":
+        priority = 3;
+        break;
+      default:
+        priority = -2;
+        break;
+    }
+    return priority;
   }
 }
 

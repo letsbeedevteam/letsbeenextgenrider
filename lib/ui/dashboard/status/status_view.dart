@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:letsbeenextgenrider/core/utils/config.dart';
+import 'package:intl/intl.dart';
 
 import 'status_controller.dart';
 
@@ -31,7 +32,7 @@ class StatusView extends GetView<StatusController> {
                           'Date today',
                         ),
                         Text(
-                          '24 Jun 2021',
+                          DateFormat('dd MMM yyyy').format(controller.dateToday),
                           style: const TextStyle(
                             fontSize: 24,
                             fontStyle: FontStyle.italic,

@@ -97,7 +97,7 @@ class OrderItem extends StatelessWidget {
                             order.store.locationName.isEmpty
                                 ? Flexible(
                                     child: Text(
-                                      '${order.store.name}}',
+                                      '${order.store.name}',
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 3,
                                     ),
@@ -154,8 +154,10 @@ class OrderItem extends StatelessWidget {
                 ),
                 const Padding(padding: const EdgeInsets.symmetric(vertical: 4)),
                 AcceptButton(
-                    onTap: onTap,
-                    title: 'ACCEPT ORDER', mainAxisSize: MainAxisSize.max,),
+                  onTap: onTap,
+                  title: 'ACCEPT ORDER',
+                  mainAxisSize: MainAxisSize.max,
+                ),
               ],
             ),
           ),

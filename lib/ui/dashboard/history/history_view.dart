@@ -19,21 +19,26 @@ class _Body extends BaseTabView2<HistoryController> {
         StatusView(),
         StatusView(),
         StatusView(),
+        StatusView(),
       ];
 
   @override
   List<Widget> get tabs => [
         buildTab(
-            iconPath: 'status_icon.svg',
-            iconDescription: 'a suitcase',
-            title: 'Today'),
+          iconPath: 'history_today_icon.svg',
+          iconDescription: 'a suitcase',
+        ),
         buildTab(
-            iconPath: 'delivery_icon.svg',
-            iconDescription: 'a receipt',
-            title: 'Yesterday'),
+          iconPath: 'history_yesterday_icon.svg',
+          iconDescription: 'a receipt',
+        ),
         buildTab(
-            iconPath: 'history_icon.svg',
-            iconDescription: 'an arrow with clock hands',
-            title: 'All time'),
+          iconPath: 'history_this_week_icon.svg',
+          iconDescription: 'an arrow with clock hands',
+        ),
+        buildTab(
+          iconPath: 'history_last_week_icon.svg',
+          iconDescription: 'an arrow with clock hands',
+        ),
       ];
 }

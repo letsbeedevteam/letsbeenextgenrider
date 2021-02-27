@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -5,17 +7,20 @@ import 'package:letsbeenextgenrider/core/error/exceptions.dart';
 import 'package:letsbeenextgenrider/core/error/failures.dart';
 import 'package:letsbeenextgenrider/core/utils/google_map_utils.dart';
 import 'package:letsbeenextgenrider/core/utils/network_info.dart';
+import 'package:letsbeenextgenrider/data/models/login_data.dart';
 import 'package:letsbeenextgenrider/data/models/request/accept_order_request.dart';
 import 'package:letsbeenextgenrider/data/models/request/deliver_order_request.dart';
+import 'package:letsbeenextgenrider/data/models/request/get_history_by_date_and_status_request.dart';
+import 'package:letsbeenextgenrider/data/models/request/get_stats_by_date_request.dart';
 import 'package:letsbeenextgenrider/data/models/request/pick_up_order_request.dart';
 import 'package:letsbeenextgenrider/data/models/response/get_active_order_response.dart';
+import 'package:letsbeenextgenrider/data/models/response/get_status_by_date_and_status_response.dart';
 import 'package:letsbeenextgenrider/services/google_map_service.dart';
 import 'package:letsbeenextgenrider/services/location_service.dart';
 import 'package:letsbeenextgenrider/services/push_notification_service.dart';
 import 'package:location/location.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
-import 'models/request/base/base_order_change_status_request.dart';
 import 'models/request/fetch_all_messages_request.dart';
 import 'models/request/get_nearby_orders_request.dart';
 import 'models/request/login_request.dart';
@@ -26,6 +31,7 @@ import 'models/request/send_order_location_request.dart';
 import 'models/response/get_messages_response.dart';
 import 'models/response/get_nearby_orders.dart';
 import 'models/response/get_new_message_response.dart';
+import 'models/response/get_stats_by_date_response.dart';
 import 'models/response/refresh_token_response.dart';
 import 'models/response/update_order_status_response.dart';
 import 'souce/local/sharedpref.dart';
@@ -54,6 +60,15 @@ class AppRepository {
 // SharedPref
   int getRiderId() => sharedPref.getRiderId();
 
+  LoginData getUser() => LoginData(
+        id: sharedPref.getRiderId(),
+        name: sharedPref.getRiderName(),
+        email: sharedPref.getRiderEmail(),
+        role: sharedPref.getRole(),
+        cellphoneNumber: sharedPref.getRiderCellphoneNumber(),
+        accessToken: sharedPref.getRiderAccessToken(),
+      );
+
 // ApiService
   Future login(LoginRequest loginRequest) {
     return apiService.login(loginRequest).then((response) {
@@ -75,9 +90,11 @@ class AppRepository {
         return await apiService.getCurrentOrder();
       } on ServerException catch (e) {
         throw ServerFailure(e.cause);
+      } on SocketException catch (_) {
+        throw ServerFailure('Something went wrong');
       } on UnauthorizedException catch (_) {
         return refreshAccessToken().then((response) {
-          sharedPref.saveRiderAccessToken(response.token);
+          sharedPref.saveRiderAccessToken(response.data.accessToken);
           getCurrentOrder();
         }).catchError((error) {
           throw error;
@@ -102,10 +119,71 @@ class AppRepository {
         return await apiService.getNearbyOrders(request);
       } on ServerException catch (e) {
         throw ServerFailure(e.cause);
+      } on SocketException catch (_) {
+        throw ServerFailure('Something went wrong');
       } on UnauthorizedException catch (_) {
         return refreshAccessToken().then((response) {
-          sharedPref.saveRiderAccessToken(response.token);
+          sharedPref.saveRiderAccessToken(response.data.accessToken);
           getNearbyOrders(lat, lng);
+        }).catchError((error) {
+          throw error;
+        });
+      }
+    } else {
+      throw ConnectionFailure('You don\'t have internet access');
+    }
+  }
+
+  Future<GetStatsByDateResponse> getStatsByDate({
+    @required DateTime from,
+    @required DateTime to,
+  }) async {
+    final GetStatsbyDateRequest request = GetStatsbyDateRequest(
+      from: from,
+      to: to,
+    );
+
+    if (await networkInfo.isConnected) {
+      try {
+        return await apiService.getStatsByDate(request);
+      } on ServerException catch (e) {
+        throw ServerFailure(e.cause);
+      } on SocketException catch (_) {
+        throw ServerFailure('Something went wrong');
+      } on UnauthorizedException catch (_) {
+        return refreshAccessToken().then((response) {
+          sharedPref.saveRiderAccessToken(response.data.accessToken);
+          getStatsByDate(from: from, to: to);
+        }).catchError((error) {
+          throw error;
+        });
+      }
+    } else {
+      throw ConnectionFailure('You don\'t have internet access');
+    }
+  }
+
+  Future<GetHistoryByDateAndStatusResponse> getHistoryByDate({
+    @required DateTime from,
+    @required DateTime to,
+  }) async {
+    final GetHistoryByDateAndStatusRequest request = GetHistoryByDateAndStatusRequest(
+      from: from,
+      to: to,
+      status: 'delivered',
+    );
+
+    if (await networkInfo.isConnected) {
+      try {
+        return await apiService.getHistoryByDate(request);
+      } on ServerException catch (e) {
+        throw ServerFailure(e.cause);
+      } on SocketException catch (_) {
+        throw ServerFailure('Something went wrong');
+      } on UnauthorizedException catch (_) {
+        return refreshAccessToken().then((response) {
+          sharedPref.saveRiderAccessToken(response.data.accessToken);
+          getStatsByDate(from: from, to: to);
         }).catchError((error) {
           throw error;
         });
@@ -124,6 +202,8 @@ class AppRepository {
         return await apiService.refreshAccessToken(request);
       } on ServerException catch (e) {
         throw ServerFailure(e.cause);
+      } on SocketException catch (_) {
+        throw ServerFailure('Something went wrong');
       }
     } else {
       throw ConnectionFailure('You don\'t have internet access');
@@ -139,9 +219,11 @@ class AppRepository {
         return await apiService.acceptOrder(request);
       } on ServerException catch (e) {
         throw ServerFailure(e.cause);
+      } on SocketException catch (_) {
+        throw ServerFailure('Something went wrong');
       } on UnauthorizedException catch (_) {
         return refreshAccessToken().then((response) {
-          sharedPref.saveRiderAccessToken(response.token);
+          sharedPref.saveRiderAccessToken(response.data.accessToken);
           acceptOrder(orderId);
         }).catchError((error) {
           throw error;
@@ -160,9 +242,11 @@ class AppRepository {
         return await apiService.pickupOrder(request);
       } on ServerException catch (e) {
         throw ServerFailure(e.cause);
+      } on SocketException catch (_) {
+        throw ServerFailure('Something went wrong');
       } on UnauthorizedException catch (_) {
         return refreshAccessToken().then((response) {
-          sharedPref.saveRiderAccessToken(response.token);
+          sharedPref.saveRiderAccessToken(response.data.accessToken);
           pickupOrder(orderId);
         }).catchError((error) {
           throw error;
@@ -185,9 +269,11 @@ class AppRepository {
         return await apiService.deliverOrder(request);
       } on ServerException catch (e) {
         throw ServerFailure(e.cause);
+      } on SocketException catch (_) {
+        throw ServerFailure('Something went wrong');
       } on UnauthorizedException catch (_) {
         return refreshAccessToken().then((response) {
-          sharedPref.saveRiderAccessToken(response.token);
+          sharedPref.saveRiderAccessToken(response.data.accessToken);
           deliverOrder(orderId, locations);
         }).catchError((error) {
           throw error;

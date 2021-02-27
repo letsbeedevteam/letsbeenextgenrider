@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:letsbeenextgenrider/core/utils/config.dart';
 
-class AcceptButton extends StatelessWidget {
-  AcceptButton({
+class DeclineButton extends StatelessWidget {
+  DeclineButton({
     Key key,
     @required this.onTap,
     @required this.title,
     @required this.mainAxisSize,
-    this.enabled = true,
   }) : super(key: key);
 
   final Function onTap;
   final String title;
   final MainAxisSize mainAxisSize;
-  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -25,10 +22,8 @@ class AcceptButton extends StatelessWidget {
         isPressed.value = true;
       },
       onTapUp: (_) async {
-        isPressed.value = false;
-        if (enabled) {
-          onTap();
-        }
+         isPressed.value = false;
+         onTap();
       },
       onTapCancel: () {
         isPressed.value = false;
@@ -51,17 +46,11 @@ class AcceptButton extends StatelessWidget {
             bottom: 8,
           ),
           decoration: BoxDecoration(
-              color: !enabled
-                  ? Colors.grey.shade400
-                  : isPressed.value
-                      ? Colors.amber
-                      : Color(Config.LETSBEE_COLOR).withOpacity(1),
+              color: isPressed.value
+                      ? Colors.red
+                      : Colors.white,
               border: Border.fromBorderSide(
-                BorderSide(
-                  color: !enabled
-                      ? Colors.grey.shade400
-                      : Color(Config.LETSBEE_COLOR).withOpacity(1),
-                ),
+                BorderSide(color: Colors.red),
               ),
               borderRadius: BorderRadius.circular(8)),
           child: Row(
@@ -70,7 +59,7 @@ class AcceptButton extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(color: Colors.black),
+                style: TextStyle(color: isPressed.value ? Colors.white : Colors.red),
               ),
             ],
           ),

@@ -1,7 +1,3 @@
-// To parse this JSON data, do
-//
-//     final loginResponse = loginResponseFromJson(jsonString);
-
 import 'dart:convert';
 import 'package:letsbeenextgenrider/data/models/response/base/base_response.dart';
 
@@ -14,29 +10,38 @@ String refreshTokenResponseToJson(RefreshTokenResponse data) =>
 class RefreshTokenResponse implements BaseResponse {
   RefreshTokenResponse({
     this.status,
-    this.message,
-    this.token,
-    this.code,
+    this.data,
   });
 
   @override
   int status;
-  String message;
-  String token;
-  int code;
+  RefreshTokenData data;
 
   factory RefreshTokenResponse.fromJson(Map<String, dynamic> json) =>
       RefreshTokenResponse(
         status: json["status"],
-        message: json["message"],
-        token: json["token"],
-        code: json["code"],
+        data: RefreshTokenData.fromJson(json["data"]),
       );
 
   Map<String, dynamic> toJson() => {
         "status": status,
-        "message": message,
-        "token": token,
-        "code": code,
+        "data": data.toJson(),
+      };
+}
+
+class RefreshTokenData {
+  RefreshTokenData({
+    this.accessToken,
+  });
+
+  String accessToken;
+
+  factory RefreshTokenData.fromJson(Map<String, dynamic> json) =>
+      RefreshTokenData(
+        accessToken: json["access_token"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "access_token": accessToken,
       };
 }

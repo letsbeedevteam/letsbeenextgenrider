@@ -10,8 +10,8 @@ class DashboardBinding extends Bindings {
   void dependencies() {
     Get.lazyPut(() => DashboardController(appRepository: Get.find()));
     Get.lazyPut(() => StatusController());
-    Get.lazyPut(() => HistoryController());
-    Get.lazyPut(() => ProfileController());
-    Get.lazyPut(() => DeliveryController(appRepository: Get.find()));
+    Get.put(DeliveryController(appRepository: Get.find()));
+    Get.lazyPut(() => HistoryController(appRepository: Get.find()));
+    Get.lazyPut(() => ProfileController(appRepository: Get.find()));
   }
 }

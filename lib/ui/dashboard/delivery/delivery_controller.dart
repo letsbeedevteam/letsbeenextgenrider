@@ -47,32 +47,6 @@ class DeliveryController extends BaseRefreshController {
     super.onClose();
   }
 
-  void _getCurrentOrder() async {
-    await appRepository.getCurrentOrder().then((response) {
-      if (response.data != null) {
-        _goToOrderDetail(arguments: response.data.toJson());
-      } else {
-        _initSocket();
-        _initOrderslist();
-      }
-    });
-  }
-
-  Future<void> _getNearbyOrders() async {
-    return appRepository.getCurrentPosition().then((position) async {
-      await appRepository
-          .getNearbyOrders(position.latitude, position.longitude)
-          .then((response) {
-        orders.value.clear();
-        orders.value.addAll(response.data);
-        message.value = orders.value.isEmpty ? 'No Orders Available' : '';
-      });
-    }).catchError((error) {
-      message.value = (error as Failure).errorMessage;
-      print('${(error as Failure).errorMessage}');
-    });
-  }
-
   // Private Functions
   void _initSocket() async {
     print('$CLASS_NAME, _initSocket');
@@ -109,10 +83,57 @@ class DeliveryController extends BaseRefreshController {
       });
   }
 
+  void _getCurrentOrder() async {
+    await appRepository.getCurrentOrder().then((response) {
+      _closeSnackBar();
+      if (response.data != null) {
+        _goToOrderDetail(arguments: response.data.toJson());
+      } else {
+        _initSocket();
+        _initOrderslist();
+      }
+    }).catchError((error) {
+      statusMessage.value = '${(error as Failure).errorMessage}';
+      statusColor.value = Colors.red;
+    });
+  }
+
+  /// Close Snackbar
+  void _closeSnackBar() {
+    if (statusColor.value == Colors.red) {
+      statusMessage.value = 'Connected';
+      statusColor.value = Colors.green;
+
+      Future.delayed(Duration(seconds: 3)).then((_) {
+        statusMessage.value = '';
+      });
+    }
+  }
+
+  Future<void> _getNearbyOrders() async {
+    return appRepository.getCurrentPosition().then((position) async {
+      _closeSnackBar();
+      await appRepository
+          .getNearbyOrders(position.latitude, position.longitude)
+          .then((response) {
+        orders.value.clear();
+        orders.value.addAll(response.data);
+        message.value = orders.value.isEmpty ? 'No Orders Available' : '';
+      }).catchError((error) {
+        statusMessage.value = '${(error as Failure).errorMessage}';
+        statusColor.value = Colors.red;
+      });
+    }).catchError((error) {
+      print(error);
+      // print('${(error as Failure).errorMessage}');
+    });
+  }
+
   void _receiveNewOrders() {
     print('$CLASS_NAME, _receiveNewOrders');
     appRepository.receiveNewOrder((response) async {
       final orderUpdateResponse = GetNewOrderResponse.fromJson(response);
+      print(orderUpdateResponse.toJson());
       if (orderUpdateResponse.isNewOrder()) {
         if (orders.value.isNotEmpty) {
           //checks if the new order is already existing on the list
@@ -145,6 +166,7 @@ class DeliveryController extends BaseRefreshController {
           orders.value.remove(oldOrder);
         }
       }
+      message.value = orders.value.isEmpty ? 'No Orders Available' : '';
     });
   }
 
@@ -171,7 +193,7 @@ class DeliveryController extends BaseRefreshController {
   }
 
   // Public Functions
-  void acceptOrder(
+  Future<void> acceptOrder(
     OrderData order,
   ) async {
     await appRepository.acceptOrder(order.id).then((response) async {

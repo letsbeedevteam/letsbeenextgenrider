@@ -41,16 +41,16 @@ abstract class BaseTabView<T extends BaseTabController> extends GetView<T> {
   Tab buildTab({
     @required String iconPath,
     @required String iconDescription,
-    @required String title,
   }) {
     return Tab(
-      icon: SvgPicture.asset(
-        Config.SVG_PATH + iconPath,
-        semanticsLabel: iconDescription,
-        height: 22,
-        width: 22,
+      icon: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: SvgPicture.asset(
+          Config.SVG_PATH + iconPath,
+          semanticsLabel: iconDescription,
+          fit: BoxFit.contain,
+        ),
       ),
-      text: title,
     );
   }
 }

@@ -1,5 +1,5 @@
-import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:letsbeenextgenrider/core/utils/config.dart';
 import 'package:letsbeenextgenrider/core/utils/utils.dart';
@@ -9,413 +9,401 @@ import 'package:letsbeenextgenrider/data/models/product.dart';
 import 'package:letsbeenextgenrider/routing/pages.dart';
 import 'package:letsbeenextgenrider/ui/dashboard/delivery/order_detail/order_detail_controller.dart';
 import 'package:letsbeenextgenrider/core/utils/extensions.dart';
+import 'package:letsbeenextgenrider/ui/dashboard/delivery/order_detail/widgets/delivery_progressbar_big.dart';
+import 'package:letsbeenextgenrider/ui/widget/accept_button.dart';
+import 'package:letsbeenextgenrider/ui/widget/animated_expandable_container.dart';
+import 'package:letsbeenextgenrider/ui/widget/custom_appbar.dart';
+
+import 'widgets/delivery_progressbar_small.dart';
 
 class OrderDetailView extends GetView<OrderDetailController> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-        onWillPop: () => controller.willPopCallback(),
-        child: Scaffold(
-          appBar: AppBar(
-            automaticallyImplyLeading: false,
-            elevation: 0,
-            backgroundColor: Color(Config.LETSBEE_COLOR).withOpacity(1.0),
-            actions: [
-              Obx(() => controller.order.value.status == 'delivered'
-                  ? Container()
-                  : IconButton(
-                      icon: ImageIcon(
-                          AssetImage(Config.PNG_PATH + 'location_button.png'),
-                          size: 20),
-                      onPressed: () => controller.showMap(),
-                      splashColor: Colors.black.withOpacity(0.3))),
-              Obx(() => controller.order.value.status == 'delivered'
-                  ? Container()
-                  : Badge(
-                      showBadge: false,
-                      position: BadgePosition.topEnd(top: 5, end: 5),
-                      badgeContent: Text(
-                        '1',
-                        style: TextStyle(color: Colors.white),
+      child: Scaffold(
+        backgroundColor: Colors.grey.shade200,
+        appBar: CustomAppBar(
+          implyLeading: false,
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: 16,
+                        right: 16,
+                        top: 16,
                       ),
-                      child: IconButton(
-                          icon: ImageIcon(
-                              AssetImage(Config.PNG_PATH + 'chat_button.png'),
-                              size: 20),
-                          onPressed: () => Get.toNamed(Routes.CHAT_ROUTE,
-                              arguments: controller.order.value.toJson()),
-                          splashColor: Colors.black.withOpacity(0.3)),
-                    ))
-            ],
-            title: Text('"ORDER NO. ${controller.order.value.id}"',
-                style: TextStyle(
-                    fontWeight: FontWeight.bold, fontStyle: FontStyle.italic)),
-            centerTitle: false,
-          ),
-          body: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Flexible(
-                child: Scrollbar(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.all(15),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                  "${controller.order.value.store.name} - ${controller.order.value.store.locationName}",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15)),
-                              Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 15)),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
-                          child: Text('Items',
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15)),
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 30),
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: controller.order.value.products
-                                  .map((e) => _buildMenuItem(e))
-                                  .toList()),
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 30),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Sub Total',
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15)),
-                                  Text(
-                                      '₱ ${controller.order.value.fee.subTotal}',
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15))
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Delivery Fee',
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15)),
-                                  Text(
-                                      '₱ ${controller.order.value.fee.delivery}',
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15))
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Promo Code Discount',
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15)),
-                                  Text(
-                                      '₱ ${controller.order.value.fee.discountPrice}',
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15))
-                                ],
-                              ),
-                              Container(
-                                alignment: Alignment.bottomCenter,
-                                height: 50,
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text('TOTAL',
-                                        style: TextStyle(
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 15)),
-                                    Text(
-                                        '₱ ${controller.order.value.fee.total}',
-                                        style: TextStyle(
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 15))
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(top: 5),
-                          child: Divider(
-                              thickness: 2, color: Colors.grey.shade200),
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 30),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Delivery Details',
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15)),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 15, vertical: 5),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                        'Name: ${controller.order.value.user.name}',
-                                        style: TextStyle(
-                                            color: Colors.black,
-                                            fontStyle: FontStyle.italic,
-                                            fontSize: 14)),
-                                    Padding(
-                                        padding:
-                                            EdgeInsets.symmetric(vertical: 2)),
-                                    Text(
-                                        'Address: ${controller.order.value.address.street}, ${controller.order.value.address.barangay}, ${controller.order.value.address.city}, ${controller.order.value.address.state}, ${controller.order.value.address.country}',
-                                        style: TextStyle(
-                                            color: Colors.black,
-                                            fontStyle: FontStyle.italic,
-                                            fontSize: 14)),
-                                    Padding(
-                                        padding:
-                                            EdgeInsets.symmetric(vertical: 2)),
-                                    GestureDetector(
-                                      onTap: () {
-                                        controller.makePhoneCall();
-                                      },
-                                      child: Text(
-                                          'Contact Number: ${controller.order.value.user.cellphoneNumber}',
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              fontStyle: FontStyle.italic,
-                                              fontSize: 14)),
-                                    )
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(top: 5),
-                          child: Divider(
-                              thickness: 2, color: Colors.grey.shade200),
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 30),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Mode of Payment',
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15)),
-                              Text(
-                                  '${controller.order.value.payment.method.asReadablePaymentMethod()}',
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15))
-                            ],
-                          ),
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(top: 5),
-                          child: Divider(
-                              thickness: 2, color: Colors.grey.shade200),
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 30),
-                          child: Row(
-                            children: [
-                              Text('Status: ',
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontStyle: FontStyle.italic,
-                                      fontSize: 14)),
-                              GetX<OrderDetailController>(
-                                builder: (_) {
-                                  return Text(
-                                      '${_.order.value.status.asReadableOrderStatus()}',
-                                      style: TextStyle(
-                                          color: _.order.value.status
-                                              .getOrderStatusColor(),
-                                          fontStyle: FontStyle.italic,
-                                          fontSize: 14));
-                                },
-                              )
-                            ],
-                          ),
-                        ),
-                      ],
+                      child: _buildOrderDetails(),
                     ),
-                  ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: 16,
+                        right: 16,
+                        top: 16,
+                      ),
+                      child: _buildCustomerDetails(),
+                    ),
+                  ],
                 ),
               ),
-              Container(
-                  padding: EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
+            ),
+            _buildDeliveryStatus(),
+          ],
+        ),
+      ),
+      onWillPop: () => controller.willPopCallback(),
+    );
+  }
+
+  AnimatedExpandableContainer _buildDeliveryStatus() {
+    return AnimatedExpandableContainer(
+      isExpandedAtFirst: false,
+      vsync: controller,
+      expandedIconPath: 'arrow_down_black.svg',
+      inexpandedIconPath: 'arrow_up_black.svg',
+      isCircularBorder: false,
+      arrowColor: Colors.white,
+      title: Container(
+        padding: const EdgeInsets.symmetric(
+          vertical: 8,
+          horizontal: 16,
+        ),
+        color: Colors.grey.shade800,
+        child: Row(
+          children: [
+            Text(
+              'DELIVERY IN PROGRESS',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+      subTitle: DeliveryStatusProgressBarSmall(),
+      content: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            DeliveryStatusProgressBarBig(),
+            const Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+            ),
+            Obx(
+              () => controller.hasStartedShopping.value
+                  ? Text('You are currently shopping at...')
+                  : Text('You are on your way to...'),
+            ),
+            const Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Obx(
+                  () => SvgPicture.asset(
+                    controller.order.value.status == 'rider-picked-up'
+                        ? Config.SVG_PATH + 'destination_icon.svg'
+                        : Config.SVG_PATH + 'store_icon.svg',
+                    height: 23,
+                    width: 23,
                   ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                ),
+                Expanded(
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      GetX<OrderDetailController>(builder: (_) {
-                        return FlatButton(
-                            disabledColor: Colors.grey,
-                            disabledTextColor: Colors.black,
-                            shape: RoundedRectangleBorder(
-                                side: BorderSide(),
-                                borderRadius: BorderRadius.circular(10)),
-                            color: Color(Config.LETSBEE_COLOR).withOpacity(1.0),
-                            child: Padding(
-                                padding: EdgeInsets.all(10),
-                                child: _textStatus()),
-                            onPressed: _.isLoading.value
-                                ? null
-                                : () => {
-                                      controller.order.value.status !=
-                                              "delivered"
-                                          ? _showUpdateOrderStatusDialog()
-                                          : controller.goBackToDashboard()
-                                    });
-                      }),
+                      Obx(
+                        () => controller.order.value.status == 'rider-picked-up'
+                            ? Flexible(
+                                child: Text(
+                                  '${controller.order.value.address.street}, ${controller.order.value.address.barangay}, ${controller.order.value.address.city}, ${controller.order.value.address.state}, ${controller.order.value.address.country}',
+                                ),
+                              )
+                            : controller.order.value.store.locationName.isEmpty
+                                ? Flexible(
+                                    child: Text(
+                                      '${controller.order.value.store.name}}',
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 3,
+                                    ),
+                                  )
+                                : Flexible(
+                                    child: Text(
+                                      '${controller.order.value.store.name} - ${controller.order.value.store.locationName}',
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 3,
+                                    ),
+                                  ),
+                      ),
                     ],
-                  ))
+                  ),
+                ),
+                IconButton(
+                  icon: SvgPicture.asset(
+                    Config.SVG_PATH + 'location_icon.svg',
+                    semanticsLabel: 'N/A',
+                    height: 23,
+                    width: 23,
+                  ),
+                  onPressed: () {
+                    controller.showMap();
+                  },
+                ),
+              ],
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Container(
+                  alignment: Alignment.center,
+                  child: SvgPicture.asset(
+                    Config.SVG_PATH + 'customer_icon.svg',
+                    semanticsLabel: 'N/A',
+                    height: 23,
+                    width: 23,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          '${controller.order.value.user.name}',
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: SvgPicture.asset(
+                        Config.SVG_PATH + 'message_icon.svg',
+                        semanticsLabel: 'N/A',
+                        height: 23,
+                        width: 23,
+                      ),
+                      onPressed: () {
+                        Get.toNamed(
+                          Routes.CHAT_ROUTE,
+                          arguments: controller.order.value.toJson(),
+                        );
+                      },
+                    ),
+                    IconButton(
+                      icon: SvgPicture.asset(
+                        Config.SVG_PATH + 'call_icon.svg',
+                        semanticsLabel: 'N/A',
+                        height: 23,
+                        width: 23,
+                      ),
+                      onPressed: () {
+                        controller.makePhoneCall();
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 4,
+              ),
+            ),
+            Obx(
+              () => AcceptButton(
+                enabled: !controller.isLoading.value,
+                onTap: () {
+                  showAlertDialog(
+                    controller.updateOrderStatusdialogTitle.value,
+                    controller.updateOrderStatusdialogMessage.value,
+                    onConfirm: () {
+                      controller.updateOrderStatus();
+                    },
+                  );
+                },
+                title: controller.updateOrderStatusButtonText.value,
+                mainAxisSize: MainAxisSize.max,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  AnimatedExpandableContainer _buildCustomerDetails() {
+    return AnimatedExpandableContainer(
+      isExpandedAtFirst: true,
+      vsync: controller,
+      expandedIconPath: 'arrow_down_black.svg',
+      inexpandedIconPath: 'arrow_up_black.svg',
+      title: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          'Customer Details',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(controller.order.value.user.name),
+          const Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+          ),
+          Text(
+            '${controller.order.value.user.cellphoneNumber}',
+          ),
+          const Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+          ),
+          Text(
+            '${controller.order.value.address.street}, ${controller.order.value.address.barangay}, ${controller.order.value.address.city}, ${controller.order.value.address.state}, ${controller.order.value.address.country}',
+          ),
+          const Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+          ),
+        ],
+      ),
+    );
+  }
+
+  AnimatedExpandableContainer _buildOrderDetails() {
+    return AnimatedExpandableContainer(
+      isExpandedAtFirst: true,
+      vsync: controller,
+      expandedIconPath: 'arrow_down_black.svg',
+      inexpandedIconPath: 'arrow_up_black.svg',
+      title: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          'Order No. ${controller.order.value.id}',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(controller.order.value.store.name),
+          const Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                controller.order.value.status.asReadableOrderStatus(),
+                style: TextStyle(fontStyle: FontStyle.italic),
+              ),
+              Text(
+                'PHP ${controller.order.value.fee.total}',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
-        ));
-  }
-
-  void _showUpdateOrderStatusDialog() {
-    var message = 'Do you want to mark this as ';
-    switch (controller.order.value.status) {
-      case 'rider-accepted':
-        message += 'Picked-up';
-        break;
-      case 'rider-picked-up':
-        message += 'Delivered';
-        break;
-      default:
-        message = "";
-        break;
-    }
-    showAlertDialog(message, onConfirm: () {
-      controller.updateOrderStatus();
-    });
-  }
-
-  Widget _textStatus() {
-    var text = 'Mark as Picked-up';
-    switch (controller.order.value.status) {
-      case 'rider-accepted':
-        text = 'Mark As Picked-up';
-        break;
-      case 'rider-picked-up':
-        text = 'Mark As Delivered';
-        break;
-      default:
-        text = 'Home';
-        break;
-    }
-    return Text(text,
-        style: TextStyle(
-            color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15));
+          const Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Mode of Payment',
+              ),
+              Text(
+                controller.order.value.payment.method.asReadablePaymentMethod(),
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+          ),
+          Column(
+            children: controller.order.value.products
+                .map((product) => _buildMenuItem(product))
+                .toList(),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildMenuItem(Product product) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Container(
-                  child: Text('${product.quantity}x ${product.name}',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16)),
+    return Center(
+      child: Container(
+        margin: EdgeInsets.only(bottom: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${product.quantity}x',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      const Padding(
+                        padding: const EdgeInsets.only(right: 16),
+                      ),
+                      Flexible(
+                        child: Wrap(
+                          children: [
+                            Text(
+                              '${product.name}',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                            product.additionals.isEmpty
+                                ? const SizedBox.shrink()
+                                : _buildAdditionalColumn(product.additionals),
+                            product.choices.isEmpty
+                                ? const SizedBox.shrink()
+                                : _buildChoiceColumn(product.choices),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Text('₱ ${product.price}',
+                Text(
+                  product.price,
                   style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16))
-            ],
-          ),
-          Container(
-            margin: EdgeInsets.only(left: 20),
-            child: _buildAdditionalColumn(product.additionals),
-          ),
-          Container(
-            margin: EdgeInsets.only(left: 20),
-            child: _buildChoiceColumn(product.choices),
-          ),
-          Padding(padding: EdgeInsets.only(top: 10)),
-          product.note == null
-              ? Container()
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Special Request',
-                        style: TextStyle(
-                            fontStyle: FontStyle.italic, fontSize: 15)),
-                    Container(
-                        alignment: Alignment.centerLeft,
-                        margin: EdgeInsets.only(top: 5),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all()),
-                        child: Text('${product.note}',
-                            style: TextStyle(
-                                fontStyle: FontStyle.italic, fontSize: 15))),
-                  ],
-                ),
-          Padding(padding: EdgeInsets.only(top: 10)),
-          Divider()
-        ],
+                    color: Colors.black,
+                  ),
+                )
+              ],
+            ),
+            const Padding(padding: EdgeInsets.symmetric(vertical: 4)),
+            product.note == null
+                ? const SizedBox.shrink()
+                : Text(
+                    'Note: ${product.note}',
+                  ),
+          ],
+        ),
       ),
     );
   }
@@ -480,9 +468,14 @@ class OrderDetailView extends GetView<OrderDetailController> {
                     fontSize: 14)),
           ),
         ),
-        Text('+₱ ${choice.price}',
-            style: TextStyle(
-                color: Colors.black, fontWeight: FontWeight.bold, fontSize: 14))
+        Text(
+          '+₱ ${choice.price}',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
+        ),
       ],
     );
   }

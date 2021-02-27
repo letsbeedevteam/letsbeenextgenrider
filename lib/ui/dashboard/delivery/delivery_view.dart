@@ -21,17 +21,22 @@ class _Body extends BaseRefreshView<DeliveryController> {
   @override
   Widget get body => Obx(
         () => controller.orders.value.isEmpty
-            ? const SizedBox.shrink()
+            ? ListView(
+                children: [
+                  const SizedBox.shrink(),
+                ],
+              )
             : ListView.separated(
-                shrinkWrap: true,
+                shrinkWrap: false,
                 itemBuilder: (context, index) => OrderItem(
                   order: controller.orders.value[index],
                   onTap: () {
                     controller.acceptOrder(controller.orders.value[index]);
                   },
                 ),
-                separatorBuilder: (context, index) =>
-                    const Padding(padding: const EdgeInsets.only(bottom: 16)),
+                separatorBuilder: (context, index) => const Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                ),
                 itemCount: controller.orders.value.length,
               ),
       );

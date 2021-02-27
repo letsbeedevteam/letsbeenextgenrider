@@ -8,12 +8,16 @@ import 'package:letsbeenextgenrider/core/error/exceptions.dart';
 import 'package:letsbeenextgenrider/core/utils/config.dart';
 import 'package:letsbeenextgenrider/data/models/request/accept_order_request.dart';
 import 'package:letsbeenextgenrider/data/models/request/deliver_order_request.dart';
+import 'package:letsbeenextgenrider/data/models/request/get_history_by_date_and_status_request.dart';
 import 'package:letsbeenextgenrider/data/models/request/get_nearby_orders_request.dart';
+import 'package:letsbeenextgenrider/data/models/request/get_stats_by_date_request.dart';
 import 'package:letsbeenextgenrider/data/models/request/login_request.dart';
 import 'package:letsbeenextgenrider/data/models/request/pick_up_order_request.dart';
 import 'package:letsbeenextgenrider/data/models/request/refresh_token_request.dart';
 import 'package:letsbeenextgenrider/data/models/response/get_active_order_response.dart';
 import 'package:letsbeenextgenrider/data/models/response/get_nearby_orders.dart';
+import 'package:letsbeenextgenrider/data/models/response/get_stats_by_date_response.dart';
+import 'package:letsbeenextgenrider/data/models/response/get_status_by_date_and_status_response.dart';
 import 'package:letsbeenextgenrider/data/models/response/login_response.dart';
 import 'package:letsbeenextgenrider/data/models/response/refresh_token_response.dart';
 import 'package:letsbeenextgenrider/data/models/response/update_order_status_response.dart';
@@ -31,7 +35,7 @@ class ApiService extends GetxController {
         },
         body: jsonEncode(loginRequest.toJson()));
 
-    print('Login: ${response.body}');
+    print('login: ${response.body}');
 
     return loginResponseFromJson(response.body);
   }
@@ -51,7 +55,9 @@ class ApiService extends GetxController {
 
     print('getNearbyOrders: ${response.body}');
 
-    switch (response.statusCode) {
+    int status = json.decode(response.body)['status'];
+
+    switch (status) {
       case 200:
         return getNearbyOrdersResponseFromJson(response.body);
         break;
@@ -65,6 +71,7 @@ class ApiService extends GetxController {
   }
 
   Future<GetActiveOrderResponse> getCurrentOrder() async {
+    print('${getStorage.read(SharedPref.RIDER_ACCESS_TOKEN)}');
     final response = await http.get(
       Config.GET_CURRENT_ORDER,
       headers: <String, String>{
@@ -77,7 +84,9 @@ class ApiService extends GetxController {
 
     print('getCurrentOrder: ${response.body}');
 
-    switch (response.statusCode) {
+    int status = json.decode(response.body)['status'];
+
+    switch (status) {
       case 200:
         return getActiveOrderResponseFromJson(response.body);
         break;
@@ -104,7 +113,9 @@ class ApiService extends GetxController {
 
     print('acceptOrder: ${response.body}');
 
-    switch (response.statusCode) {
+    int status = json.decode(response.body)['status'];
+
+    switch (status) {
       case 200:
         return updateOrderStatusResponseFromJson(response.body);
         break;
@@ -131,7 +142,9 @@ class ApiService extends GetxController {
 
     print('pickupOrder: ${response.body}');
 
-    switch (response.statusCode) {
+    int status = json.decode(response.body)['status'];
+
+    switch (status) {
       case 200:
         return updateOrderStatusResponseFromJson(response.body);
         break;
@@ -157,7 +170,9 @@ class ApiService extends GetxController {
 
     print('deliverOrder: ${response.body}');
 
-    switch (response.statusCode) {
+    int status = json.decode(response.body)['status'];
+
+    switch (status) {
       case 200:
         return updateOrderStatusResponseFromJson(response.body);
         break;
@@ -179,10 +194,71 @@ class ApiService extends GetxController {
         body: jsonEncode(request.toJson()));
 
     print('RefreshToken: ${response.body}');
+    int status = json.decode(response.body)['status'];
 
-    switch (response.statusCode) {
+    switch (status) {
       case 200:
         return refreshTokenResponseFromJson(response.body);
+        break;
+      default:
+        throw ServerException('Something went wrong');
+        break;
+    }
+  }
+
+   Future<GetStatsByDateResponse> getStatsByDate(
+    GetStatsbyDateRequest request,
+  ) async {
+    final response = await http.get(
+      Config.getStatsByDate(from: request.from.toIso8601String(), to: request.to.toIso8601String()),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization':
+            'Bearer ${getStorage.read(SharedPref.RIDER_ACCESS_TOKEN)}',
+      },
+    );
+
+    print('getStatsByDate: ${response.body}');
+
+    int status = json.decode(response.body)['status'];
+
+    switch (status) {
+      case 200:
+        return getStatsByDateResponseFromJson(response.body);
+        break;
+      case 401:
+        throw UnauthorizedException('Token Expired');
+        break;
+      default:
+        throw ServerException('Something went wrong');
+        break;
+    }
+  }
+
+  Future<GetHistoryByDateAndStatusResponse> getHistoryByDate(
+    GetHistoryByDateAndStatusRequest request,
+  ) async {
+    final response = await http.get(
+      Config.getHistoryByDateAndStatus(from: request.from.toIso8601String(), to: request.to.toIso8601String(), status: request.status),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization':
+            'Bearer ${getStorage.read(SharedPref.RIDER_ACCESS_TOKEN)}',
+      },
+    );
+
+    print('getHistoryByDateAndStatus: ${response.body}');
+
+    int status = json.decode(response.body)['status'];
+
+    switch (status) {
+      case 200:
+        return getHistoryByDateAndStatusResponseFromJson(response.body);
+        break;
+      case 401:
+        throw UnauthorizedException('Token Expired');
         break;
       default:
         throw ServerException('Something went wrong');

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:letsbeenextgenrider/data/models/order_data.dart';
 import 'package:letsbeenextgenrider/data/models/response/get_new_order_response.dart';
+import 'package:letsbeenextgenrider/ui/widget/accept_button.dart';
+import 'package:letsbeenextgenrider/ui/widget/decline_button.dart';
 
 import 'config.dart';
 
@@ -17,47 +19,63 @@ Widget dismissKeyboard(BuildContext context, {child: Widget}) {
   );
 }
 
-void showAlertDialog(String message, {Function() onConfirm}) {
-  Get.dialog(AlertDialog(
-      backgroundColor: Color(Config.LETSBEE_COLOR).withOpacity(1.0),
-      content: Wrap(
-        alignment: WrapAlignment.center,
-        children: [
-          Text(
-            message,
-            style: TextStyle(fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              RaisedButton(
-                  color: Colors.blue,
-                  child: Text(
-                    "CANCEL",
-                    style: TextStyle(color: Colors.white),
+void showAlertDialog(
+  String title,
+  String message, {
+  String confirmButtonText = 'YES',
+  String cancelButtonText = 'NO',
+  Function() onConfirm,
+}) {
+  Get.dialog(
+    AlertDialog(
+      backgroundColor: Colors.white,
+      content: IntrinsicHeight(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.start,
+            ),
+            Text(
+              message,
+              textAlign: TextAlign.start,
+            ),
+            const Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: DeclineButton(
+                      onTap: () {
+                        Get.back();
+                      },
+                      title: cancelButtonText,
+                      mainAxisSize: MainAxisSize.max),
+                ),
+                const Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                ),
+                Expanded(
+                  child: AcceptButton(
+                    onTap: () {
+                      onConfirm();
+                      Get.back();
+                    },
+                    title: confirmButtonText,
+                    mainAxisSize: MainAxisSize.max,
                   ),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  onPressed: () {
-                    Get.back();
-                  }),
-              RaisedButton(
-                  color: Colors.blue,
-                  child: Text(
-                    "Ok",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  onPressed: () {
-                    onConfirm();
-                    Get.back();
-                  })
-            ],
-          ),
-        ],
-      )));
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 void showSnackbar(String title, String message) {
