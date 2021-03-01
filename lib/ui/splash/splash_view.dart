@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:letsbeenextgenrider/utils/config.dart';
+import 'package:letsbeenextgenrider/core/utils/config.dart';
 
 class SplashView extends StatelessWidget {
   @override

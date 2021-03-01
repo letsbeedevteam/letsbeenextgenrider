@@ -50,8 +50,6 @@ class SharedPref {
     saveRiderCellphoneNumber(cellphoneNumber);
     saveRiderAccessToken(accessToken);
     saveRole(role);
-
-    _getStorage.write(IS_LOGGEDIN, true);
   }
 
   // Storage read functions
@@ -77,10 +75,6 @@ class SharedPref {
 
   String getRole() {
     return _getStorage.read(ROLE);
-  }
-
-  bool getUserLoginStatus() {
-    return _getStorage.read(IS_LOGGEDIN);
   }
 
   // Storage functions

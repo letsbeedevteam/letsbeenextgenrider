@@ -1,24 +1,22 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:letsbeenextgenrider/utils/config.dart';
+import 'package:letsbeenextgenrider/data/souce/local/sharedpref.dart';
+import 'package:letsbeenextgenrider/routing/pages.dart';
 
 class SplashController extends GetxController {
-  final GetStorage _getStorage = Get.find();
+  final SharedPref sharedPref;
+
+  SplashController({@required this.sharedPref});
 
   @override
   void onInit() {
     Future.delayed(Duration(seconds: 2)).then((value) {
-      if (_getStorage.hasData(Config.IS_LOGGEDIN)) {
-        if (_getStorage.read(Config.IS_LOGGEDIN)) {
-          Get.offAllNamed(Config.DASHBOARD_ROUTE);
-        } else {
-          Get.offAllNamed(Config.LOGIN_ROUTE);
-        }
+      if (sharedPref.getRiderAccessToken() != null) {
+        Get.offAllNamed(Routes.DASHBOARD_ROUTE);
       } else {
-        Get.offAllNamed(Config.LOGIN_ROUTE);
+        Get.offAllNamed(Routes.LOGIN_ROUTE);
       }
     });
-
     super.onInit();
   }
 }

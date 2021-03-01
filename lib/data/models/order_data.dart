@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:letsbeenextgenrider/data/models/address.dart';
+import 'package:letsbeenextgenrider/data/models/order_address.dart';
 import 'package:letsbeenextgenrider/data/models/fee.dart';
 import 'package:letsbeenextgenrider/data/models/product.dart';
 import 'package:letsbeenextgenrider/data/models/payment.dart';
@@ -35,7 +35,7 @@ class OrderData {
   List<Product> products;
   Fee fee;
   Timeframe timeframe;
-  Address address;
+  OrderAddress address;
   Payment payment;
   int id;
   int storeId;
@@ -58,7 +58,7 @@ class OrderData {
         timeframe: json["timeframe"] == null || json["timeframe"] == ""
             ? null
             : Timeframe.fromJson(json["timeframe"]),
-        address: Address.fromJson(json["address"]),
+        address: OrderAddress.fromJson(json["address"]),
         payment: Payment.fromJson(json["payment"]),
         id: json["id"],
         storeId: json["store_id"],

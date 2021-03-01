@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:letsbeenextgenrider/utils/config.dart';
+import 'package:letsbeenextgenrider/core/utils/config.dart';
+import 'package:letsbeenextgenrider/data/souce/local/sharedpref.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class SocketService {
@@ -30,51 +29,15 @@ class SocketService {
 
   IO.Socket socket;
 
-  bool isConnected;
-
-  void connectSocket(
-      {Function(dynamic) onConnected,
-      Function(dynamic) onConnecting,
-      Function(dynamic) onReconnecting,
-      Function(dynamic) onDisconnected,
-      Function(dynamic) onError}) {
-    this.socket =
-        IO.io(Config.BASE_URL + Config.SOCKET_NAMESPACE, <String, dynamic>{
+  Future<IO.Socket> connectSocket() async {
+    this.socket = IO.io(Config.SOCKET, <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': true,
       'extraHeaders': {
-        'x-auth-token': _sharedPref.read(Config.RIDER_ACCESS_TOKEN)
+        'x-auth-token': _sharedPref.read(SharedPref.RIDER_ACCESS_TOKEN)
       }
     });
 
-    this.socket
-      ..on(CONNECTED, (_) {
-        print('connected');
-        isConnected = true;
-        onConnected(_);
-      })
-      ..on(CONNECTING, (_) {
-        print('connecting');
-        isConnected = false;
-        onConnecting(_);
-      })
-      ..on(RECONNECTING, (_) {
-        print('reconnecting');
-        isConnected = false;
-        onReconnecting(_);
-      })
-      ..on(DISCONNECTED, (_) {
-        print('disconnected');
-        isConnected = false;
-        onDisconnected(_);
-      })
-      ..on(ERROR, (_) {
-        print('socket error = $_');
-        isConnected = false;
-        if (_ is SocketException) {
-          print("no internet connection");
-        }
-        onError(_);
-      });
+    return this.socket;
   }
 }

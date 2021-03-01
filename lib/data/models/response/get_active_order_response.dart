@@ -6,7 +6,8 @@ import 'package:letsbeenextgenrider/data/models/response/base/base_response.dart
 GetActiveOrderResponse getActiveOrderResponseFromJson(String str) =>
     GetActiveOrderResponse.fromJson(json.decode(str));
 
-String getActiveOrderResponseToJson(GetActiveOrderResponse data) => json.encode(data.toJson());
+String getActiveOrderResponseToJson(GetActiveOrderResponse data) =>
+    json.encode(data.toJson());
 
 class GetActiveOrderResponse implements BaseResponse {
   GetActiveOrderResponse({
@@ -21,11 +22,11 @@ class GetActiveOrderResponse implements BaseResponse {
   factory GetActiveOrderResponse.fromJson(Map<String, dynamic> json) =>
       GetActiveOrderResponse(
         status: json["status"],
-        data: OrderData.fromJson(json["data"]) 
+        data: json["data"] == null ? null : OrderData.fromJson(json["data"]),
       );
 
   Map<String, dynamic> toJson() => {
         "status": status,
-        "data": data.toJson(),
+        "data": data == null ? null : data.toJson(),
       };
 }

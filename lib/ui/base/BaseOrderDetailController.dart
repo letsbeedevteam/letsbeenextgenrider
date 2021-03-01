@@ -17,14 +17,14 @@ abstract class BaseOrderDetailController extends GetxController {
   }
 
   void _initSocket() {
-    appRepository.connectSocket(
-        onConnected: (_) {
-          _receiveNewMessages();
-        },
-        onConnecting: (_) {},
-        onReconnecting: (_) {},
-        onDisconnected: (_) {},
-        onError: (_) {});
+    // appRepository.connectSocket(
+    //     onConnected: (_) {
+    //       _receiveNewMessages();
+    //     },
+    //     onConnecting: (_) {},
+    //     onReconnecting: (_) {},
+    //     onDisconnected: (_) {},
+    //     onError: (_) {});
   }
 
   void _receiveNewMessages() {

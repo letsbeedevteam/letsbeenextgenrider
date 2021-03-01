@@ -1,5 +1,13 @@
+import 'dart:convert';
+
 import 'package:letsbeenextgenrider/data/models/order_data.dart';
 import 'package:letsbeenextgenrider/data/models/response/base/base_response.dart';
+
+UpdateOrderStatusResponse updateOrderStatusResponseFromJson(String str) =>
+    UpdateOrderStatusResponse.fromJson(json.decode(str));
+
+String updateOrderStatusResponseToJson(UpdateOrderStatusResponse data) =>
+    json.encode(data.toJson());
 
 class UpdateOrderStatusResponse implements BaseResponse {
   UpdateOrderStatusResponse({this.status, this.data, this.message});
