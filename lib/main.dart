@@ -19,6 +19,8 @@ import 'services/google_map_service.dart';
 import 'services/location_service.dart';
 import 'services/push_notification_service.dart';
 
+//started working at 9:42am Sunday
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initServices();

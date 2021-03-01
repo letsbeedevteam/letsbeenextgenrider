@@ -64,7 +64,7 @@ class OrderDetailView extends GetView<OrderDetailController> {
       isExpandedAtFirst: false,
       vsync: controller,
       expandedIconPath: 'arrow_down_black.svg',
-      inexpandedIconPath: 'arrow_up_black.svg',
+      unexpandedIconPath: 'arrow_up_black.svg',
       isCircularBorder: false,
       arrowColor: Colors.white,
       title: Container(
@@ -253,29 +253,44 @@ class OrderDetailView extends GetView<OrderDetailController> {
       isExpandedAtFirst: true,
       vsync: controller,
       expandedIconPath: 'arrow_down_black.svg',
-      inexpandedIconPath: 'arrow_up_black.svg',
+      unexpandedIconPath: 'arrow_up_black.svg',
       title: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Text(
-          'Customer Details',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Text(
+              'Customer Details',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
         ),
       ),
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(controller.order.value.user.name),
-          const Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-          ),
-          Text(
-            '${controller.order.value.user.cellphoneNumber}',
+          Divider(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(controller.order.value.user.name),
           ),
           const Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
           ),
-          Text(
-            '${controller.order.value.address.street}, ${controller.order.value.address.barangay}, ${controller.order.value.address.city}, ${controller.order.value.address.state}, ${controller.order.value.address.country}',
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(
+              '${controller.order.value.user.cellphoneNumber}',
+            ),
+          ),
+          const Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(
+              '${controller.order.value.address.street}, ${controller.order.value.address.barangay}, ${controller.order.value.address.city}, ${controller.order.value.address.state}, ${controller.order.value.address.country}',
+            ),
           ),
           const Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
@@ -290,50 +305,66 @@ class OrderDetailView extends GetView<OrderDetailController> {
       isExpandedAtFirst: true,
       vsync: controller,
       expandedIconPath: 'arrow_down_black.svg',
-      inexpandedIconPath: 'arrow_up_black.svg',
+      unexpandedIconPath: 'arrow_up_black.svg',
       title: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Text(
-          'Order No. ${controller.order.value.id}',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Text(
+              'Order No. ${controller.order.value.id}',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
         ),
       ),
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(controller.order.value.store.name),
+          Divider(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(controller.order.value.store.name),
+          ),
           const Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                controller.order.value.status.asReadableOrderStatus(),
-                style: TextStyle(fontStyle: FontStyle.italic),
-              ),
-              Text(
-                'PHP ${controller.order.value.fee.total}',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  controller.order.value.status.asReadableOrderStatus(),
+                  style: TextStyle(fontStyle: FontStyle.italic),
                 ),
-              ),
-            ],
+                Text(
+                  'PHP ${controller.order.value.fee.total}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
           const Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Mode of Payment',
-              ),
-              Text(
-                controller.order.value.payment.method.asReadablePaymentMethod(),
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Mode of Payment',
+                ),
+                Text(
+                  controller.order.value.payment.method
+                      .asReadablePaymentMethod(),
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
           ),
           const Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
@@ -351,7 +382,7 @@ class OrderDetailView extends GetView<OrderDetailController> {
   Widget _buildMenuItem(Product product) {
     return Center(
       child: Container(
-        margin: EdgeInsets.only(bottom: 20),
+        padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -4,14 +4,19 @@ import 'package:letsbeenextgenrider/data/app_repository.dart';
 import 'package:letsbeenextgenrider/data/models/response/get_status_by_date_and_status_response.dart';
 import 'package:letsbeenextgenrider/ui/base/controller/base_tab_controller.dart';
 
-class HistoryController extends BaseTabController {
+class HistoryController extends BaseTabController
+    with SingleGetTickerProviderMixin {
   static const CLASS_NAME = 'HistoryController';
 
   final AppRepository appRepository;
 
   HistoryController({@required this.appRepository});
 
-  Rx<RxList<GetHistoryData>> today = RxList<GetHistoryData>().obs;
+  Rx<RxList<GetHistoryData>> ordersToday = RxList<GetHistoryData>().obs;
+  Rx<RxList<GetHistoryData>> ordersYesterday = RxList<GetHistoryData>().obs;
+  Rx<RxList<GetHistoryData>> ordersThisWeek = RxList<GetHistoryData>().obs;
+  Rx<RxList<GetHistoryData>> ordersLastWeek = RxList<GetHistoryData>().obs;
+
   final DateTime now = DateTime.now();
 
   @override
@@ -31,7 +36,8 @@ class HistoryController extends BaseTabController {
         .getHistoryByDate(
             from: DateTime(now.year, now.month, now.day, 0, 0, 0), to: now)
         .then((response) {
-      print('today = ${response.toJson()}');
+      ordersToday.value.clear();
+      ordersToday.value.addAll(response.data);
     }).catchError((error) {
       print(error);
     });
@@ -48,7 +54,8 @@ class HistoryController extends BaseTabController {
             to: DateTime(
                 yesterday.year, yesterday.month, yesterday.day, 23, 59, 59))
         .then((response) {
-      print('yesterday = ${response.toJson()}');
+      ordersYesterday.value.clear();
+      ordersYesterday.value.addAll(response.data);
     }).catchError((error) {
       print(error);
     });
@@ -67,7 +74,8 @@ class HistoryController extends BaseTabController {
                 thisSunday.year, thisSunday.month, thisSunday.day, 0, 0, 0),
             to: now)
         .then((response) {
-      print('this week = ${response.toJson()}');
+      ordersThisWeek.value.clear();
+      ordersThisWeek.value.addAll(response.data);
     }).catchError((error) {
       print(error);
     });
@@ -89,7 +97,8 @@ class HistoryController extends BaseTabController {
                 prevSunday.year, prevSunday.month, prevSunday.day, 0, 0, 0),
             to: DateTime(prevSat.year, prevSat.month, prevSat.day, 23, 59, 59))
         .then((response) {
-      print('last week = ${response.toJson()}');
+      ordersLastWeek.value.clear();
+      ordersLastWeek.value.addAll(response.data);
     }).catchError((error) {
       print(error);
     });

@@ -34,7 +34,7 @@ abstract class BaseTabView2<T extends BaseTabController> extends GetView<T> {
         const Padding(
           padding: const EdgeInsets.symmetric(vertical: 8),
         ),
-        Flexible(
+        Expanded(
           child: TabBarView(
             physics: const NeverScrollableScrollPhysics(),
             controller: controller.tabBarController,
