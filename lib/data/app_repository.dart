@@ -8,13 +8,17 @@ import 'package:letsbeenextgenrider/core/error/failures.dart';
 import 'package:letsbeenextgenrider/core/utils/google_map_utils.dart';
 import 'package:letsbeenextgenrider/core/utils/network_info.dart';
 import 'package:letsbeenextgenrider/data/models/login_data.dart';
+import 'package:letsbeenextgenrider/data/models/motorcycle_details.dart';
 import 'package:letsbeenextgenrider/data/models/request/accept_order_request.dart';
 import 'package:letsbeenextgenrider/data/models/request/deliver_order_request.dart';
 import 'package:letsbeenextgenrider/data/models/request/get_history_by_date_and_status_request.dart';
 import 'package:letsbeenextgenrider/data/models/request/get_stats_by_date_request.dart';
 import 'package:letsbeenextgenrider/data/models/request/pick_up_order_request.dart';
+import 'package:letsbeenextgenrider/data/models/request/send_current_order_location_request.dart';
+import 'package:letsbeenextgenrider/data/models/request/update_work_status_request.dart';
 import 'package:letsbeenextgenrider/data/models/response/get_active_order_response.dart';
-import 'package:letsbeenextgenrider/data/models/response/get_status_by_date_and_status_response.dart';
+import 'package:letsbeenextgenrider/data/models/response/get_history_by_date_and_status_response.dart';
+import 'package:letsbeenextgenrider/data/models/rider_details.dart';
 import 'package:letsbeenextgenrider/services/google_map_service.dart';
 import 'package:letsbeenextgenrider/services/location_service.dart';
 import 'package:letsbeenextgenrider/services/push_notification_service.dart';
@@ -61,25 +65,39 @@ class AppRepository {
   int getRiderId() => sharedPref.getRiderId();
 
   LoginData getUser() => LoginData(
-        id: sharedPref.getRiderId(),
-        name: sharedPref.getRiderName(),
-        email: sharedPref.getRiderEmail(),
-        role: sharedPref.getRole(),
-        cellphoneNumber: sharedPref.getRiderCellphoneNumber(),
-        accessToken: sharedPref.getRiderAccessToken(),
-      );
+      id: sharedPref.getRiderId(),
+      name: sharedPref.getRiderName(),
+      email: sharedPref.getRiderEmail(),
+      role: sharedPref.getRole(),
+      cellphoneNumber: sharedPref.getRiderCellphoneNumber(),
+      accessToken: sharedPref.getRiderAccessToken(),
+      riderDetails: RiderDetails(
+        photo: sharedPref.getPhoto(),
+        motorcycleDetails: MotorcycleDetails(
+          brand: sharedPref.getMotorcycleBrand(),
+          model: sharedPref.getMotorcycleModel(),
+          color: sharedPref.getMotorcycleColor(),
+          plateNumber: sharedPref.getMotorcyclePlateNumber(),
+        ),
+      ));
 
 // ApiService
   Future login(LoginRequest loginRequest) {
     return apiService.login(loginRequest).then((response) {
       if (response.status == 200) {
         sharedPref.saveRiderInfo(
-            id: response.data.id,
-            name: response.data.name,
-            email: response.data.email,
-            cellphoneNumber: response.data.cellphoneNumber,
-            accessToken: response.data.accessToken,
-            role: response.data.role);
+          id: response.data.id,
+          name: response.data.name,
+          email: response.data.email,
+          cellphoneNumber: response.data.cellphoneNumber,
+          accessToken: response.data.accessToken,
+          role: response.data.role,
+          photo: response.data.riderDetails.photo,
+          brand: response.data.riderDetails.motorcycleDetails.brand,
+          model: response.data.riderDetails.motorcycleDetails.model,
+          color: response.data.riderDetails.motorcycleDetails.color,
+          plateNumber: response.data.riderDetails.motorcycleDetails.plateNumber,
+        );
       }
     });
   }
@@ -167,7 +185,8 @@ class AppRepository {
     @required DateTime from,
     @required DateTime to,
   }) async {
-    final GetHistoryByDateAndStatusRequest request = GetHistoryByDateAndStatusRequest(
+    final GetHistoryByDateAndStatusRequest request =
+        GetHistoryByDateAndStatusRequest(
       from: from,
       to: to,
       status: 'delivered',
@@ -183,7 +202,7 @@ class AppRepository {
       } on UnauthorizedException catch (_) {
         return refreshAccessToken().then((response) {
           sharedPref.saveRiderAccessToken(response.data.accessToken);
-          getStatsByDate(from: from, to: to);
+          getHistoryByDate(from: from, to: to);
         }).catchError((error) {
           throw error;
         });
@@ -275,6 +294,60 @@ class AppRepository {
         return refreshAccessToken().then((response) {
           sharedPref.saveRiderAccessToken(response.data.accessToken);
           deliverOrder(orderId, locations);
+        }).catchError((error) {
+          throw error;
+        });
+      }
+    } else {
+      throw ConnectionFailure('You don\'t have internet access');
+    }
+  }
+
+  Future<bool> updateWorkStatus(
+    String status,
+  ) async {
+    UpdateWorkStatusRequest request = UpdateWorkStatusRequest(status: status);
+
+    if (await networkInfo.isConnected) {
+      try {
+        return await apiService.updateWorkStatus(request);
+      } on ServerException catch (e) {
+        throw ServerFailure(e.cause);
+      } on SocketException catch (_) {
+        throw ServerFailure('Something went wrong');
+      } on UnauthorizedException catch (_) {
+        return refreshAccessToken().then((response) {
+          sharedPref.saveRiderAccessToken(response.data.accessToken);
+          updateWorkStatus(status);
+        }).catchError((error) {
+          throw error;
+        });
+      }
+    } else {
+      throw ConnectionFailure('You don\'t have internet access');
+    }
+  }
+
+  Future<bool> sendCurrentOrderLocation(
+    double lat,
+    double lng,
+  ) async {
+    SendCurrentOrderLocationRequest request = SendCurrentOrderLocationRequest(
+      latitude: lat,
+      longitude: lng,
+    );
+
+    if (await networkInfo.isConnected) {
+      try {
+        return await apiService.sendCurrentOrderLocation(request);
+      } on ServerException catch (e) {
+        throw ServerFailure(e.cause);
+      } on SocketException catch (_) {
+        throw ServerFailure('Something went wrong');
+      } on UnauthorizedException catch (_) {
+        return refreshAccessToken().then((response) {
+          sharedPref.saveRiderAccessToken(response.data.accessToken);
+          sendCurrentOrderLocation(lat, lng);
         }).catchError((error) {
           throw error;
         });

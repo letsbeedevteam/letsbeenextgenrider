@@ -14,10 +14,13 @@ import 'package:letsbeenextgenrider/data/models/request/get_stats_by_date_reques
 import 'package:letsbeenextgenrider/data/models/request/login_request.dart';
 import 'package:letsbeenextgenrider/data/models/request/pick_up_order_request.dart';
 import 'package:letsbeenextgenrider/data/models/request/refresh_token_request.dart';
+import 'package:letsbeenextgenrider/data/models/request/send_current_order_location_request.dart';
+import 'package:letsbeenextgenrider/data/models/request/send_order_location_request.dart';
+import 'package:letsbeenextgenrider/data/models/request/update_work_status_request.dart';
 import 'package:letsbeenextgenrider/data/models/response/get_active_order_response.dart';
 import 'package:letsbeenextgenrider/data/models/response/get_nearby_orders.dart';
 import 'package:letsbeenextgenrider/data/models/response/get_stats_by_date_response.dart';
-import 'package:letsbeenextgenrider/data/models/response/get_status_by_date_and_status_response.dart';
+import 'package:letsbeenextgenrider/data/models/response/get_history_by_date_and_status_response.dart';
 import 'package:letsbeenextgenrider/data/models/response/login_response.dart';
 import 'package:letsbeenextgenrider/data/models/response/refresh_token_response.dart';
 import 'package:letsbeenextgenrider/data/models/response/update_order_status_response.dart';
@@ -206,11 +209,13 @@ class ApiService extends GetxController {
     }
   }
 
-   Future<GetStatsByDateResponse> getStatsByDate(
+  Future<GetStatsByDateResponse> getStatsByDate(
     GetStatsbyDateRequest request,
   ) async {
     final response = await http.get(
-      Config.getStatsByDate(from: request.from.toIso8601String(), to: request.to.toIso8601String()),
+      Config.getStatsByDate(
+          from: request.from.toIso8601String(),
+          to: request.to.toIso8601String()),
       headers: <String, String>{
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -240,7 +245,10 @@ class ApiService extends GetxController {
     GetHistoryByDateAndStatusRequest request,
   ) async {
     final response = await http.get(
-      Config.getHistoryByDateAndStatus(from: request.from.toIso8601String(), to: request.to.toIso8601String(), status: request.status),
+      Config.getHistoryByDateAndStatus(
+          from: request.from.toIso8601String(),
+          to: request.to.toIso8601String(),
+          status: request.status),
       headers: <String, String>{
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -256,6 +264,64 @@ class ApiService extends GetxController {
     switch (status) {
       case 200:
         return getHistoryByDateAndStatusResponseFromJson(response.body);
+        break;
+      case 401:
+        throw UnauthorizedException('Token Expired');
+        break;
+      default:
+        throw ServerException('Something went wrong');
+        break;
+    }
+  }
+
+  Future<bool> updateWorkStatus(
+    UpdateWorkStatusRequest request,
+  ) async {
+    final response = await http.post(Config.UPDATE_WORK_STATUS,
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization':
+              'Bearer ${getStorage.read(SharedPref.RIDER_ACCESS_TOKEN)}',
+        },
+        body: jsonEncode(request.toJson()));
+
+    print('updateWorkStatus: ${response.body}');
+
+    int status = json.decode(response.body)['status'];
+
+    switch (status) {
+      case 200:
+        return true;
+        break;
+      case 401:
+        throw UnauthorizedException('Token Expired');
+        break;
+      default:
+        throw ServerException('Something went wrong');
+        break;
+    }
+  }
+
+  Future<bool> sendCurrentOrderLocation(
+    SendCurrentOrderLocationRequest request,
+  ) async {
+    final response = await http.post(Config.SEND_CURRENT_LOCATION_ORDER,
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization':
+              'Bearer ${getStorage.read(SharedPref.RIDER_ACCESS_TOKEN)}',
+        },
+        body: jsonEncode(request.toJson()));
+
+    print('sendOrderLocation: ${response.body}');
+
+    int status = json.decode(response.body)['status'];
+
+    switch (status) {
+      case 200:
+        return true;
         break;
       case 401:
         throw UnauthorizedException('Token Expired');

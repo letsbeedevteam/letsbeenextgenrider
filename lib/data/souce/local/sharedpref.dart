@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:letsbeenextgenrider/data/models/motorcycle_details.dart';
 
 class SharedPref {
   final GetStorage _getStorage = Get.find();
@@ -11,6 +12,11 @@ class SharedPref {
   static const RIDER_CELLPHONE_NUMBER = "cellphone_number";
   static const RIDER_ACCESS_TOKEN = 'access_token';
   static const IS_LOGGEDIN = 'isLoggedIn';
+  static const PHOTO = 'photo';
+  static const MOTORCYCLE_BRAND = 'motorcycle_brand';
+  static const MOTORCYCLE_MODEL = 'motorcycle_model';
+  static const MOTORCYCLE_COLOR = 'motorcycle_color';
+  static const MOTORCYCLE_PLATE_NUMBER = 'motorcycle_plate_number';
 
   // Storage write functions
   void saveRiderId(int riderId) {
@@ -37,19 +43,50 @@ class SharedPref {
     _getStorage.write(ROLE, role);
   }
 
-  void saveRiderInfo(
-      {int id,
-      String name,
-      String email,
-      String cellphoneNumber,
-      String accessToken,
-      String role}) {
+  void savePhoto(String photo) {
+    _getStorage.write(PHOTO, photo);
+  }
+
+  void saveMotorCycleBrand(String brand) {
+    _getStorage.write(MOTORCYCLE_BRAND, brand);
+  }
+
+  void saveMotorCycleModel(String model) {
+    _getStorage.write(MOTORCYCLE_MODEL, model);
+  }
+
+  void saveMotorCycleColor(String color) {
+    _getStorage.write(MOTORCYCLE_COLOR, color);
+  }
+
+  void saveMotorCyclePlateNumber(String plateNumber) {
+    _getStorage.write(MOTORCYCLE_PLATE_NUMBER, plateNumber);
+  }
+
+  void saveRiderInfo({
+    int id,
+    String name,
+    String email,
+    String cellphoneNumber,
+    String accessToken,
+    String role,
+    String photo,
+    String brand,
+    String model,
+    String color,
+    String plateNumber,
+  }) {
     saveRiderId(id);
     saveRiderName(name);
     saveRiderEmail(email);
     saveRiderCellphoneNumber(cellphoneNumber);
     saveRiderAccessToken(accessToken);
     saveRole(role);
+    savePhoto(photo);
+    saveMotorCycleBrand(brand);
+    saveMotorCycleModel(model);
+    saveMotorCycleColor(color);
+    saveMotorCyclePlateNumber(plateNumber);
   }
 
   // Storage read functions
@@ -75,6 +112,26 @@ class SharedPref {
 
   String getRole() {
     return _getStorage.read(ROLE);
+  }
+
+  String getPhoto() {
+    return _getStorage.read(PHOTO);
+  }
+
+  String getMotorcycleBrand(){
+    return _getStorage.read(MOTORCYCLE_BRAND);
+  }
+
+  String getMotorcycleModel(){
+    return _getStorage.read(MOTORCYCLE_MODEL);
+  }
+
+  String getMotorcycleColor(){
+    return _getStorage.read(MOTORCYCLE_COLOR);
+  }
+
+  String getMotorcyclePlateNumber(){
+    return _getStorage.read(MOTORCYCLE_PLATE_NUMBER);
   }
 
   // Storage functions

@@ -1,3 +1,5 @@
+import 'package:letsbeenextgenrider/data/models/rider_details.dart';
+
 class LoginData {
   LoginData({
     this.id,
@@ -6,6 +8,7 @@ class LoginData {
     this.role,
     this.cellphoneNumber,
     this.accessToken,
+    this.riderDetails,
   });
 
   int id;
@@ -14,6 +17,7 @@ class LoginData {
   String role;
   dynamic cellphoneNumber;
   String accessToken;
+  RiderDetails riderDetails;
 
   factory LoginData.fromJson(Map<String, dynamic> json) => LoginData(
         id: json["id"],
@@ -23,6 +27,7 @@ class LoginData {
         cellphoneNumber:
             json["cellphone_number"] == null ? null : json["cellphone_number"],
         accessToken: json["access_token"],
+        riderDetails: RiderDetails.fromJson(json["rider"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -32,5 +37,6 @@ class LoginData {
         "role": role,
         "cellphone_number": cellphoneNumber == null ? null : cellphoneNumber,
         "access_token": accessToken,
+        "rider": riderDetails.toJson(),
       };
 }

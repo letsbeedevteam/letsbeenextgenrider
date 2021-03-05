@@ -41,3 +41,8 @@ flutter:
   assets:
     - assets/png/
     - assets/svg/
+
+  fonts:
+    - family: CooperBlack
+      fonts:
+        - asset: fonts/COOPBL.TTF

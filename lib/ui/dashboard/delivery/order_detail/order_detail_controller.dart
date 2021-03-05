@@ -33,6 +33,7 @@ class OrderDetailController extends GetxController
     order.value = OrderData.fromJson(_argument);
     updateUiFromCurrentOrderStatus();
     _initSocket();
+    _sendMyOrderLocation();
     super.onInit();
   }
 
@@ -56,7 +57,7 @@ class OrderDetailController extends GetxController
         //   statusMessage.value = '';
         // });
         // _receiveNewOrders();
-        _sendMyOrderLocation();
+        // _sendMyOrderLocation();
         _receiveNewMessages();
       })
       ..on('connecting', (_) {
@@ -148,8 +149,12 @@ class OrderDetailController extends GetxController
             lat: currentLocation.latitude,
             lng: currentLocation.longitude,
             datetime: DateTime.now().toUtc()));
-
-        _appRepository.sendMyOrderLocation(order.value.userId, order.value.id);
+        _appRepository
+            .sendCurrentOrderLocation(
+                currentLocation.latitude, currentLocation.longitude)
+            .catchError((error) {
+          Get.snackbar('Oops!', (error as Failure).errorMessage);
+        });
       });
     });
   }
@@ -237,7 +242,7 @@ class OrderDetailController extends GetxController
             'Order picked up. This will send a message to the customer that you are on your way.';
       } else if (order.value.status == 'rider-picked-up') {
         currentOrderStatus.value = 1;
-       updateOrderStatusButtonText.value = 'ORDER DELIVERED';
+        updateOrderStatusButtonText.value = 'ORDER DELIVERED';
         updateOrderStatusdialogTitle.value = 'Order delivered';
         updateOrderStatusdialogMessage.value =
             'Order delivered. This will notify us that the delivery is finished.';

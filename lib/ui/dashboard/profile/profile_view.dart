@@ -3,6 +3,7 @@ import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:letsbeenextgenrider/core/utils/config.dart';
 import 'package:letsbeenextgenrider/core/utils/utils.dart';
 import 'package:letsbeenextgenrider/ui/widget/decline_button.dart';
+import 'package:intl/intl.dart';
 
 import 'profile_controller.dart';
 
@@ -28,9 +29,13 @@ class ProfileView extends GetView<ProfileController> {
                         Row(
                           mainAxisSize: MainAxisSize.max,
                           children: [
-                            ImageIcon(
-                              AssetImage(Config.PNG_PATH + 'logout_button.png'),
-                              size: 40,
+                            SizedBox(
+                              height: 50,
+                              width: 50,
+                              child: Image.network(
+                                controller.user.riderDetails.photo,
+                                fit: BoxFit.contain,
+                              ),
                             ),
                             const Padding(
                               padding:
@@ -63,8 +68,10 @@ class ProfileView extends GetView<ProfileController> {
                           padding: const EdgeInsets.symmetric(vertical: 4),
                         ),
                         Text(controller.user.email),
-                        Text('Motorcycle: Honda, TMX 155, Black'),
-                        Text('Plate No.: 1309 LN'),
+                        Text(
+                            'Motorcycle: ${controller.user.riderDetails.motorcycleDetails.brand}, ${controller.user.riderDetails.motorcycleDetails.model}, ${controller.user.riderDetails.motorcycleDetails.color}'),
+                        Text(
+                            'Plate No.: ${controller.user.riderDetails.motorcycleDetails.plateNumber}'),
                       ],
                     ),
                   ),
@@ -126,7 +133,7 @@ class ProfileView extends GetView<ProfileController> {
                                       const EdgeInsets.symmetric(vertical: 2),
                                 ),
                                 Text(
-                                  'Feb 2021',
+                                  DateFormat('MMM yyyy').format(controller.now),
                                   style: TextStyle(
                                     fontStyle: FontStyle.italic,
                                   ),

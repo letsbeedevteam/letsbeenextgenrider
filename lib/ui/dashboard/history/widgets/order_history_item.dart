@@ -4,8 +4,9 @@ import 'package:letsbeenextgenrider/core/utils/config.dart';
 import 'package:letsbeenextgenrider/data/models/additional.dart';
 import 'package:letsbeenextgenrider/data/models/choice.dart';
 import 'package:letsbeenextgenrider/data/models/product.dart';
-import 'package:letsbeenextgenrider/data/models/response/get_status_by_date_and_status_response.dart';
+import 'package:letsbeenextgenrider/data/models/response/get_history_by_date_and_status_response.dart';
 import 'package:letsbeenextgenrider/ui/widget/animated_expandable_container.dart';
+import 'package:intl/intl.dart';
 
 class OrderHistoryItem extends StatelessWidget {
   final TickerProvider vsync;
@@ -108,7 +109,12 @@ class OrderHistoryItem extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('delivered chuchu'),
+                  Text(
+                    'Delivered ' +
+                        DateFormat('M/dd/yyyy h:mm a').format(
+                          order.updatedAt.toUtc().toLocal(),
+                        ),
+                  ),
                   Text(
                     'PHP ${order.fee.total}',
                     style: TextStyle(
@@ -133,7 +139,7 @@ class OrderHistoryItem extends StatelessWidget {
   }
 
   Widget _buildMenuItem(Product product) {
-    return Center(
+    return IntrinsicHeight(
       child: Container(
         padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
         child: Column(
@@ -154,7 +160,8 @@ class OrderHistoryItem extends StatelessWidget {
                         padding: const EdgeInsets.only(right: 16),
                       ),
                       Flexible(
-                        child: Wrap(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               '${product.name}',
@@ -213,14 +220,14 @@ class OrderHistoryItem extends StatelessWidget {
           child: Container(
             child: Text(additional.name,
                 style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14)),
+                  color: Colors.black,
+                )),
           ),
         ),
         Text('+₱ ${additional.price}',
             style: TextStyle(
-                color: Colors.black, fontWeight: FontWeight.bold, fontSize: 14))
+              color: Colors.black,
+            ))
       ],
     );
   }
@@ -247,17 +254,14 @@ class OrderHistoryItem extends StatelessWidget {
           child: Container(
             child: Text('${choice.name}: ${choice.pick}',
                 style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14)),
+                  color: Colors.black,
+                )),
           ),
         ),
         Text(
           '+₱ ${choice.price}',
           style: TextStyle(
             color: Colors.black,
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
           ),
         ),
       ],

@@ -23,7 +23,7 @@ class ChatView extends GetView<ChatController> {
               Text('Customer: ${controller.order.value.user.name}',
                   style: TextStyle(fontWeight: FontWeight.bold)),
               Text(
-                  'Address: ${controller.order.value.address.street}, ${controller.order.value.address.barangay}, ${controller.order.value.address.city}, ${controller.order.value.address.state}, ${controller.order.value.address.country}}',
+                  'Address: ${controller.order.value.address.completeAddress}',
                   style: TextStyle(fontStyle: FontStyle.italic, fontSize: 12)),
               Text(
                   '${controller.order.value.store.name} - ${controller.order.value.store.locationName}',
