@@ -35,6 +35,8 @@ class Config {
   static const ACCEPT_ORDER = '$BASE_URL/${NAMESPACE}s/order/choice';
   static const PICKUP_ORDER = '$BASE_URL/${NAMESPACE}s/order/pick-up';
   static const DELIVER_ORDER = '$BASE_URL/${NAMESPACE}s/order/delivered';
+  static const UPDATE_WORK_STATUS = '$BASE_URL/${NAMESPACE}s/status';
+  static const SEND_CURRENT_LOCATION_ORDER = '$BASE_URL/${NAMESPACE}s/order/location';
   static String getNearbyOrders(
     double lat,
     double lng,

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:letsbeenextgenrider/data/app_repository.dart';
-import 'package:letsbeenextgenrider/data/models/response/get_status_by_date_and_status_response.dart';
+import 'package:letsbeenextgenrider/data/models/response/get_history_by_date_and_status_response.dart';
 import 'package:letsbeenextgenrider/ui/base/controller/base_tab_controller.dart';
 
 class HistoryController extends BaseTabController
@@ -25,10 +25,26 @@ class HistoryController extends BaseTabController
   @override
   void onInit() {
     getTodayHistory();
-    getYesterdayHistory();
-    getThisWeekHistory();
-    getLastWeekHistory();
     super.onInit();
+  }
+
+  @override
+  void onChangeTab(int index) {
+    switch (index) {
+      case 0:
+        getTodayHistory();
+        break;
+      case 1:
+        getYesterdayHistory();
+        break;
+      case 2:
+        getThisWeekHistory();
+        break;
+      case 3:
+        getLastWeekHistory();
+        break;
+    }
+    super.onChangeTab(index);
   }
 
   void getTodayHistory() {

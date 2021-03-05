@@ -13,9 +13,10 @@ class CustomAppBar extends AppBar {
 
   @override
   Widget get title => const Text(
-        'Lets Bee',
+        'Let\'s Bee',
         style: const TextStyle(
-          fontWeight: FontWeight.bold,
+          fontFamily: 'CooperBlack',
+          fontSize: 35,
         ),
       );
 

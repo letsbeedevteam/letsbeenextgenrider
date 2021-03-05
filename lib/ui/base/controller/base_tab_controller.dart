@@ -9,6 +9,9 @@ abstract class BaseTabController extends GetxController
   @override
   void onInit() {
     tabBarController = TabController(length: tabLength, vsync: this);
+    tabBarController.addListener(() {
+      onChangeTab(tabBarController.index);
+    });
     super.onInit();
   }
 
@@ -17,4 +20,6 @@ abstract class BaseTabController extends GetxController
     tabBarController.dispose();
     super.onClose();
   }
+
+  void onChangeTab(int index) {}
 }

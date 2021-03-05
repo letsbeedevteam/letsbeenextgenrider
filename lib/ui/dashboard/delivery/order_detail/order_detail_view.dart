@@ -126,13 +126,13 @@ class OrderDetailView extends GetView<OrderDetailController> {
                         () => controller.order.value.status == 'rider-picked-up'
                             ? Flexible(
                                 child: Text(
-                                  '${controller.order.value.address.street}, ${controller.order.value.address.barangay}, ${controller.order.value.address.city}, ${controller.order.value.address.state}, ${controller.order.value.address.country}',
+                                  '${controller.order.value.address.completeAddress}',
                                 ),
                               )
                             : controller.order.value.store.locationName.isEmpty
                                 ? Flexible(
                                     child: Text(
-                                      '${controller.order.value.store.name}}',
+                                      '${controller.order.value.store.name}',
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 3,
                                     ),
@@ -289,7 +289,7 @@ class OrderDetailView extends GetView<OrderDetailController> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
-              '${controller.order.value.address.street}, ${controller.order.value.address.barangay}, ${controller.order.value.address.city}, ${controller.order.value.address.state}, ${controller.order.value.address.country}',
+              '${controller.order.value.address.completeAddress}',
             ),
           ),
           const Padding(

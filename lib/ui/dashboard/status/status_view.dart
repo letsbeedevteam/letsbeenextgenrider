@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:letsbeenextgenrider/core/utils/config.dart';
 import 'package:intl/intl.dart';
+import 'package:letsbeenextgenrider/core/utils/utils.dart';
 
 import 'status_controller.dart';
 
@@ -32,7 +34,8 @@ class StatusView extends GetView<StatusController> {
                           'Date today',
                         ),
                         Text(
-                          DateFormat('dd MMM yyyy').format(controller.dateToday),
+                          DateFormat('dd MMM yyyy')
+                              .format(controller.dateToday),
                           style: const TextStyle(
                             fontSize: 24,
                             fontStyle: FontStyle.italic,
@@ -71,21 +74,29 @@ class StatusView extends GetView<StatusController> {
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 4),
                             ),
-                            Text(
-                              'You have left work',
-                              style: TextStyle(
-                                fontStyle: FontStyle.italic,
+                            Obx(
+                              () => Text(
+                                controller.workStatus.value,
+                                style: TextStyle(
+                                  fontStyle: FontStyle.italic,
+                                ),
                               ),
-                            )
+                            ),
                           ],
                         ),
                       ],
                     ),
                   ),
-                  ImageIcon(
-                    AssetImage(Config.PNG_PATH + 'logout_button.png'),
-                    size: 40,
-                  )
+                  Obx(
+                    () => SizedBox(
+                      height: 60,
+                      child: SvgPicture.asset(
+                        Config.SVG_PATH + controller.workStatusIconPath.value,
+                        color: Colors.black,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -96,18 +107,28 @@ class StatusView extends GetView<StatusController> {
   }
 
   Widget _buildSwitch() {
-    RxBool isSwitchOn = false.obs;
     return GestureDetector(
       onTap: () {
-        isSwitchOn.value = !isSwitchOn.value;
+        showAlertDialog(
+          controller.isSwitchOn.value
+              ? 'Time out'
+              : 'Time in',
+          controller.isSwitchOn.value
+              ? 'Are you sure you want to sign out to end your shift?'
+              : 'Are you sure you want to sign in to start your shift?',
+          onConfirm: () {
+            controller.updateWorkStatus(controller.isSwitchOn.value);
+          },
+        );
       },
       child: Obx(
         () => AnimatedContainer(
           width: 50,
           height: 25,
           child: AnimatedAlign(
-            alignment:
-                isSwitchOn.value ? Alignment.centerRight : Alignment.centerLeft,
+            alignment: controller.isSwitchOn.value
+                ? Alignment.centerRight
+                : Alignment.centerLeft,
             duration: const Duration(
               milliseconds: 100,
             ),
@@ -123,7 +144,7 @@ class StatusView extends GetView<StatusController> {
             ),
           ),
           decoration: BoxDecoration(
-            color: isSwitchOn.value
+            color: controller.isSwitchOn.value
                 ? Color(Config.LETSBEE_COLOR).withOpacity(0.5)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(25),
