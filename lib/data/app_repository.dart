@@ -363,7 +363,7 @@ class AppRepository {
   }
 
   Future<void> disconnectSocket() async {
-    socketService.socket?.close();
+    return socketService.socket?.close();
   }
 
   void receiveNewOrder(Function(dynamic) onComplete) {
