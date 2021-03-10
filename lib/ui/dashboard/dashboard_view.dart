@@ -21,12 +21,7 @@ class DashboardView extends GetView<DashboardController> {
 
 class _Body extends BaseTabView<DashboardController> {
   @override
-  List<Widget> get tabViews => [
-        StatusView(),
-        DeliveryView(),
-        HistoryView(),
-        ProfileView(),
-      ];
+  List<Widget> get tabViews => controller.tabViews;
 
   @override
   List<Widget> get tabs => [

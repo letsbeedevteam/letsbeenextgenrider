@@ -170,9 +170,9 @@ class OrderHistoryItem extends StatelessWidget {
                             product.additionals.isEmpty
                                 ? const SizedBox.shrink()
                                 : _buildAdditionalColumn(product.additionals),
-                            product.choices.isEmpty
+                            product.variants.isEmpty
                                 ? const SizedBox.shrink()
-                                : _buildChoiceColumn(product.choices),
+                                : _buildChoiceColumn(product.variants),
                           ],
                         ),
                       ),

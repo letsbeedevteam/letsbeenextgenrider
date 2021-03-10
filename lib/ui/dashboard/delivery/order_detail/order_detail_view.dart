@@ -7,6 +7,7 @@ import 'package:letsbeenextgenrider/data/models/additional.dart';
 import 'package:letsbeenextgenrider/data/models/choice.dart';
 import 'package:letsbeenextgenrider/data/models/product.dart';
 import 'package:letsbeenextgenrider/routing/pages.dart';
+import 'package:letsbeenextgenrider/ui/base/view/base_view.dart';
 import 'package:letsbeenextgenrider/ui/dashboard/delivery/order_detail/order_detail_controller.dart';
 import 'package:letsbeenextgenrider/core/utils/extensions.dart';
 import 'package:letsbeenextgenrider/ui/dashboard/delivery/order_detail/widgets/delivery_progressbar_big.dart';
@@ -16,49 +17,53 @@ import 'package:letsbeenextgenrider/ui/widget/custom_appbar.dart';
 
 import 'widgets/delivery_progressbar_small.dart';
 
-class OrderDetailView extends GetView<OrderDetailController> {
+class OrderDetailView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      child: Scaffold(
-        backgroundColor: Colors.grey.shade200,
-        appBar: CustomAppBar(
-          implyLeading: false,
+    return GetBuilder<OrderDetailController>(builder: (_) {
+      return WillPopScope(
+        child: Scaffold(
+          backgroundColor: Colors.grey.shade200,
+          appBar: CustomAppBar(
+            implyLeading: false,
+          ),
+          body: _Body(),
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 16,
-                        right: 16,
-                        top: 16,
-                      ),
-                      child: _buildOrderDetails(),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 16,
-                        right: 16,
-                        top: 16,
-                      ),
-                      child: _buildCustomerDetails(),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            _buildDeliveryStatus(),
-          ],
-        ),
-      ),
-      onWillPop: () => controller.willPopCallback(),
-    );
+        onWillPop: () => _.willPopCallback(),
+      );
+    });
   }
+}
 
+class _Body extends BaseView<OrderDetailController> {
+  @override
+  Widget get body => Column(
+        children: [
+          Expanded(
+            child: ListView(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 16,
+                  ),
+                  child: _buildOrderDetails(),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 16,
+                  ),
+                  child: _buildCustomerDetails(),
+                ),
+              ],
+            ),
+          ),
+          _buildDeliveryStatus(),
+        ],
+      );
   AnimatedExpandableContainer _buildDeliveryStatus() {
     return AnimatedExpandableContainer(
       isExpandedAtFirst: false,
@@ -96,7 +101,8 @@ class OrderDetailView extends GetView<OrderDetailController> {
               padding: const EdgeInsets.symmetric(vertical: 8),
             ),
             Obx(
-              () => controller.hasStartedShopping.value
+              () => controller.hasStartedShopping.value &&
+                      controller.order.value.status != 'rider-picked-up'
                   ? Text('You are currently shopping at...')
                   : Text('You are on your way to...'),
             ),
@@ -410,9 +416,9 @@ class OrderDetailView extends GetView<OrderDetailController> {
                             product.additionals.isEmpty
                                 ? const SizedBox.shrink()
                                 : _buildAdditionalColumn(product.additionals),
-                            product.choices.isEmpty
+                            product.variants.isEmpty
                                 ? const SizedBox.shrink()
-                                : _buildChoiceColumn(product.choices),
+                                : _buildChoiceColumn(product.variants),
                           ],
                         ),
                       ),
@@ -428,7 +434,7 @@ class OrderDetailView extends GetView<OrderDetailController> {
               ],
             ),
             const Padding(padding: EdgeInsets.symmetric(vertical: 4)),
-            product.note == null
+            product.note.isBlank
                 ? const SizedBox.shrink()
                 : Text(
                     'Note: ${product.note}',

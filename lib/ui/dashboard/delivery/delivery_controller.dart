@@ -8,18 +8,16 @@ import 'package:letsbeenextgenrider/data/app_repository.dart';
 import 'package:letsbeenextgenrider/data/models/order_data.dart';
 import 'package:letsbeenextgenrider/data/models/response/get_new_order_response.dart';
 import 'package:letsbeenextgenrider/routing/pages.dart';
-import 'package:letsbeenextgenrider/ui/base/controller/base_refresh_controller.dart';
+import 'package:letsbeenextgenrider/ui/base/controller/base_controller.dart';
 import 'package:letsbeenextgenrider/core/utils/extensions.dart';
 
-class DeliveryController extends BaseRefreshController {
+class DeliveryController extends BaseController
+    with SingleGetTickerProviderMixin {
   static const CLASS_NAME = 'DeliveryController';
 
   final AppRepository appRepository;
 
   DeliveryController({@required this.appRepository});
-
-  RxString statusMessage = 'Loading...'.obs;
-  Rx<MaterialColor> statusColor = Colors.orange.obs;
 
   Timer _locationTimer;
   Rx<RxList<OrderData>> orders = RxList<OrderData>().obs;
@@ -29,14 +27,6 @@ class DeliveryController extends BaseRefreshController {
     print('$CLASS_NAME, onInit');
     _getCurrentOrder();
     super.onInit();
-  }
-
-  void _initOrderslist() {
-    isLoading.value = true;
-    _getNearbyOrders().then((_) {
-      isLoading.value = false;
-      _getOrdersEvery30Secs();
-    });
   }
 
   @override
@@ -53,66 +43,46 @@ class DeliveryController extends BaseRefreshController {
     await appRepository.connectSocket()
       ..on('connect', (_) {
         print('connected');
-        statusMessage.value = 'Connected';
-        statusColor.value = Colors.green;
-
-        Future.delayed(Duration(seconds: 3)).then((_) {
-          statusMessage.value = '';
-        });
+        showSnackbarSuccessMessage(
+            'YOU ARE NOW CONNECTED AND WILL RECEIVE ORDERS');
         _receiveNewOrders();
       })
       ..on('connecting', (_) {
         print('connecting');
-        statusMessage.value = 'Connecting';
-        statusColor.value = Colors.orange;
+        showSnackbarSuccessMessage(
+            'LOST CONNECTION! TRYING TO RECONNECT PLEASE WAIT...');
       })
       ..on('reconnecting', (_) {
         print('reconnecting');
-        statusMessage.value = 'Reconnecting';
-        statusColor.value = Colors.orange;
+        showSnackbarSuccessMessage(
+            'LOST CONNECTION! TRYING TO RECONNECT PLEASE WAIT...');
       })
       ..on('disconnect', (_) {
         print('disconnected');
-        statusMessage.value = 'Disconnected';
-        statusColor.value = Colors.red;
+        showSnackbarErrorMessage('YOU WERE DISCONNECTED! TRY TO REFRESH');
       })
       ..on('error', (_) {
-        statusMessage.value = 'Something went wrong';
-        statusColor.value = Colors.red;
         print('socket error = $_');
       });
   }
 
   void _getCurrentOrder() async {
+    showSnackbarInfoMessage('CHECKING CURRENT ORDER PLEASE WAIT...');
     await appRepository.getCurrentOrder().then((response) {
-      _closeSnackBar();
       if (response.data != null) {
+        showSnackbarInfoMessage('Loading current order...');
         _goToOrderDetail(arguments: response.data.toJson());
       } else {
         _initSocket();
-        _initOrderslist();
+        _getOrdersEvery30Secs();
       }
     }).catchError((error) {
-      statusMessage.value = '${(error as Failure).errorMessage}';
-      statusColor.value = Colors.red;
+      showSnackbarErrorMessage((error as Failure).errorMessage);
     });
-  }
-
-  /// Close Snackbar
-  void _closeSnackBar() {
-    if (statusColor.value == Colors.red) {
-      statusMessage.value = 'Connected';
-      statusColor.value = Colors.green;
-
-      Future.delayed(Duration(seconds: 3)).then((_) {
-        statusMessage.value = '';
-      });
-    }
   }
 
   Future<void> _getNearbyOrders() async {
     return appRepository.getCurrentPosition().then((position) async {
-      _closeSnackBar();
       await appRepository
           .getNearbyOrders(position.latitude, position.longitude)
           .then((response) {
@@ -120,12 +90,10 @@ class DeliveryController extends BaseRefreshController {
         orders.value.addAll(response.data);
         message.value = orders.value.isEmpty ? 'No Orders Available' : '';
       }).catchError((error) {
-        statusMessage.value = '${(error as Failure).errorMessage}';
-        statusColor.value = Colors.red;
+        showSnackbarErrorMessage((error as Failure).errorMessage);
       });
     }).catchError((error) {
-      print(error);
-      // print('${(error as Failure).errorMessage}');
+      showSnackbarErrorMessage((error as Failure).errorMessage);
     });
   }
 
@@ -133,7 +101,6 @@ class DeliveryController extends BaseRefreshController {
     print('$CLASS_NAME, _receiveNewOrders');
     appRepository.receiveNewOrder((response) async {
       final orderUpdateResponse = GetNewOrderResponse.fromJson(response);
-      print(orderUpdateResponse.toJson());
       if (orderUpdateResponse.isNewOrder()) {
         if (orders.value.isNotEmpty) {
           //checks if the new order is already existing on the list
@@ -153,9 +120,9 @@ class DeliveryController extends BaseRefreshController {
           payload: "N/A",
         );
       } else {
-        //executed when the received order was an update of an existing order
-        //if the received order status update from server is rider-accepted
-        //and the received order id matches an order from the list
+        //when the received order was an update of an existing order and
+        //the received order status update from server was rider-accepted
+        //and order id matches an order id from the list
         //this order would be removed from the list
         var oldOrder = orders.value.firstWhere(
             (order) =>
@@ -172,8 +139,10 @@ class DeliveryController extends BaseRefreshController {
 
   void _getOrdersEvery30Secs() async {
     print('$CLASS_NAME, _getOrdersEvery30Secs');
+    _getNearbyOrders();
     await _canceLocationTimer().then((_) {
       _locationTimer = Timer.periodic(Duration(seconds: 30), (_) async {
+        isShownSnackbar.value = false;
         await _getNearbyOrders();
       });
     });
@@ -188,29 +157,48 @@ class DeliveryController extends BaseRefreshController {
     print('$CLASS_NAME, _goToOrderDetail');
     Get.toNamed(Routes.ORDER_DETAIL_ROUTE, arguments: arguments).then((_) {
       _initSocket();
-      _initOrderslist();
+      _getOrdersEvery30Secs();
     });
   }
 
   // Public Functions
-  Future<void> acceptOrder(
-    OrderData order,
+  void acceptOrder(
+    OrderData orderData,
   ) async {
-    await appRepository.acceptOrder(order.id).then((response) async {
+    await appRepository.acceptOrder(orderData.id).then((response) async {
       if (response.data != null) {
         await _canceLocationTimer();
         await appRepository.disconnectSocket();
+        showSnackbarInfoMessage('LOADING ORDER INFO...');
         _goToOrderDetail(arguments: response.data.toJson());
+        var acceptedOrder = orders.value.firstWhere(
+            (order) => order.id == orderData.id,
+            orElse: () => null);
+        if (acceptedOrder != null) {
+          orders.value.remove(acceptedOrder); 
+        }
       }
     }).catchError((error) {
-      statusMessage.value = '${(error as Failure).errorMessage}';
-      statusColor.value = Colors.red;
+      showSnackbarErrorMessage((error as Failure).errorMessage);
     });
   }
 
   @override
   Future<void> onRefresh() async {
     print('$CLASS_NAME, onRefresh');
-    _initOrderslist();
+    await appRepository.disconnectSocket();
+    _getCurrentOrder();
+  }
+
+  @override
+  void onViewVisible() {
+    onInit();
+    super.onViewVisible();
+  }
+
+  @override
+  void onViewHide() {
+    onClose();
+    super.onViewHide();
   }
 }

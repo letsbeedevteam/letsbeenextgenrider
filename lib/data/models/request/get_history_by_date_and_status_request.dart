@@ -10,4 +10,10 @@ class GetHistoryByDateAndStatusRequest {
     @required this.from,
     @required this.status,
   });
+
+  Map<String, dynamic> toJson() => {
+        "to": to.toIso8601String(),
+        "from": from.toIso8601String(),
+        "status": status,
+      };
 }
