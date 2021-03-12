@@ -59,5 +59,5 @@ class Config {
     @required String to,
     @required String status,
   }) =>
-      '$BASE_URL/${NAMESPACE}s/history?from=$from&to=$to&status=$status';
+      '$BASE_URL/${NAMESPACE}s/history?from=$from&to=$to';
 }
