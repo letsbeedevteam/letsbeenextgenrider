@@ -77,7 +77,9 @@ class DeliveryController extends BaseController
         _getOrdersEvery30Secs();
       }
     }).catchError((error) {
-      showSnackbarErrorMessage((error as Failure).errorMessage);
+      if (error is Failure) {
+        showSnackbarErrorMessage(error.errorMessage);
+      }
     });
   }
 
@@ -166,6 +168,7 @@ class DeliveryController extends BaseController
   void acceptOrder(
     OrderData orderData,
   ) async {
+    showSnackbarInfoMessage('ASSIGNING ORDER PLEASE WAIT...');
     await appRepository.acceptOrder(orderData.id).then((response) async {
       if (response.data != null) {
         await _canceLocationTimer();

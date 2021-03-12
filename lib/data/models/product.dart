@@ -33,8 +33,8 @@ class Product {
         customerPrice: json["customer_price"],
         sellerPrice: json["seller_price"],
         quantity: json["quantity"],
-        variants:
-            List<Variant>.from(json["variants"].map((x) => Variant.fromJson(x))),
+        variants: List<Variant>.from(
+            json["variants"].map((x) => Variant.fromJson(x))),
         additionals: List<Additional>.from(
             json["additionals"].map((x) => Additional.fromJson(x))),
         note: json["note"],
@@ -53,4 +53,7 @@ class Product {
         "note": note,
         "removable": removable,
       };
+  bool isEqual(Product old) {
+    return old.productId == productId;
+  }
 }

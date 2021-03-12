@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:letsbeenextgenrider/core/error/base/failure.dart';
 import 'package:letsbeenextgenrider/data/app_repository.dart';
 import 'package:letsbeenextgenrider/data/models/order_data.dart';
+import 'package:letsbeenextgenrider/data/models/product.dart';
 import 'package:letsbeenextgenrider/data/models/request/deliver_order_request.dart';
 import 'package:letsbeenextgenrider/ui/base/controller/base_controller.dart';
 import 'package:location/location.dart';
@@ -26,6 +27,7 @@ class OrderDetailController extends BaseController
   RxString updateOrderStatusdialogMessage = ''.obs;
   RxBool isLoading = false.obs;
   RxInt currentOrderStatus = 0.obs;
+  List<RxBool> areItemsreadyForCheckout = List<RxBool>();
 
   // GetxController Overrides
   @override
@@ -180,7 +182,15 @@ class OrderDetailController extends BaseController
           updateUiFromCurrentOrderStatus();
           break;
         case 1:
-          pickUpOrder(order.value);
+          bool isReadyForCheckout = false;
+          areItemsreadyForCheckout.forEach((element) {
+            isReadyForCheckout = element.value;
+          });
+          if (isReadyForCheckout) {
+            pickUpOrder(order.value);
+          } else {
+            showSnackbarErrorMessage('REVIEW THE ITEMS AND TRY AGAIN');
+          }
           break;
         case 2:
           deliverOrder(order.value, _locations);

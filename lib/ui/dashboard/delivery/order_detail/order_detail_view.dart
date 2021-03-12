@@ -378,7 +378,8 @@ class _Body extends BaseView<OrderDetailController> {
           ),
           Column(
             children: controller.order.value.products
-                .map((product) => _buildMenuItem(product))
+                .map((product) => _buildMenuItem(
+                    product, controller.order.value.store.type == 'mart'))
                 .toList(),
           ),
         ],
@@ -386,7 +387,9 @@ class _Body extends BaseView<OrderDetailController> {
     );
   }
 
-  Widget _buildMenuItem(Product product) {
+  Widget _buildMenuItem(Product product, bool isMart) {
+    RxBool isChecked = false.obs;
+    controller.areItemsreadyForCheckout.addIf(isMart, isChecked);
     return Center(
       child: Container(
         padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
@@ -394,12 +397,24 @@ class _Body extends BaseView<OrderDetailController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      Obx(
+                        () => isMart && controller.hasStartedShopping.value
+                            ? Obx(
+                                () => Checkbox(
+                                  value: isChecked.value,
+                                  onChanged: (value) {
+                                    isChecked.value = value;
+                                  },
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                      ),
                       Text(
                         '${product.quantity}x',
                         style: TextStyle(color: Colors.black),
@@ -410,16 +425,25 @@ class _Body extends BaseView<OrderDetailController> {
                       Flexible(
                         child: Wrap(
                           children: [
-                            Text(
-                              '${product.name}',
-                              style: TextStyle(color: Colors.black),
+                            Column(
+                              children: [
+                                Text(
+                                  '${product.name}',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                              ],
                             ),
-                            product.additionals.isEmpty
+                            isMart
                                 ? const SizedBox.shrink()
-                                : _buildAdditionalColumn(product.additionals),
-                            product.variants.isEmpty
+                                : product.additionals.isEmpty
+                                    ? const SizedBox.shrink()
+                                    : _buildAdditionalColumn(
+                                        product.additionals),
+                            isMart
                                 ? const SizedBox.shrink()
-                                : _buildChoiceColumn(product.variants),
+                                : product.variants.isEmpty
+                                    ? const SizedBox.shrink()
+                                    : _buildChoiceColumn(product.variants),
                           ],
                         ),
                       ),
@@ -431,7 +455,7 @@ class _Body extends BaseView<OrderDetailController> {
                   style: TextStyle(
                     color: Colors.black,
                   ),
-                )
+                ),
               ],
             ),
             const Padding(padding: EdgeInsets.symmetric(vertical: 4)),
