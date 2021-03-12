@@ -184,12 +184,13 @@ class AppRepository {
   Future<GetHistoryByDateAndStatusResponse> getHistoryByDate({
     @required DateTime from,
     @required DateTime to,
+    @required int page,
   }) async {
     final GetHistoryByDateAndStatusRequest request =
         GetHistoryByDateAndStatusRequest(
       from: from,
       to: to,
-      status: 'delivered',
+      page: page,
     );
 
     if (await networkInfo.isConnected) {
@@ -202,7 +203,7 @@ class AppRepository {
       } on UnauthorizedException catch (_) {
         return refreshAccessToken().then((response) {
           sharedPref.saveRiderAccessToken(response.data.accessToken);
-          getHistoryByDate(from: from, to: to);
+          getHistoryByDate(from: from, to: to, page: page);
         }).catchError((error) {
           throw error;
         });

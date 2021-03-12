@@ -403,18 +403,21 @@ class _Body extends BaseView<OrderDetailController> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Obx(
-                        () => isMart && controller.hasStartedShopping.value
-                            ? Obx(
-                                () => Checkbox(
-                                  value: isChecked.value,
-                                  onChanged: (value) {
-                                    isChecked.value = value;
-                                  },
-                                ),
-                              )
-                            : const SizedBox.shrink(),
-                      ),
+                      isMart
+                          ? Obx(
+                              () =>
+                                  isMart && controller.hasStartedShopping.value
+                                      ? Obx(
+                                          () => Checkbox(
+                                            value: isChecked.value,
+                                            onChanged: (value) {
+                                              isChecked.value = value;
+                                            },
+                                          ),
+                                        )
+                                      : const SizedBox.shrink(),
+                            )
+                          : const SizedBox.shrink(),
                       Text(
                         '${product.quantity}x',
                         style: TextStyle(color: Colors.black),

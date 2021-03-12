@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 class GetHistoryByDateAndStatusRequest {
   DateTime to;
   DateTime from;
-  String status;
+  int page;
 
   GetHistoryByDateAndStatusRequest({
     @required this.to,
     @required this.from,
-    @required this.status,
+    @required this.page,
   });
 
   Map<String, dynamic> toJson() => {
         "to": to.toIso8601String(),
         "from": from.toIso8601String(),
-        "status": status,
+        "page": page,
       };
 }

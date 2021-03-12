@@ -25,11 +25,11 @@ class StatusController extends BaseController {
   DateTime dateToday = DateTime.now();
 
   void updateWorkStatus(bool isOn) {
-    showSnackbarInfoMessage('Updating your status...');
+    showSnackbarInfoMessage('Updating status...');
     isSwitchEnabled.value = false;
     appRepository.updateWorkStatus(isOn ? 'off' : 'on').then((isSuccessful) {
       if (isSuccessful) {
-        showSnackbarSuccessMessage('Successfully updated your status');
+        showSnackbarSuccessMessage('Work status updated!');
         isSwitchOn.value = !isSwitchOn.value;
         workStatus.value = isSwitchOn.value
             ? 'You are currently at work'
@@ -37,12 +37,13 @@ class StatusController extends BaseController {
         workStatusIconPath.value =
             isSwitchOn.value ? 'at_work.svg' : 'leave_work.svg';
       } else {
-        showSnackbarErrorMessage('Failed to update your status');
+        showSnackbarErrorMessage('Unable to update work status');
       }
       isSwitchEnabled.value = true;
     }).catchError((error) {
-      showSnackbarErrorMessage((error as Failure).errorMessage);
-      isSwitchEnabled.value = true;
+      if (error is Failure) {
+        showSnackbarErrorMessage(error.errorMessage);
+      }
     });
   }
 

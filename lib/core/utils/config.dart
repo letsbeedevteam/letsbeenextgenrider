@@ -57,7 +57,7 @@ class Config {
   static String getHistoryByDateAndStatus({
     @required String from,
     @required String to,
-    @required String status,
+    @required int page,
   }) =>
-      '$BASE_URL/${NAMESPACE}s/history?from=$from&to=$to';
+      '$BASE_URL/${NAMESPACE}s/history?page=$page&from=$from&to=$to';
 }
