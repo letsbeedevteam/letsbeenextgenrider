@@ -44,22 +44,22 @@ class DeliveryController extends BaseController
       ..on('connect', (_) {
         print('connected');
         showSnackbarSuccessMessage(
-            'YOU ARE NOW CONNECTED AND WILL RECEIVE ORDERS');
+            'Connected');
         _receiveNewOrders();
       })
       ..on('connecting', (_) {
         print('connecting');
         showSnackbarInfoMessage(
-            'LOST CONNECTION! TRYING TO RECONNECT PLEASE WAIT...');
+            'Trying to reconnect...');
       })
       ..on('reconnecting', (_) {
         print('reconnecting');
         showSnackbarInfoMessage(
-            'LOST CONNECTION! TRYING TO RECONNECT PLEASE WAIT...');
+            'Trying to reconnect...');
       })
       ..on('disconnect', (_) {
         print('disconnected');
-        showSnackbarErrorMessage('YOU WERE DISCONNECTED! TRY TO REFRESH');
+        showSnackbarErrorMessage('Disconnected. Try refreshing');
       })
       ..on('error', (_) {
         print('socket error = $_');
@@ -67,10 +67,10 @@ class DeliveryController extends BaseController
   }
 
   void _getCurrentOrder() async {
-    showSnackbarInfoMessage('CHECKING CURRENT ORDER PLEASE WAIT...');
+    showSnackbarInfoMessage('Checking order please wait...');
     await appRepository.getCurrentOrder().then((response) {
       if (response.data != null) {
-        showSnackbarInfoMessage('LOADING ORDER INFO...');
+        showSnackbarInfoMessage('Loading order info...');
         _goToOrderDetail(arguments: response.data.toJson());
       } else {
         _initSocket();
@@ -90,7 +90,7 @@ class DeliveryController extends BaseController
           .then((response) {
         orders.value.clear();
         orders.value.addAll(response.data);
-        message.value = orders.value.isEmpty ? 'No Orders Available' : '';
+        message.value = orders.value.isEmpty ? 'Nothing to see here yet.\nKindly wait for upcoming orders' : '';
       }).catchError((error) {
         print('$error');
         // showSnackbarErrorMessage((error as Failure).errorMessage);
@@ -136,7 +136,7 @@ class DeliveryController extends BaseController
           orders.value.remove(oldOrder);
         }
       }
-      message.value = orders.value.isEmpty ? 'No Orders Available' : '';
+      message.value = orders.value.isEmpty ? 'Nothing to see here yet.\nKindly wait for upcoming orders' : '';
     });
   }
 
@@ -168,12 +168,12 @@ class DeliveryController extends BaseController
   void acceptOrder(
     OrderData orderData,
   ) async {
-    showSnackbarInfoMessage('ASSIGNING ORDER PLEASE WAIT...');
+    showSnackbarInfoMessage('Assigning order. Please wait...');
     await appRepository.acceptOrder(orderData.id).then((response) async {
       if (response.data != null) {
         await _canceLocationTimer();
         await appRepository.disconnectSocket();
-        showSnackbarInfoMessage('LOADING ORDER INFO...');
+        showSnackbarInfoMessage('Loading order info...');
         _goToOrderDetail(arguments: response.data.toJson());
         var acceptedOrder = orders.value.firstWhere(
             (order) => order.id == orderData.id,

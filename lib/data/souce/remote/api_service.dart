@@ -254,7 +254,7 @@ class ApiService extends GetxController {
       Config.getHistoryByDateAndStatus(
           from: request.from.toIso8601String(),
           to: request.to.toIso8601String(),
-          status: request.status),
+          page: request.page),
       headers: <String, String>{
         'Content-Type': 'application/json',
         'Accept': 'application/json',

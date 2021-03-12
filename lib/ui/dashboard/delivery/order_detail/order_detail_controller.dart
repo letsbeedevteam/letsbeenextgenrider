@@ -54,22 +54,22 @@ class OrderDetailController extends BaseController
       ..on('connect', (_) {
         print('connected');
         showSnackbarSuccessMessage(
-            'YOU ARE NOW CONNECTED AND WILL RECEIVE ORDERS');
+            'Connected');
         _receiveNewMessages();
       })
       ..on('connecting', (_) {
         print('connecting');
         showSnackbarInfoMessage(
-            'LOST CONNECTION! TRYING TO RECONNECT PLEASE WAIT...');
+            'Trying to reconnect...');
       })
       ..on('reconnecting', (_) {
         print('reconnecting');
         showSnackbarInfoMessage(
-            'LOST CONNECTION! TRYING TO RECONNECT PLEASE WAIT...');
+            'Trying to reconnect...');
       })
       ..on('disconnect', (_) {
         print('disconnected');
-        showSnackbarErrorMessage('YOU WERE DISCONNECTED! TRY TO REFRESH');
+        showSnackbarErrorMessage('Disconnected. Try refreshing');
       })
       ..on('error', (_) {
         print('socket error = $_');
@@ -90,14 +90,14 @@ class OrderDetailController extends BaseController
     OrderData order,
   ) async {
     isLoading.value = true;
-    showSnackbarInfoMessage('Updating order status...');
+    showSnackbarInfoMessage('Updating status...');
     addDisposableFromFuture(
       await _appRepository.pickupOrder(order.id).then((response) async {
         if (response.data != null) {
           this.order.value = response.data;
           isLoading.value = false;
           updateUiFromCurrentOrderStatus();
-          showSnackbarSuccessMessage('Successfully updated order status');
+          showSnackbarSuccessMessage('Order status updated!');
           // update();
         }
       }).catchError(
@@ -114,7 +114,7 @@ class OrderDetailController extends BaseController
     List<LocationsRequestData> locations,
   ) async {
     isLoading.value = true;
-    showSnackbarInfoMessage('Updating order status...');
+    showSnackbarInfoMessage('Updating status...');
     addDisposableFromFuture(
       _appRepository.getCurrentPosition().then(
         (currentLocation) {
@@ -133,7 +133,7 @@ class OrderDetailController extends BaseController
           this.order.value = response.data;
           isLoading.value = false;
           updateUiFromCurrentOrderStatus();
-          showSnackbarSuccessMessage('Successfully updated order status');
+          showSnackbarSuccessMessage('Order status updated!');
           // update();
           goBackToDashboard();
         }
@@ -189,7 +189,7 @@ class OrderDetailController extends BaseController
           if (isReadyForCheckout) {
             pickUpOrder(order.value);
           } else {
-            showSnackbarErrorMessage('REVIEW THE ITEMS AND TRY AGAIN');
+            showSnackbarErrorMessage('Some items are not selected');
           }
           break;
         case 2:
@@ -310,7 +310,7 @@ class OrderDetailController extends BaseController
     } else if (await canLaunch(defaultMapUri)) {
       await launch(defaultMapUri);
     } else {
-      throw 'Could not launch';
+      print('Could not launch');
     }
   }
 

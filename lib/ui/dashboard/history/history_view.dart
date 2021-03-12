@@ -27,18 +27,28 @@ class _Body extends BaseRefreshTabView<HistoryController> {
             onRefresh: () async {
               controller.onRefresh();
             },
-            child: ListView.separated(
-                itemBuilder: (context, index) {
-                  return OrderHistoryItem(
-                    vsync: controller,
-                    order: controller.ordersToday.value[index],
-                  );
-                },
-                separatorBuilder: (context, index) {
-                  return const Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8));
-                },
-                itemCount: controller.ordersToday.value.length),
+            child: NotificationListener(
+              onNotification: (notification) {
+                if (notification is ScrollEndNotification &&
+                    notification.metrics.pixels ==
+                        notification.metrics.maxScrollExtent) {
+                  controller.getTodayHistory();
+                }
+                return false;
+              },
+              child: ListView.separated(
+                  itemBuilder: (context, index) {
+                    return OrderHistoryItem(
+                      vsync: controller,
+                      order: controller.ordersToday.value[index],
+                    );
+                  },
+                  separatorBuilder: (context, index) {
+                    return const Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8));
+                  },
+                  itemCount: controller.ordersToday.value.length),
+            ),
           ),
         ),
         Obx(
@@ -46,18 +56,28 @@ class _Body extends BaseRefreshTabView<HistoryController> {
             onRefresh: () async {
               controller.onRefresh();
             },
-            child: ListView.separated(
-                itemBuilder: (context, index) {
-                  return OrderHistoryItem(
-                    vsync: controller,
-                    order: controller.ordersYesterday.value[index],
-                  );
-                },
-                separatorBuilder: (context, index) {
-                  return const Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8));
-                },
-                itemCount: controller.ordersYesterday.value.length),
+            child: NotificationListener(
+              onNotification: (notification) {
+                if (notification is ScrollEndNotification &&
+                    notification.metrics.pixels ==
+                        notification.metrics.maxScrollExtent) {
+                  controller.getYesterdayHistory();
+                }
+                return false;
+              },
+              child: ListView.separated(
+                  itemBuilder: (context, index) {
+                    return OrderHistoryItem(
+                      vsync: controller,
+                      order: controller.ordersYesterday.value[index],
+                    );
+                  },
+                  separatorBuilder: (context, index) {
+                    return const Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8));
+                  },
+                  itemCount: controller.ordersYesterday.value.length),
+            ),
           ),
         ),
         Obx(
@@ -65,18 +85,28 @@ class _Body extends BaseRefreshTabView<HistoryController> {
             onRefresh: () async {
               controller.onRefresh();
             },
-            child: ListView.separated(
-                itemBuilder: (context, index) {
-                  return OrderHistoryItem(
-                    vsync: controller,
-                    order: controller.ordersThisWeek.value[index],
-                  );
-                },
-                separatorBuilder: (context, index) {
-                  return const Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8));
-                },
-                itemCount: controller.ordersThisWeek.value.length),
+            child: NotificationListener(
+              onNotification: (notification) {
+                if (notification is ScrollEndNotification &&
+                    notification.metrics.pixels ==
+                        notification.metrics.maxScrollExtent) {
+                  controller.getThisWeekHistory();
+                }
+                return false;
+              },
+              child: ListView.separated(
+                  itemBuilder: (context, index) {
+                    return OrderHistoryItem(
+                      vsync: controller,
+                      order: controller.ordersThisWeek.value[index],
+                    );
+                  },
+                  separatorBuilder: (context, index) {
+                    return const Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8));
+                  },
+                  itemCount: controller.ordersThisWeek.value.length),
+            ),
           ),
         ),
         Obx(
@@ -84,18 +114,28 @@ class _Body extends BaseRefreshTabView<HistoryController> {
             onRefresh: () async {
               controller.onRefresh();
             },
-            child: ListView.separated(
-                itemBuilder: (context, index) {
-                  return OrderHistoryItem(
-                    vsync: controller,
-                    order: controller.ordersLastWeek.value[index],
-                  );
-                },
-                separatorBuilder: (context, index) {
-                  return const Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8));
-                },
-                itemCount: controller.ordersLastWeek.value.length),
+            child: NotificationListener(
+              onNotification: (notification) {
+                if (notification is ScrollEndNotification &&
+                    notification.metrics.pixels ==
+                        notification.metrics.maxScrollExtent) {
+                  controller.getLastWeekHistory();
+                }
+                return false;
+              },
+              child: ListView.separated(
+                  itemBuilder: (context, index) {
+                    return OrderHistoryItem(
+                      vsync: controller,
+                      order: controller.ordersLastWeek.value[index],
+                    );
+                  },
+                  separatorBuilder: (context, index) {
+                    return const Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8));
+                  },
+                  itemCount: controller.ordersLastWeek.value.length),
+            ),
           ),
         ),
       ];

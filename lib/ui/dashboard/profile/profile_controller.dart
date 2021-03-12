@@ -48,7 +48,7 @@ class ProfileController extends BaseController {
 
   void initStats() {
     print('$CLASS_NAME, initStats');
-    showSnackbarInfoMessage('Updating deliveries...');
+    showSnackbarInfoMessage('Loading data...');
     getTotalDeliveriesToday();
   }
 
@@ -91,7 +91,7 @@ class ProfileController extends BaseController {
           .getStatsByDate(from: DateTime(2021), to: now)
           .then((response) {
         totalDeliveriesAlltime.value = response.data[0].totalCount.toString();
-        showSnackbarSuccessMessage('Successfully updated deliveries');
+        showSnackbarSuccessMessage('Data updated!');
       }).catchError(
         (error) {
           showSnackbarErrorMessage((error as Failure).errorMessage);

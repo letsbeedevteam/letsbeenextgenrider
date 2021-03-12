@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:letsbeenextgenrider/ui/base/controller/base_controller.dart';
@@ -53,7 +52,10 @@ abstract class BaseView<T extends BaseController> extends GetView<T> {
           () => controller.message.value.isBlank || controller.isLoading.value
               ? const SizedBox.shrink()
               : Center(
-                  child: Text(controller.message.value),
+                  child: Text(
+                    controller.message.value,
+                    textAlign: TextAlign.center,
+                  ),
                 ),
         ),
         Obx(
