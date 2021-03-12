@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:letsbeenextgenrider/ui/base/view/base_tab_view.dart';
+import 'package:letsbeenextgenrider/ui/base/view/base_bottom_nav_view.dart';
 import 'package:letsbeenextgenrider/ui/dashboard/dashboard_controller.dart';
-import 'package:letsbeenextgenrider/ui/dashboard/delivery/delivery_view.dart';
-import 'package:letsbeenextgenrider/ui/dashboard/history/history_view.dart';
-import 'package:letsbeenextgenrider/ui/dashboard/profile/profile_view.dart';
-import 'package:letsbeenextgenrider/ui/dashboard/status/status_view.dart';
 import 'package:letsbeenextgenrider/ui/widget/custom_appbar.dart';
 
 class DashboardView extends GetView<DashboardController> {
@@ -19,27 +15,35 @@ class DashboardView extends GetView<DashboardController> {
   }
 }
 
-class _Body extends BaseTabView<DashboardController> {
+class _Body extends BaseBottomNavView<DashboardController> {
   @override
-  List<Widget> get tabViews => controller.tabViews;
+  List<Widget> get pages => controller.tabViews;
 
   @override
-  List<Widget> get tabs => [
-        buildTab(
-          iconPath: 'status_icon.svg',
-          iconDescription: 'a suitcase',
+  List<Tab> get navBarItems => [
+        buildBottomNavItem(
+          iconPathActive: 'dash_active.svg',
+          iconPathInActive: 'dash_inactive.svg',
+          label: 'Dashboard',
+          index: 0,
         ),
-        buildTab(
-          iconPath: 'delivery_icon.svg',
-          iconDescription: 'a receipt',
+        buildBottomNavItem(
+          iconPathActive: 'delivery_active.svg',
+          iconPathInActive: 'delivery_inactive.svg',
+          label: 'Delivery',
+          index: 1,
         ),
-        buildTab(
-          iconPath: 'history_icon.svg',
-          iconDescription: 'an arrow with clock hands',
+        buildBottomNavItem(
+          iconPathActive: 'history_active.svg',
+          iconPathInActive: 'history_inactive.svg',
+          label: 'History',
+          index: 2,
         ),
-        buildTab(
-          iconPath: 'profile_icon.svg',
-          iconDescription: 'a person',
+        buildBottomNavItem(
+          iconPathActive: 'profile_active.svg',
+          iconPathInActive: 'profile_inactive.svg',
+          label: 'Profile',
+          index: 3,
         ),
       ];
 }

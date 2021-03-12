@@ -51,20 +51,23 @@ class OrderDetailController extends BaseController
     await _appRepository.connectSocket()
       ..on('connect', (_) {
         print('connected');
-        showSnackbarSuccessMessage('CONNECTED');
+        showSnackbarSuccessMessage(
+            'YOU ARE NOW CONNECTED AND WILL RECEIVE ORDERS');
         _receiveNewMessages();
       })
       ..on('connecting', (_) {
         print('connecting');
-        showSnackbarInfoMessage('CONNECTING...');
+        showSnackbarInfoMessage(
+            'LOST CONNECTION! TRYING TO RECONNECT PLEASE WAIT...');
       })
       ..on('reconnecting', (_) {
         print('reconnecting');
-        showSnackbarInfoMessage('RECONNECTING...');
+        showSnackbarInfoMessage(
+            'LOST CONNECTION! TRYING TO RECONNECT PLEASE WAIT...');
       })
       ..on('disconnect', (_) {
         print('disconnected');
-        showSnackbarErrorMessage('DISCONNECTED');
+        showSnackbarErrorMessage('YOU WERE DISCONNECTED! TRY TO REFRESH');
       })
       ..on('error', (_) {
         print('socket error = $_');
@@ -141,7 +144,7 @@ class OrderDetailController extends BaseController
     );
   }
 
-  Future _canceLocationTimer() {
+  Future<void> _canceLocationTimer() {
     print('$CLASS_NAME, _canceLocationTimer');
     return Future.value({_locationTimer?.cancel()});
   }
@@ -173,43 +176,29 @@ class OrderDetailController extends BaseController
     if (order.value.store.type == 'mart') {
       switch (currentOrderStatus.value) {
         case 0:
-          {
-            hasStartedShopping.value = true;
-            updateUiFromCurrentOrderStatus();
-          }
+          hasStartedShopping.value = true;
+          updateUiFromCurrentOrderStatus();
           break;
         case 1:
-          {
-            pickUpOrder(order.value);
-          }
+          pickUpOrder(order.value);
           break;
         case 2:
-          {
-            deliverOrder(order.value, _locations);
-          }
+          deliverOrder(order.value, _locations);
           break;
         default:
-          {
-            goBackToDashboard();
-          }
+          goBackToDashboard();
           break;
       }
     } else {
       switch (currentOrderStatus.value) {
         case 0:
-          {
-            pickUpOrder(order.value);
-          }
+          pickUpOrder(order.value);
           break;
         case 1:
-          {
-            deliverOrder(order.value, _locations);
-          }
+          deliverOrder(order.value, _locations);
           break;
         default:
-          {
-            goBackToDashboard();
-          }
+          goBackToDashboard();
           break;
       }
     }

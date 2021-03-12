@@ -49,12 +49,12 @@ class DeliveryController extends BaseController
       })
       ..on('connecting', (_) {
         print('connecting');
-        showSnackbarSuccessMessage(
+        showSnackbarInfoMessage(
             'LOST CONNECTION! TRYING TO RECONNECT PLEASE WAIT...');
       })
       ..on('reconnecting', (_) {
         print('reconnecting');
-        showSnackbarSuccessMessage(
+        showSnackbarInfoMessage(
             'LOST CONNECTION! TRYING TO RECONNECT PLEASE WAIT...');
       })
       ..on('disconnect', (_) {
@@ -70,7 +70,7 @@ class DeliveryController extends BaseController
     showSnackbarInfoMessage('CHECKING CURRENT ORDER PLEASE WAIT...');
     await appRepository.getCurrentOrder().then((response) {
       if (response.data != null) {
-        showSnackbarInfoMessage('Loading current order...');
+        showSnackbarInfoMessage('LOADING ORDER INFO...');
         _goToOrderDetail(arguments: response.data.toJson());
       } else {
         _initSocket();
@@ -90,7 +90,8 @@ class DeliveryController extends BaseController
         orders.value.addAll(response.data);
         message.value = orders.value.isEmpty ? 'No Orders Available' : '';
       }).catchError((error) {
-        showSnackbarErrorMessage((error as Failure).errorMessage);
+        print('$error');
+        // showSnackbarErrorMessage((error as Failure).errorMessage);
       });
     }).catchError((error) {
       showSnackbarErrorMessage((error as Failure).errorMessage);
@@ -139,7 +140,7 @@ class DeliveryController extends BaseController
 
   void _getOrdersEvery30Secs() async {
     print('$CLASS_NAME, _getOrdersEvery30Secs');
-    _getNearbyOrders();
+    await _getNearbyOrders();
     await _canceLocationTimer().then((_) {
       _locationTimer = Timer.periodic(Duration(seconds: 30), (_) async {
         isShownSnackbar.value = false;
@@ -175,7 +176,7 @@ class DeliveryController extends BaseController
             (order) => order.id == orderData.id,
             orElse: () => null);
         if (acceptedOrder != null) {
-          orders.value.remove(acceptedOrder); 
+          orders.value.remove(acceptedOrder);
         }
       }
     }).catchError((error) {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:letsbeenextgenrider/core/utils/config.dart';
 import 'package:letsbeenextgenrider/ui/base/controller/base_refresh_tab_controller.dart';
@@ -53,16 +53,34 @@ abstract class BaseRefreshTabView<T extends BaseRefreshTabController>
   }
 
   Tab buildTab({
-    @required String iconPath,
-    @required String iconDescription,
+    @required String iconPathActive,
+    @required String iconPathInActive,
+    @required String title,
+    @required int index,
   }) {
     return Tab(
-      icon: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: SvgPicture.asset(
-          Config.SVG_PATH + iconPath,
-          semanticsLabel: iconDescription,
-          fit: BoxFit.contain,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Obx(
+          () => Column(
+            children: [
+              SvgPicture.asset(
+                controller.currentIndex.value == index
+                    ? Config.SVG_PATH + iconPathActive
+                    : Config.SVG_PATH + iconPathInActive,
+                    height: 25,
+                fit: BoxFit.contain,
+              ),
+              Text(
+                title,
+                style: TextStyle(
+                    fontSize: 10,
+                    color: controller.currentIndex.value == index
+                        ? Colors.black
+                        : Colors.grey),
+              )
+            ],
+          ),
         ),
       ),
     );

@@ -72,7 +72,21 @@ class HistoryController extends BaseRefreshTabController
 
   @override
   void onViewVisible() {
-    getTodayHistory();
+    clearDisposables();
+    switch (tabBarController.index) {
+      case 0:
+        getTodayHistory();
+        break;
+      case 1:
+        getYesterdayHistory();
+        break;
+      case 2:
+        getThisWeekHistory();
+        break;
+      case 3:
+        getLastWeekHistory();
+        break;
+    }
     super.onViewVisible();
   }
 
@@ -83,8 +97,6 @@ class HistoryController extends BaseRefreshTabController
           .getHistoryByDate(
               from: DateTime(now.year, now.month, now.day, 0, 0, 0), to: now)
           .then((response) {
-        Clipboard.setData(ClipboardData(
-            text: getHistoryByDateAndStatusResponseToJson(response)));
         ordersToday.value.clear();
         ordersToday.value.addAll(response.data);
         isLoading.value = false;

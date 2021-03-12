@@ -96,7 +96,6 @@ class StatusView extends BaseView<StatusController> {
                           child: SvgPicture.asset(
                             Config.SVG_PATH +
                                 controller.workStatusIconPath.value,
-                            color: Colors.black,
                             fit: BoxFit.contain,
                           ),
                         ),
@@ -143,7 +142,7 @@ class StatusView extends BaseView<StatusController> {
                   color: Color(Config.LETSBEE_COLOR).withOpacity(1),
                   shape: BoxShape.circle,
                   border: Border.fromBorderSide(
-                    BorderSide(),
+                    const BorderSide(),
                   )),
             ),
           ),

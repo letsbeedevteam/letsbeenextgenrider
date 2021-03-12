@@ -1,20 +1,20 @@
-class Choice {
-  Choice({
-    this.name,
+class Variant {
+  Variant({
+    this.type,
     this.price,
     this.customerPrice,
     this.sellerPrice,
     this.pick,
   });
 
-  String name;
+  String type;
   dynamic price;
   dynamic customerPrice;
   dynamic sellerPrice;
   String pick;
 
-  factory Choice.fromJson(Map<String, dynamic> json) => Choice(
-        name: json["name"],
+  factory Variant.fromJson(Map<String, dynamic> json) => Variant(
+        type: json["type"],
         price: json["price"],
         customerPrice: json["customer_price"],
         sellerPrice: json["seller_price"],
@@ -22,7 +22,7 @@ class Choice {
       );
 
   Map<String, dynamic> toJson() => {
-        "name": name,
+        "type": type,
         "price": price,
         "customer_price": customerPrice,
         "seller_price": sellerPrice,

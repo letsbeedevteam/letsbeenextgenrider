@@ -8,13 +8,14 @@ abstract class BaseRefreshTabController extends BaseController
 
   TabController tabBarController;
   int get tabLength;
+  RxInt currentIndex = 0.obs;
 
   @override
   void onInit() {
     tabBarController = TabController(length: tabLength, vsync: this);
     tabBarController.addListener(() {
       message.value = '';
-      isLoading.value = tabBarController.indexIsChanging;
+      currentIndex.value = tabBarController.index;
       if (!tabBarController.indexIsChanging) {
         onChangeTab(tabBarController.index);
       }

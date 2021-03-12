@@ -97,26 +97,34 @@ class _Body extends BaseRefreshTabView<HistoryController> {
                 },
                 itemCount: controller.ordersLastWeek.value.length),
           ),
-        )
+        ),
       ];
 
   @override
   List<Widget> get tabs => [
         buildTab(
-          iconPath: 'history_today_icon.svg',
-          iconDescription: 'a suitcase',
+          iconPathActive: 'today_active.svg',
+          iconPathInActive: 'today_inactive.svg',
+          title: 'Today',
+          index: 0,
         ),
         buildTab(
-          iconPath: 'history_yesterday_icon.svg',
-          iconDescription: 'a receipt',
+          iconPathActive: 'yesterday_active.svg',
+          iconPathInActive: 'yesterday_inactive.svg',
+          title: 'Yesterday',
+          index: 1,
         ),
         buildTab(
-          iconPath: 'history_this_week_icon.svg',
-          iconDescription: 'an arrow with clock hands',
+          iconPathActive: 'this_week_active.svg',
+          iconPathInActive: 'this_week_inactive.svg',
+          title: 'This Week',
+          index: 2,
         ),
         buildTab(
-          iconPath: 'history_last_week_icon.svg',
-          iconDescription: 'an arrow with clock hands',
+          iconPathActive: 'last_week_active.svg',
+          iconPathInActive: 'last_week_inactive.svg',
+          title: 'Last Week',
+          index: 3,
         ),
       ];
 }
