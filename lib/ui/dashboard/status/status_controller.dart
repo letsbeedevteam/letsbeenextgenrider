@@ -20,7 +20,7 @@ class StatusController extends BaseController {
   RxBool isSwitchOn = false.obs;
   RxBool isSwitchEnabled = true.obs;
   RxString workStatus = 'You have left work'.obs;
-  RxString workStatusIconPath = 'door_exit_icon.svg'.obs;
+  RxString workStatusIconPath = 'leave_work.svg'.obs;
 
   DateTime dateToday = DateTime.now();
 
@@ -35,7 +35,7 @@ class StatusController extends BaseController {
             ? 'You are currently at work'
             : 'You have left work';
         workStatusIconPath.value =
-            isSwitchOn.value ? 'status_icon.svg' : 'door_exit_icon.svg';
+            isSwitchOn.value ? 'at_work.svg' : 'leave_work.svg';
       } else {
         showSnackbarErrorMessage('Failed to update your status');
       }

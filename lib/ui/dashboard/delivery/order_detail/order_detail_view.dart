@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:letsbeenextgenrider/core/utils/config.dart';
 import 'package:letsbeenextgenrider/core/utils/utils.dart';
 import 'package:letsbeenextgenrider/data/models/additional.dart';
-import 'package:letsbeenextgenrider/data/models/choice.dart';
+import 'package:letsbeenextgenrider/data/models/variant.dart';
 import 'package:letsbeenextgenrider/data/models/product.dart';
 import 'package:letsbeenextgenrider/routing/pages.dart';
 import 'package:letsbeenextgenrider/ui/base/view/base_view.dart';
@@ -244,7 +244,8 @@ class _Body extends BaseView<OrderDetailController> {
                     },
                   );
                 },
-                title: controller.updateOrderStatusButtonText.value,
+                title:
+                    controller.updateOrderStatusButtonText.value.toUpperCase(),
                 mainAxisSize: MainAxisSize.max,
               ),
             ),
@@ -345,7 +346,7 @@ class _Body extends BaseView<OrderDetailController> {
                   style: TextStyle(fontStyle: FontStyle.italic),
                 ),
                 Text(
-                  'PHP ${controller.order.value.fee.total}',
+                  'PHP ${controller.order.value.fee.totalPrice}',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
@@ -478,27 +479,27 @@ class _Body extends BaseView<OrderDetailController> {
     );
   }
 
-  Widget _buildChoiceColumn(List<Choice> choices) {
+  Widget _buildChoiceColumn(List<Variant> variants) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
             child: Column(
-          children: choices.map((e) => _buildChoice(e)).toList(),
+          children: variants.map((e) => _buildChoice(e)).toList(),
         )),
       ],
     );
   }
 
-  Widget _buildChoice(Choice choice) {
+  Widget _buildChoice(Variant variant) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           child: Container(
-            child: Text('${choice.name}: ${choice.pick}',
+            child: Text('${variant.type}: ${variant.pick}',
                 style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
@@ -506,7 +507,7 @@ class _Body extends BaseView<OrderDetailController> {
           ),
         ),
         Text(
-          '+₱ ${choice.price}',
+          '+₱ ${variant.price}',
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,

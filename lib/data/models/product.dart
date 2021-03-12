@@ -1,18 +1,19 @@
 import 'package:letsbeenextgenrider/data/models/additional.dart';
-import 'package:letsbeenextgenrider/data/models/choice.dart';
+import 'package:letsbeenextgenrider/data/models/variant.dart';
 
 class Product {
-  Product(
-      {this.productId,
-      this.name,
-      this.price,
-      this.customerPrice,
-      this.sellerPrice,
-      this.quantity,
-      this.variants,
-      this.additionals,
-      this.note,
-      this.removable});
+  Product({
+    this.productId,
+    this.name,
+    this.price,
+    this.customerPrice,
+    this.sellerPrice,
+    this.quantity,
+    this.variants,
+    this.additionals,
+    this.note,
+    this.removable,
+  });
 
   int productId;
   String name;
@@ -20,7 +21,7 @@ class Product {
   dynamic customerPrice; // needs to be changed to double
   dynamic sellerPrice; // needs to be changed to double
   int quantity;
-  List<Choice> variants;
+  List<Variant> variants;
   List<Additional> additionals;
   String note;
   bool removable;
@@ -33,7 +34,7 @@ class Product {
         sellerPrice: json["seller_price"],
         quantity: json["quantity"],
         variants:
-            List<Choice>.from(json["variants"].map((x) => Choice.fromJson(x))),
+            List<Variant>.from(json["variants"].map((x) => Variant.fromJson(x))),
         additionals: List<Additional>.from(
             json["additionals"].map((x) => Additional.fromJson(x))),
         note: json["note"],
