@@ -3,8 +3,10 @@ import 'package:get/get.dart';
 import 'package:letsbeenextgenrider/data/app_repository.dart';
 import 'package:letsbeenextgenrider/data/models/message_data.dart';
 import 'package:letsbeenextgenrider/data/models/order_data.dart';
+import 'package:letsbeenextgenrider/ui/base/controller/base_controller.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class ChatController extends GetxController {
+class ChatController extends BaseController {
   static const CLASS_NAME = 'ChatController';
 
   final AppRepository _appRepository = Get.find();
@@ -24,16 +26,39 @@ class ChatController extends GetxController {
 
     riderId.value = _appRepository.getRiderId();
 
+    _initSocketMessagegs();
     _fetchAllMessages();
     _receiveNewMessages();
 
     super.onInit();
   }
 
-  ///Todo: need to remove [_receiveNewMessages] in chat page
-  ///[OrderDetailController] already had [_receiveNewMessages]
-  ///this will subscribe on [order] event from server
-  ///everytime the chat page is opened
+  void _initSocketMessagegs() async {
+    await _appRepository.getActiveSocket()
+      ..on('connect', (_) {
+        print('connected');
+        showSnackbarSuccessMessage('Connected');
+        _receiveNewMessages();
+      })
+      ..on('connecting', (_) {
+        print('connecting');
+        showSnackbarInfoMessage('Trying to reconnect...');
+      })
+      ..on('reconnecting', (_) {
+        print('reconnecting');
+        showSnackbarInfoMessage('Trying to reconnect...');
+      })
+      ..on('disconnect', (_) {
+        print('disconnected');
+        showSnackbarErrorMessage('Disconnected. Try refreshing');
+      })
+      ..on('error', (_) {
+        print('socket error = $_');
+      });
+  }
+
+  ///this will subscribe on [order-chat] event from server
+  ///to receive new messages
   void _receiveNewMessages() {
     print('$CLASS_NAME, _receiveNewMessages');
     _appRepository.receiveNewMessages((response) async {
@@ -41,7 +66,10 @@ class ChatController extends GetxController {
     });
   }
 
+  ///this will subscribe on [order-chats] event from server
+  ///to fetch 10 most recent messages
   void _fetchAllMessages() {
+    showSnackbarInfoMessage('Loading messages...');
     print('$CLASS_NAME, _fetchAllMessages');
     messages.value.clear();
     _appRepository.fetchAllMessages(order.value.id, (response) {
@@ -49,30 +77,52 @@ class ChatController extends GetxController {
       messages.value.sort((a, b) {
         return a.createdAt.compareTo(b.createdAt);
       });
+      showSnackbarSuccessMessage('Messages updated');
     }, (error) {
-      print(error);
+      showSnackbarErrorMessage(error);
     });
   }
 
   void sendMessage() {
     print('$CLASS_NAME, sendMessage');
-    messages.value.add(MessageData(
-        userId: riderId.value,
-        orderId: order.value.id,
-        message: messageTF.text,
-        createdAt: DateTime.now().toUtc(),
-        updatedAt: DateTime.now().toUtc(),
-        isSent: false));
+    if (!messageTF.text.isBlank || messageTF.text.isNotEmpty) {
+      messages.value.add(
+        MessageData(
+          userId: riderId.value,
+          orderId: order.value.id,
+          message: messageTF.text,
+          createdAt: DateTime.now().toUtc(),
+          updatedAt: DateTime.now().toUtc(),
+          isSent: false,
+        ),
+      );
 
-    _appRepository
-        .sendMessage(order.value.id, order.value.userId, messageTF.text,
-            onComplete: (response) {
-      if (response.status == 200) {
-        messages.value.removeWhere((message) => message.isSent == false);
-        messages.value.add(response.data);
+      _appRepository
+          .sendMessage(order.value.id, order.value.userId, messageTF.text,
+              onComplete: (response) {
+        if (response.status == 200) {
+          messages.value.removeWhere((message) => message.isSent == false);
+          messages.value.add(response.data);
+        }
+      });
+
+      messageTF.clear();
+    }
+  }
+
+  void makePhoneCall() async {
+    if (order.value.user.cellphoneNumber != null) {
+      var uri = 'tel:${order.value.user.cellphoneNumber}';
+      if (await canLaunch(uri)) {
+        await launch(uri);
+      } else {
+        throw 'Could not launch';
       }
-    });
+    }
+  }
 
-    messageTF.clear();
+  @override
+  void onRefresh() {
+    print('$CLASS_NAME, onRefresh');
   }
 }
