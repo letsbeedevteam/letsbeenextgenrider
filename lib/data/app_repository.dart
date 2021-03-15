@@ -363,6 +363,10 @@ class AppRepository {
     return socketService.connectSocket();
   }
 
+  Future<IO.Socket> getActiveSocket() async {
+    return socketService.socket;
+  }
+
   Future<void> disconnectSocket() async {
     return socketService.socket?.close();
   }

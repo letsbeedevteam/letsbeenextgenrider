@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:letsbeenextgenrider/core/error/base/failure.dart';
 import 'package:letsbeenextgenrider/data/app_repository.dart';
 import 'package:letsbeenextgenrider/data/models/order_data.dart';
-import 'package:letsbeenextgenrider/data/models/product.dart';
 import 'package:letsbeenextgenrider/data/models/request/deliver_order_request.dart';
 import 'package:letsbeenextgenrider/ui/base/controller/base_controller.dart';
 import 'package:location/location.dart';
