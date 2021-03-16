@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:letsbeenextgenrider/data/models/motorcycle_details.dart';
 
 class SharedPref {
   final GetStorage _getStorage = Get.find();
@@ -8,6 +7,7 @@ class SharedPref {
   static const RIDER_ID = 'id';
   static const RIDER_NAME = "name";
   static const RIDER_EMAIL = "email";
+  static const RIDER_STATUS = "status";
   static const ROLE = "role";
   static const RIDER_CELLPHONE_NUMBER = "cellphone_number";
   static const RIDER_ACCESS_TOKEN = 'access_token';
@@ -29,6 +29,11 @@ class SharedPref {
 
   void saveRiderEmail(String riderEmail) {
     _getStorage.write(RIDER_EMAIL, riderEmail);
+  }
+
+  void saveRiderStatus(int riderStatus) {
+    print(riderStatus.toString());
+    _getStorage.write(RIDER_STATUS, riderStatus);
   }
 
   void saveRiderCellphoneNumber(String riderCellphoneNumber) {
@@ -67,6 +72,7 @@ class SharedPref {
     int id,
     String name,
     String email,
+    int status,
     String cellphoneNumber,
     String accessToken,
     String role,
@@ -79,6 +85,7 @@ class SharedPref {
     saveRiderId(id);
     saveRiderName(name);
     saveRiderEmail(email);
+    saveRiderStatus(status);
     saveRiderCellphoneNumber(cellphoneNumber);
     saveRiderAccessToken(accessToken);
     saveRole(role);
@@ -102,6 +109,10 @@ class SharedPref {
     return _getStorage.read(RIDER_EMAIL);
   }
 
+  int getRiderStatus() {
+    return _getStorage.read(RIDER_STATUS);
+  }
+
   String getRiderCellphoneNumber() {
     return _getStorage.read(RIDER_CELLPHONE_NUMBER);
   }
@@ -118,19 +129,19 @@ class SharedPref {
     return _getStorage.read(PHOTO);
   }
 
-  String getMotorcycleBrand(){
+  String getMotorcycleBrand() {
     return _getStorage.read(MOTORCYCLE_BRAND);
   }
 
-  String getMotorcycleModel(){
+  String getMotorcycleModel() {
     return _getStorage.read(MOTORCYCLE_MODEL);
   }
 
-  String getMotorcycleColor(){
+  String getMotorcycleColor() {
     return _getStorage.read(MOTORCYCLE_COLOR);
   }
 
-  String getMotorcyclePlateNumber(){
+  String getMotorcyclePlateNumber() {
     return _getStorage.read(MOTORCYCLE_PLATE_NUMBER);
   }
 

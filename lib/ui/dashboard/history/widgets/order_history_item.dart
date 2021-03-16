@@ -116,7 +116,7 @@ class OrderHistoryItem extends StatelessWidget {
                         ),
                   ),
                   Text(
-                    'PHP ${order.fee.totalPrice}',
+                    'PHP ${order.fee.customerTotalPrice}',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                     ),

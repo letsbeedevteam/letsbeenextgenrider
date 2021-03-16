@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:letsbeenextgenrider/core/error/base/failure.dart';
 import 'package:letsbeenextgenrider/data/app_repository.dart';
+import 'package:letsbeenextgenrider/data/models/login_data.dart';
 import 'package:letsbeenextgenrider/ui/base/controller/base_controller.dart';
 
 class StatusController extends BaseController {
@@ -23,19 +24,27 @@ class StatusController extends BaseController {
   RxString workStatusIconPath = 'leave_work.svg'.obs;
 
   DateTime dateToday = DateTime.now();
+  LoginData user;
+
+  @override
+  void onInit() {
+    init();
+    super.onInit();
+  }
 
   void updateWorkStatus(bool isOn) {
     showSnackbarInfoMessage('Updating status...');
     isSwitchEnabled.value = false;
     appRepository.updateWorkStatus(isOn ? 'off' : 'on').then((isSuccessful) {
       if (isSuccessful) {
-        showSnackbarSuccessMessage('Work status updated!');
         isSwitchOn.value = !isSwitchOn.value;
         workStatus.value = isSwitchOn.value
             ? 'You are currently at work'
             : 'You have left work';
         workStatusIconPath.value =
             isSwitchOn.value ? 'at_work.svg' : 'leave_work.svg';
+        showSnackbarSuccessMessage('Work status updated!');
+        appRepository.saveRiderStatus(isSwitchOn.value ? 1 : 3);
       } else {
         showSnackbarErrorMessage('Unable to update work status');
       }
@@ -48,6 +57,11 @@ class StatusController extends BaseController {
   }
 
   void init() {
+    user = appRepository.getUser();
+    print(user.riderDetails.status.toString());
+    isSwitchOn.value = user.riderDetails.status == 3 ? false : true;
+    workStatus.value =
+        isSwitchOn.value ? 'You are currently at work' : 'You have left work';
     //do an api call that will update the current switch work status
     //do an api call that will update the date today
   }
