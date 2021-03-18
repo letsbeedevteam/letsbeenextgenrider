@@ -29,6 +29,11 @@ class HistoryController extends BaseRefreshTabController
   ScrollController ordersThisWeekScrollController;
   ScrollController ordersLastWeekScrollController;
 
+  RxString todayHistoryMessage = ''.obs;
+  RxString yesterdayHistoryMessage = ''.obs;
+  RxString thisweekHistoryMessage = ''.obs;
+  RxString lastweekHistoryMessage = ''.obs;
+
   final DateTime now = DateTime.now();
 
   @override
@@ -183,7 +188,7 @@ class HistoryController extends BaseRefreshTabController
         ordersToday.value.addAll(response.data);
 
         isLoading.value = false;
-        message.value = ordersToday.value.isNotEmpty
+        todayHistoryMessage.value = ordersToday.value.isNotEmpty
             ? ''
             : 'Nothing to see here yet.\nStart accepting deliveries!';
         showSnackbarSuccessMessage('History updated!');
@@ -217,7 +222,7 @@ class HistoryController extends BaseRefreshTabController
         if (response.data.isNotEmpty) {
           ordersYesterdayPageNumber += 1;
         }
-        message.value = ordersYesterday.value.isNotEmpty
+        yesterdayHistoryMessage.value = ordersYesterday.value.isNotEmpty
             ? ''
             : 'Nothing to see here yet.\nStart accepting deliveries!';
         showSnackbarSuccessMessage('History updated!');
@@ -250,7 +255,7 @@ class HistoryController extends BaseRefreshTabController
         if (response.data.isNotEmpty) {
           ordersThisWeekPageNumber += 1;
         }
-        message.value = ordersThisWeek.value.isNotEmpty
+        thisweekHistoryMessage.value = ordersThisWeek.value.isNotEmpty
             ? ''
             : 'Nothing to see here yet.\nStart accepting deliveries!';
         isLoading.value = false;
@@ -289,7 +294,7 @@ class HistoryController extends BaseRefreshTabController
           ordersLastWeekPageNumber += 1;
         }
         isLoading.value = false;
-        message.value = ordersLastWeek.value.isNotEmpty
+        lastweekHistoryMessage.value = ordersLastWeek.value.isNotEmpty
             ? ''
             : 'Nothing to see here yet.\nStart accepting deliveries!';
         showSnackbarSuccessMessage('History updated!');

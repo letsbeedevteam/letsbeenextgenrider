@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:letsbeenextgenrider/core/error/base/failure.dart';
+import 'package:letsbeenextgenrider/core/error/failures.dart';
 import 'package:letsbeenextgenrider/data/app_repository.dart';
 import 'package:letsbeenextgenrider/data/models/order_data.dart';
 import 'package:letsbeenextgenrider/data/models/response/get_new_order_response.dart';
@@ -43,19 +44,16 @@ class DeliveryController extends BaseController
     await appRepository.connectSocket()
       ..on('connect', (_) {
         print('connected');
-        showSnackbarSuccessMessage(
-            'Connected');
+        showSnackbarSuccessMessage('Connected');
         _receiveNewOrders();
       })
       ..on('connecting', (_) {
         print('connecting');
-        showSnackbarInfoMessage(
-            'Trying to reconnect...');
+        showSnackbarInfoMessage('Trying to reconnect...');
       })
       ..on('reconnecting', (_) {
         print('reconnecting');
-        showSnackbarInfoMessage(
-            'Trying to reconnect...');
+        showSnackbarInfoMessage('Trying to reconnect...');
       })
       ..on('disconnect', (_) {
         print('disconnected');
@@ -90,10 +88,11 @@ class DeliveryController extends BaseController
           .then((response) {
         orders.value.clear();
         orders.value.addAll(response.data);
-        message.value = orders.value.isEmpty ? 'Nothing to see here yet.\nKindly wait for upcoming orders' : '';
+        message.value = orders.value.isEmpty
+            ? 'Nothing to see here yet.\nKindly wait for upcoming orders'
+            : '';
       }).catchError((error) {
         print('$error');
-        // showSnackbarErrorMessage((error as Failure).errorMessage);
       });
     }).catchError((error) {
       showSnackbarErrorMessage((error as Failure).errorMessage);
@@ -104,24 +103,27 @@ class DeliveryController extends BaseController
     print('$CLASS_NAME, _receiveNewOrders');
     appRepository.receiveNewOrder((response) async {
       final orderUpdateResponse = GetNewOrderResponse.fromJson(response);
-      if (orderUpdateResponse.isNewOrder()) {
-        if (orders.value.isNotEmpty) {
-          //checks if the new order is already existing on the list
-          //before adding it
-          var newOrder = orders.value.firstWhere(
-              (order) => order.id == orderUpdateResponse.data.id,
-              orElse: () => null);
-          if (newOrder != null) {
-            return;
+      if (orders.value.length < 10) {
+        if (orderUpdateResponse.isNewOrder()) {
+          if (orders.value.isNotEmpty) {
+            //checks if the new order is already existing on the list
+            //before adding it
+            var newOrder = orders.value.firstWhere(
+                (order) => order.id == orderUpdateResponse.data.id,
+                orElse: () => null);
+            if (newOrder != null) {
+              return;
+            }
           }
+
+          orders.value.add(orderUpdateResponse.data);
+          await appRepository.showNotification(
+            title: 'Hi!',
+            body:
+                "Order No. ${orderUpdateResponse.data.id} is now available for delivery",
+            payload: "N/A",
+          );
         }
-        orders.value.add(orderUpdateResponse.data);
-        await appRepository.showNotification(
-          title: 'Hi!',
-          body:
-              "Order No. ${orderUpdateResponse.data.id} is now available for delivery",
-          payload: "N/A",
-        );
       } else {
         //when the received order was an update of an existing order and
         //the received order status update from server was rider-accepted
@@ -136,7 +138,9 @@ class DeliveryController extends BaseController
           orders.value.remove(oldOrder);
         }
       }
-      message.value = orders.value.isEmpty ? 'Nothing to see here yet.\nKindly wait for upcoming orders' : '';
+      message.value = orders.value.isEmpty
+          ? 'Nothing to see here yet.\nKindly wait for upcoming orders'
+          : '';
     });
   }
 
@@ -183,7 +187,17 @@ class DeliveryController extends BaseController
         }
       }
     }).catchError((error) {
-      showSnackbarErrorMessage((error as Failure).errorMessage);
+      if (error is Failure) {
+        if (error.errorMessage.contains('has been accepted by other rider')) {
+          var acceptedOrder = orders.value.firstWhere(
+              (order) => order.id == orderData.id,
+              orElse: () => null);
+          if (acceptedOrder != null) {
+            orders.value.remove(acceptedOrder);
+          }
+        }
+        showSnackbarErrorMessage(error.errorMessage);
+      }
     });
   }
 
