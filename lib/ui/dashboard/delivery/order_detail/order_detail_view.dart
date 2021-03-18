@@ -345,10 +345,15 @@ class _Body extends BaseView<OrderDetailController> {
                   controller.order.value.status.asReadableOrderStatus(),
                   style: TextStyle(fontStyle: FontStyle.italic),
                 ),
-                Text(
-                  'PHP ${controller.order.value.fee.totalPrice}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
+                Obx(
+                  () => Text(
+                    controller.order.value.status == 'rider-picked-up' ||
+                            controller.order.value.status == 'delivered'
+                        ? 'PHP ${controller.order.value.fee.customerTotalPrice}'
+                        : 'PHP ${controller.order.value.fee.sellerTotalPrice}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],

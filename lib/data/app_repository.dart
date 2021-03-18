@@ -79,7 +79,12 @@ class AppRepository {
           color: sharedPref.getMotorcycleColor(),
           plateNumber: sharedPref.getMotorcyclePlateNumber(),
         ),
+        status: sharedPref.getRiderStatus(),
       ));
+
+  void saveRiderStatus(int status) {
+    sharedPref.saveRiderStatus(status);
+  }
 
 // ApiService
   Future login(LoginRequest loginRequest) {
@@ -89,6 +94,7 @@ class AppRepository {
           id: response.data.id,
           name: response.data.name,
           email: response.data.email,
+          status: response.data.riderDetails.status,
           cellphoneNumber: response.data.cellphoneNumber,
           accessToken: response.data.accessToken,
           role: response.data.role,
