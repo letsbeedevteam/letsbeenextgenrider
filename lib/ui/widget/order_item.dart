@@ -4,6 +4,7 @@ import 'package:letsbeenextgenrider/core/utils/config.dart';
 import 'package:letsbeenextgenrider/data/models/order_data.dart';
 import 'package:intl/intl.dart';
 import 'package:letsbeenextgenrider/ui/widget/accept_button.dart';
+import 'package:letsbeenextgenrider/core/utils/extensions.dart';
 
 class OrderItem extends StatelessWidget {
   final OrderData order;
@@ -47,7 +48,7 @@ class OrderItem extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                         ),
                         Text(
-                          '${order.status}',
+                          '${order.status.asReadableOrderStatus()}',
                           style: const TextStyle(fontStyle: FontStyle.italic),
                         ),
                       ],

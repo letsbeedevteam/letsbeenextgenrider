@@ -374,10 +374,11 @@ class AppRepository {
   }
 
   Future<void> disconnectSocket() async {
-    return socketService.socket?.close();
+    return socketService.socket?.dispose();
   }
 
   void receiveNewOrder(Function(dynamic) onComplete) {
+    socketService.socket.off(SocketService.RECEIVE_NEW_ORDER);
     socketService.socket.on(SocketService.RECEIVE_NEW_ORDER, (response) {
       print(response);
       onComplete(response);
@@ -432,6 +433,7 @@ class AppRepository {
   }
 
   void receiveNewMessages(Function(GetNewMessageResponse) onComplete) {
+    socketService.socket.off(SocketService.RECEIVE_NEW_MESSAGES);
     socketService.socket.on(SocketService.RECEIVE_NEW_MESSAGES, (response) {
       print(response);
       final getNewMessageResponse = GetNewMessageResponse.fromJson(response);
