@@ -37,7 +37,7 @@ class OrderDetailController extends BaseController
     _initSocket();
     _sendMyOrderLocation();
     super.onInit();
-  }
+  } 
 
   @override
   void onClose() async {
@@ -52,19 +52,16 @@ class OrderDetailController extends BaseController
     await _appRepository.connectSocket()
       ..on('connect', (_) {
         print('connected');
-        showSnackbarSuccessMessage(
-            'Connected');
+        showSnackbarSuccessMessage('Connected');
         _receiveNewMessages();
       })
       ..on('connecting', (_) {
         print('connecting');
-        showSnackbarInfoMessage(
-            'Trying to reconnect...');
+        showSnackbarInfoMessage('Trying to reconnect...');
       })
       ..on('reconnecting', (_) {
         print('reconnecting');
-        showSnackbarInfoMessage(
-            'Trying to reconnect...');
+        showSnackbarInfoMessage('Trying to reconnect...');
       })
       ..on('disconnect', (_) {
         print('disconnected');
@@ -182,9 +179,14 @@ class OrderDetailController extends BaseController
           break;
         case 1:
           bool isReadyForCheckout = false;
-          areItemsreadyForCheckout.forEach((element) {
-            isReadyForCheckout = element.value;
-          });
+          for (var item in areItemsreadyForCheckout) {
+            if (item.value == false) {
+              isReadyForCheckout = item.value;
+              break;
+            } else {
+              isReadyForCheckout = item.value;
+            }
+          }
           if (isReadyForCheckout) {
             pickUpOrder(order.value);
           } else {
@@ -313,13 +315,29 @@ class OrderDetailController extends BaseController
     }
   }
 
+  void _getCurrentOrder() async {
+    showSnackbarInfoMessage('Loading Order...');
+    await _appRepository.getCurrentOrder().then((response) {
+      if (response.data != null) {
+        showSnackbarInfoMessage('Order updated');
+        updateUiFromCurrentOrderStatus();
+        _initSocket();
+        _sendMyOrderLocation();
+      } else {
+        Get.back();
+      }
+    }).catchError((error) {
+      if (error is Failure) {
+        showSnackbarErrorMessage(error.errorMessage);
+      }
+    });
+  }
+
   @override
   void onRefresh() async {
     clearDisposables();
     await _appRepository.disconnectSocket();
     await _canceLocationTimer();
-    updateUiFromCurrentOrderStatus();
-    _initSocket();
-    _sendMyOrderLocation();
+    _getCurrentOrder();
   }
 }

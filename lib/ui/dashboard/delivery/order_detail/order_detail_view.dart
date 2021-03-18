@@ -351,7 +351,7 @@ class _Body extends BaseView<OrderDetailController> {
                             controller.order.value.status == 'delivered'
                         ? 'PHP ${controller.order.value.fee.customerTotalPrice}'
                         : 'PHP ${controller.order.value.fee.sellerTotalPrice}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                     ),
                   ),

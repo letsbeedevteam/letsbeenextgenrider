@@ -42,6 +42,12 @@ extension readablePaymentMethod on String {
       case "cod":
         readablePaymentMethod = "Cash on Delivery";
         break;
+      case "card":
+        readablePaymentMethod = "Card";
+        break;
+      default:
+        readablePaymentMethod = this;
+        break;
     }
     return readablePaymentMethod;
   }
@@ -54,10 +60,10 @@ extension readableOrderStatus on String {
       case "pending":
         readableOrderStatus = "Waiting for Restaurant";
         break;
-      case "restaurant-accepted":
-        readableOrderStatus = "Waiting for Rider";
+      case "store-accepted":
+        readableOrderStatus = "Pending";
         break;
-      case "restaurant-declined":
+      case "store-declined":
         readableOrderStatus = "Restaurant Declined";
         break;
       case "rider-accepted":
