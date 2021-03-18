@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:letsbeenextgenrider/core/utils/config.dart';
 import 'package:letsbeenextgenrider/data/models/additional.dart';
-import 'package:letsbeenextgenrider/data/models/choice.dart';
+import 'package:letsbeenextgenrider/data/models/variant.dart';
 import 'package:letsbeenextgenrider/data/models/product.dart';
 import 'package:letsbeenextgenrider/data/models/response/get_history_by_date_and_status_response.dart';
 import 'package:letsbeenextgenrider/ui/widget/animated_expandable_container.dart';
@@ -116,7 +116,7 @@ class OrderHistoryItem extends StatelessWidget {
                         ),
                   ),
                   Text(
-                    'PHP ${order.fee.total}',
+                    'PHP ${order.fee.customerTotalPrice}',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                     ),
@@ -170,9 +170,9 @@ class OrderHistoryItem extends StatelessWidget {
                             product.additionals.isEmpty
                                 ? const SizedBox.shrink()
                                 : _buildAdditionalColumn(product.additionals),
-                            product.choices.isEmpty
+                            product.variants.isEmpty
                                 ? const SizedBox.shrink()
-                                : _buildChoiceColumn(product.choices),
+                                : _buildChoiceColumn(product.variants),
                           ],
                         ),
                       ),
@@ -188,7 +188,7 @@ class OrderHistoryItem extends StatelessWidget {
               ],
             ),
             const Padding(padding: EdgeInsets.symmetric(vertical: 4)),
-            product.note == null
+            product.note.isEmpty || product.note == null
                 ? const SizedBox.shrink()
                 : Text(
                     'Note: ${product.note}',
@@ -232,34 +232,34 @@ class OrderHistoryItem extends StatelessWidget {
     );
   }
 
-  Widget _buildChoiceColumn(List<Choice> choices) {
+  Widget _buildChoiceColumn(List<Variant> variant) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
             child: Column(
-          children: choices.map((e) => _buildChoice(e)).toList(),
+          children: variant.map((e) => _buildChoice(e)).toList(),
         )),
       ],
     );
   }
 
-  Widget _buildChoice(Choice choice) {
+  Widget _buildChoice(Variant variant) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           child: Container(
-            child: Text('${choice.name}: ${choice.pick}',
+            child: Text('${variant.type}: ${variant.pick}',
                 style: TextStyle(
                   color: Colors.black,
                 )),
           ),
         ),
         Text(
-          '+₱ ${choice.price}',
+          '+₱ ${variant.price}',
           style: TextStyle(
             color: Colors.black,
           ),

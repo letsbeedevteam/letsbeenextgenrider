@@ -53,11 +53,11 @@ class Config {
 
   /// Date format should follow Date Format = YYYY-MM-DD HH:mm:ii
   /// status can be "rider-accepted", "rider-picked-up" or "delivered"
-  /// ex. 2021-02-25%2000:00:00
+  /// ex. 2021-02-25%2000:00:00&status=delivered
   static String getHistoryByDateAndStatus({
     @required String from,
     @required String to,
-    @required String status,
+    @required int page,
   }) =>
-      '$BASE_URL/${NAMESPACE}s/history?from=$from&to=$to&status=$status';
+      '$BASE_URL/${NAMESPACE}s/history?page=$page&from=$from&to=$to';
 }

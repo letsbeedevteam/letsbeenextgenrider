@@ -7,10 +7,12 @@ import 'package:letsbeenextgenrider/data/models/product.dart';
 import 'package:letsbeenextgenrider/data/models/response/base/base_response.dart';
 import 'package:letsbeenextgenrider/data/models/timeframe.dart';
 
-GetHistoryByDateAndStatusResponse getHistoryByDateAndStatusResponseFromJson(String str) =>
+GetHistoryByDateAndStatusResponse getHistoryByDateAndStatusResponseFromJson(
+        String str) =>
     GetHistoryByDateAndStatusResponse.fromJson(json.decode(str));
 
-String getHistoryByDateAndStatusResponseToJson(GetHistoryByDateAndStatusResponse data) =>
+String getHistoryByDateAndStatusResponseToJson(
+        GetHistoryByDateAndStatusResponse data) =>
     json.encode(data.toJson());
 
 class GetHistoryByDateAndStatusResponse implements BaseResponse {
@@ -114,4 +116,7 @@ class GetHistoryData {
         "createdAt": createdAt.toIso8601String(),
         "updatedAt": updatedAt.toIso8601String(),
       };
+
+  bool isEqual(GetHistoryData old) =>
+      old.orderId == orderId && old.orderStatus == orderStatus;
 }

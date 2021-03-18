@@ -79,7 +79,12 @@ class AppRepository {
           color: sharedPref.getMotorcycleColor(),
           plateNumber: sharedPref.getMotorcyclePlateNumber(),
         ),
+        status: sharedPref.getRiderStatus(),
       ));
+
+  void saveRiderStatus(int status) {
+    sharedPref.saveRiderStatus(status);
+  }
 
 // ApiService
   Future login(LoginRequest loginRequest) {
@@ -89,6 +94,7 @@ class AppRepository {
           id: response.data.id,
           name: response.data.name,
           email: response.data.email,
+          status: response.data.riderDetails.status,
           cellphoneNumber: response.data.cellphoneNumber,
           accessToken: response.data.accessToken,
           role: response.data.role,
@@ -184,12 +190,13 @@ class AppRepository {
   Future<GetHistoryByDateAndStatusResponse> getHistoryByDate({
     @required DateTime from,
     @required DateTime to,
+    @required int page,
   }) async {
     final GetHistoryByDateAndStatusRequest request =
         GetHistoryByDateAndStatusRequest(
       from: from,
       to: to,
-      status: 'delivered',
+      page: page,
     );
 
     if (await networkInfo.isConnected) {
@@ -202,7 +209,7 @@ class AppRepository {
       } on UnauthorizedException catch (_) {
         return refreshAccessToken().then((response) {
           sharedPref.saveRiderAccessToken(response.data.accessToken);
-          getHistoryByDate(from: from, to: to);
+          getHistoryByDate(from: from, to: to, page: page);
         }).catchError((error) {
           throw error;
         });
@@ -362,8 +369,12 @@ class AppRepository {
     return socketService.connectSocket();
   }
 
+  Future<IO.Socket> getActiveSocket() async {
+    return socketService.socket;
+  }
+
   Future<void> disconnectSocket() async {
-    socketService.socket?.close();
+    return socketService.socket?.close();
   }
 
   void receiveNewOrder(Function(dynamic) onComplete) {

@@ -4,122 +4,125 @@ import 'package:get/get.dart';
 import 'package:letsbeenextgenrider/core/utils/config.dart';
 import 'package:intl/intl.dart';
 import 'package:letsbeenextgenrider/core/utils/utils.dart';
+import 'package:letsbeenextgenrider/ui/base/view/base_view.dart';
 
 import 'status_controller.dart';
 
-class StatusView extends GetView<StatusController> {
+class StatusView extends BaseView<StatusController> {
   @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 32,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                  color: Colors.white, borderRadius: BorderRadius.circular(10)),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Date today',
-                        ),
-                        Text(
-                          DateFormat('dd MMM yyyy')
-                              .format(controller.dateToday),
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+  Widget get body => ListView(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 32,
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-            ),
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                  color: Colors.white, borderRadius: BorderRadius.circular(10)),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Status',
-                        ),
-                        const Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                        ),
-                        Row(
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildSwitch(),
-                            const Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 4),
+                            Text(
+                              'Date today',
                             ),
-                            Obx(
-                              () => Text(
-                                controller.workStatus.value,
-                                style: TextStyle(
-                                  fontStyle: FontStyle.italic,
-                                ),
+                            Text(
+                              DateFormat('dd MMM yyyy')
+                                  .format(controller.dateToday),
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontStyle: FontStyle.italic,
                               ),
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
-                  Obx(
-                    () => SizedBox(
-                      height: 60,
-                      child: SvgPicture.asset(
-                        Config.SVG_PATH + controller.workStatusIconPath.value,
-                        color: Colors.black,
-                        fit: BoxFit.contain,
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Status',
+                            ),
+                            const Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                            ),
+                            Row(
+                              children: [
+                                _buildSwitch(),
+                                const Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 4),
+                                ),
+                                Obx(
+                                  () => Text(
+                                    controller.workStatus.value,
+                                    style: TextStyle(
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      Obx(
+                        () => SizedBox(
+                          height: 60,
+                          child: SvgPicture.asset(
+                            Config.SVG_PATH +
+                                controller.workStatusIconPath.value,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
-  }
+          ),
+        ],
+      );
 
   Widget _buildSwitch() {
     return GestureDetector(
       onTap: () {
-        showAlertDialog(
-          controller.isSwitchOn.value
-              ? 'Time out'
-              : 'Time in',
-          controller.isSwitchOn.value
-              ? 'Are you sure you want to sign out to end your shift?'
-              : 'Are you sure you want to sign in to start your shift?',
-          onConfirm: () {
-            controller.updateWorkStatus(controller.isSwitchOn.value);
-          },
-        );
+        if (controller.isSwitchEnabled.value) {
+          showAlertDialog(
+            controller.isSwitchOn.value ? 'Time out' : 'Time in',
+            controller.isSwitchOn.value
+                ? 'Are you sure you want to sign out to end your shift?'
+                : 'Are you sure you want to sign in to start your shift?',
+            onConfirm: () {
+              controller.updateWorkStatus(controller.isSwitchOn.value);
+            },
+          );
+        }
       },
       child: Obx(
         () => AnimatedContainer(
@@ -139,7 +142,7 @@ class StatusView extends GetView<StatusController> {
                   color: Color(Config.LETSBEE_COLOR).withOpacity(1),
                   shape: BoxShape.circle,
                   border: Border.fromBorderSide(
-                    BorderSide(),
+                    const BorderSide(),
                   )),
             ),
           ),

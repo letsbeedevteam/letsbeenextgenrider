@@ -15,7 +15,6 @@ import 'package:letsbeenextgenrider/data/models/request/login_request.dart';
 import 'package:letsbeenextgenrider/data/models/request/pick_up_order_request.dart';
 import 'package:letsbeenextgenrider/data/models/request/refresh_token_request.dart';
 import 'package:letsbeenextgenrider/data/models/request/send_current_order_location_request.dart';
-import 'package:letsbeenextgenrider/data/models/request/send_order_location_request.dart';
 import 'package:letsbeenextgenrider/data/models/request/update_work_status_request.dart';
 import 'package:letsbeenextgenrider/data/models/response/get_active_order_response.dart';
 import 'package:letsbeenextgenrider/data/models/response/get_nearby_orders.dart';
@@ -59,6 +58,7 @@ class ApiService extends GetxController {
     print('getNearbyOrders: ${response.body}');
 
     int status = json.decode(response.body)['status'];
+    String message = json.decode(response.body)['message'];
 
     switch (status) {
       case 200:
@@ -68,7 +68,7 @@ class ApiService extends GetxController {
         throw UnauthorizedException('Token Expired');
         break;
       default:
-        throw ServerException('Something went wrong');
+        throw ServerException(message);
         break;
     }
   }
@@ -88,6 +88,7 @@ class ApiService extends GetxController {
     print('getCurrentOrder: ${response.body}');
 
     int status = json.decode(response.body)['status'];
+    String message = json.decode(response.body)['message'];
 
     switch (status) {
       case 200:
@@ -97,7 +98,7 @@ class ApiService extends GetxController {
         throw UnauthorizedException('Token Expired');
         break;
       default:
-        throw ServerException('Something went wrong');
+        throw ServerException(message);
         break;
     }
   }
@@ -117,6 +118,7 @@ class ApiService extends GetxController {
     print('acceptOrder: ${response.body}');
 
     int status = json.decode(response.body)['status'];
+    String message = json.decode(response.body)['message'];
 
     switch (status) {
       case 200:
@@ -126,7 +128,7 @@ class ApiService extends GetxController {
         throw UnauthorizedException('Token Expired');
         break;
       default:
-        throw ServerException('Something went wrong');
+        throw ServerException(message);
         break;
     }
   }
@@ -146,6 +148,7 @@ class ApiService extends GetxController {
     print('pickupOrder: ${response.body}');
 
     int status = json.decode(response.body)['status'];
+    String message = json.decode(response.body)['message'];
 
     switch (status) {
       case 200:
@@ -155,7 +158,7 @@ class ApiService extends GetxController {
         throw UnauthorizedException('Token Expired');
         break;
       default:
-        throw ServerException('Something went wrong');
+        throw ServerException(message);
         break;
     }
   }
@@ -174,6 +177,7 @@ class ApiService extends GetxController {
     print('deliverOrder: ${response.body}');
 
     int status = json.decode(response.body)['status'];
+    String message = json.decode(response.body)['message'];
 
     switch (status) {
       case 200:
@@ -183,7 +187,7 @@ class ApiService extends GetxController {
         throw UnauthorizedException('Token Expired');
         break;
       default:
-        throw ServerException('Something went wrong');
+        throw ServerException(message);
         break;
     }
   }
@@ -198,13 +202,14 @@ class ApiService extends GetxController {
 
     print('RefreshToken: ${response.body}');
     int status = json.decode(response.body)['status'];
+    String message = json.decode(response.body)['message'];
 
     switch (status) {
       case 200:
         return refreshTokenResponseFromJson(response.body);
         break;
       default:
-        throw ServerException('Something went wrong');
+        throw ServerException(message);
         break;
     }
   }
@@ -227,6 +232,7 @@ class ApiService extends GetxController {
     print('getStatsByDate: ${response.body}');
 
     int status = json.decode(response.body)['status'];
+    String message = json.decode(response.body)['message'];
 
     switch (status) {
       case 200:
@@ -236,7 +242,7 @@ class ApiService extends GetxController {
         throw UnauthorizedException('Token Expired');
         break;
       default:
-        throw ServerException('Something went wrong');
+        throw ServerException(message);
         break;
     }
   }
@@ -248,7 +254,7 @@ class ApiService extends GetxController {
       Config.getHistoryByDateAndStatus(
           from: request.from.toIso8601String(),
           to: request.to.toIso8601String(),
-          status: request.status),
+          page: request.page),
       headers: <String, String>{
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -257,9 +263,11 @@ class ApiService extends GetxController {
       },
     );
 
-    print('getHistoryByDateAndStatus: ${response.body}');
+    print(
+        'getHistoryByDateAndStatus:\nrequest = ${jsonEncode(request.toJson())}\nresponse = ${response.body}');
 
     int status = json.decode(response.body)['status'];
+    String message = json.decode(response.body)['message'];
 
     switch (status) {
       case 200:
@@ -269,7 +277,7 @@ class ApiService extends GetxController {
         throw UnauthorizedException('Token Expired');
         break;
       default:
-        throw ServerException('Something went wrong');
+        throw ServerException(message);
         break;
     }
   }
@@ -289,6 +297,7 @@ class ApiService extends GetxController {
     print('updateWorkStatus: ${response.body}');
 
     int status = json.decode(response.body)['status'];
+    String message = json.decode(response.body)['message'];
 
     switch (status) {
       case 200:
@@ -298,7 +307,7 @@ class ApiService extends GetxController {
         throw UnauthorizedException('Token Expired');
         break;
       default:
-        throw ServerException('Something went wrong');
+        throw ServerException(message);
         break;
     }
   }
@@ -318,6 +327,7 @@ class ApiService extends GetxController {
     print('sendOrderLocation: ${response.body}');
 
     int status = json.decode(response.body)['status'];
+    String message = json.decode(response.body)['message'];
 
     switch (status) {
       case 200:
@@ -327,7 +337,7 @@ class ApiService extends GetxController {
         throw UnauthorizedException('Token Expired');
         break;
       default:
-        throw ServerException('Something went wrong');
+        throw ServerException(message);
         break;
     }
   }

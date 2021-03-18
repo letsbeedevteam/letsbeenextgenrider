@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:letsbeenextgenrider/ui/base/controller/base_controller.dart';
 
-abstract class BaseTabController extends GetxController
+abstract class BaseRefreshTabController extends BaseController
     with SingleGetTickerProviderMixin {
+  static const CLASS_NAME = 'BaseRefreshTabController';
+
   TabController tabBarController;
   int get tabLength;
+  RxInt currentIndex = 0.obs;
 
   @override
   void onInit() {
     tabBarController = TabController(length: tabLength, vsync: this);
     tabBarController.addListener(() {
-      onChangeTab(tabBarController.index);
+      message.value = '';
+      currentIndex.value = tabBarController.index;
+      if (!tabBarController.indexIsChanging) {
+        onChangeTab(tabBarController.index);
+      }
     });
     super.onInit();
   }
@@ -22,4 +30,6 @@ abstract class BaseTabController extends GetxController
   }
 
   void onChangeTab(int index) {}
+
+  void onRefresh();
 }

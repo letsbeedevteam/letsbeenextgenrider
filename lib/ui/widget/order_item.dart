@@ -53,7 +53,10 @@ class OrderItem extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      'PHP ${order.fee.total}',
+                      order.status == 'rider-picked-up' ||
+                              order.status == 'delivered'
+                          ? 'PHP ${order.fee.customerTotalPrice}'
+                          : 'PHP ${order.fee.sellerTotalPrice}',
                       style: const TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 18),
                     ),
@@ -83,7 +86,6 @@ class OrderItem extends StatelessWidget {
                         alignment: Alignment.center,
                         child: SvgPicture.asset(
                           Config.SVG_PATH + 'store_icon.svg',
-                          semanticsLabel: 'a store',
                           height: 23,
                           width: 23,
                         ),
@@ -128,7 +130,6 @@ class OrderItem extends StatelessWidget {
                         alignment: Alignment.center,
                         child: SvgPicture.asset(
                           Config.SVG_PATH + 'customer_icon.svg',
-                          semanticsLabel: 'a person',
                           height: 23,
                           width: 23,
                         ),

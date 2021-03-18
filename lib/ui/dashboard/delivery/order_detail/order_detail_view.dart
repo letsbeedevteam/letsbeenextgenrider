@@ -4,9 +4,10 @@ import 'package:get/get.dart';
 import 'package:letsbeenextgenrider/core/utils/config.dart';
 import 'package:letsbeenextgenrider/core/utils/utils.dart';
 import 'package:letsbeenextgenrider/data/models/additional.dart';
-import 'package:letsbeenextgenrider/data/models/choice.dart';
+import 'package:letsbeenextgenrider/data/models/variant.dart';
 import 'package:letsbeenextgenrider/data/models/product.dart';
 import 'package:letsbeenextgenrider/routing/pages.dart';
+import 'package:letsbeenextgenrider/ui/base/view/base_view.dart';
 import 'package:letsbeenextgenrider/ui/dashboard/delivery/order_detail/order_detail_controller.dart';
 import 'package:letsbeenextgenrider/core/utils/extensions.dart';
 import 'package:letsbeenextgenrider/ui/dashboard/delivery/order_detail/widgets/delivery_progressbar_big.dart';
@@ -16,49 +17,53 @@ import 'package:letsbeenextgenrider/ui/widget/custom_appbar.dart';
 
 import 'widgets/delivery_progressbar_small.dart';
 
-class OrderDetailView extends GetView<OrderDetailController> {
+class OrderDetailView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      child: Scaffold(
-        backgroundColor: Colors.grey.shade200,
-        appBar: CustomAppBar(
-          implyLeading: false,
+    return GetBuilder<OrderDetailController>(builder: (_) {
+      return WillPopScope(
+        child: Scaffold(
+          backgroundColor: Colors.grey.shade200,
+          appBar: CustomAppBar(
+            implyLeading: false,
+          ),
+          body: _Body(),
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 16,
-                        right: 16,
-                        top: 16,
-                      ),
-                      child: _buildOrderDetails(),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 16,
-                        right: 16,
-                        top: 16,
-                      ),
-                      child: _buildCustomerDetails(),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            _buildDeliveryStatus(),
-          ],
-        ),
-      ),
-      onWillPop: () => controller.willPopCallback(),
-    );
+        onWillPop: () => _.willPopCallback(),
+      );
+    });
   }
+}
 
+class _Body extends BaseView<OrderDetailController> {
+  @override
+  Widget get body => Column(
+        children: [
+          Expanded(
+            child: ListView(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 16,
+                  ),
+                  child: _buildOrderDetails(),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 16,
+                  ),
+                  child: _buildCustomerDetails(),
+                ),
+              ],
+            ),
+          ),
+          _buildDeliveryStatus(),
+        ],
+      );
   AnimatedExpandableContainer _buildDeliveryStatus() {
     return AnimatedExpandableContainer(
       isExpandedAtFirst: false,
@@ -96,7 +101,8 @@ class OrderDetailView extends GetView<OrderDetailController> {
               padding: const EdgeInsets.symmetric(vertical: 8),
             ),
             Obx(
-              () => controller.hasStartedShopping.value
+              () => controller.hasStartedShopping.value &&
+                      controller.order.value.status != 'rider-picked-up'
                   ? Text('You are currently shopping at...')
                   : Text('You are on your way to...'),
             ),
@@ -238,7 +244,8 @@ class OrderDetailView extends GetView<OrderDetailController> {
                     },
                   );
                 },
-                title: controller.updateOrderStatusButtonText.value,
+                title:
+                    controller.updateOrderStatusButtonText.value.toUpperCase(),
                 mainAxisSize: MainAxisSize.max,
               ),
             ),
@@ -338,10 +345,15 @@ class OrderDetailView extends GetView<OrderDetailController> {
                   controller.order.value.status.asReadableOrderStatus(),
                   style: TextStyle(fontStyle: FontStyle.italic),
                 ),
-                Text(
-                  'PHP ${controller.order.value.fee.total}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
+                Obx(
+                  () => Text(
+                    controller.order.value.status == 'rider-picked-up' ||
+                            controller.order.value.status == 'delivered'
+                        ? 'PHP ${controller.order.value.fee.customerTotalPrice}'
+                        : 'PHP ${controller.order.value.fee.sellerTotalPrice}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -371,7 +383,8 @@ class OrderDetailView extends GetView<OrderDetailController> {
           ),
           Column(
             children: controller.order.value.products
-                .map((product) => _buildMenuItem(product))
+                .map((product) => _buildMenuItem(
+                    product, controller.order.value.store.type == 'mart'))
                 .toList(),
           ),
         ],
@@ -379,7 +392,9 @@ class OrderDetailView extends GetView<OrderDetailController> {
     );
   }
 
-  Widget _buildMenuItem(Product product) {
+  Widget _buildMenuItem(Product product, bool isMart) {
+    RxBool isChecked = false.obs;
+    controller.areItemsreadyForCheckout.addIf(isMart, isChecked);
     return Center(
       child: Container(
         padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
@@ -387,12 +402,27 @@ class OrderDetailView extends GetView<OrderDetailController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      isMart
+                          ? Obx(
+                              () =>
+                                  isMart && controller.hasStartedShopping.value
+                                      ? Obx(
+                                          () => Checkbox(
+                                            value: isChecked.value,
+                                            onChanged: (value) {
+                                              isChecked.value = value;
+                                            },
+                                          ),
+                                        )
+                                      : const SizedBox.shrink(),
+                            )
+                          : const SizedBox.shrink(),
                       Text(
                         '${product.quantity}x',
                         style: TextStyle(color: Colors.black),
@@ -403,16 +433,25 @@ class OrderDetailView extends GetView<OrderDetailController> {
                       Flexible(
                         child: Wrap(
                           children: [
-                            Text(
-                              '${product.name}',
-                              style: TextStyle(color: Colors.black),
+                            Column(
+                              children: [
+                                Text(
+                                  '${product.name}',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                              ],
                             ),
-                            product.additionals.isEmpty
+                            isMart
                                 ? const SizedBox.shrink()
-                                : _buildAdditionalColumn(product.additionals),
-                            product.choices.isEmpty
+                                : product.additionals.isEmpty
+                                    ? const SizedBox.shrink()
+                                    : _buildAdditionalColumn(
+                                        product.additionals),
+                            isMart
                                 ? const SizedBox.shrink()
-                                : _buildChoiceColumn(product.choices),
+                                : product.variants.isEmpty
+                                    ? const SizedBox.shrink()
+                                    : _buildChoiceColumn(product.variants),
                           ],
                         ),
                       ),
@@ -424,11 +463,11 @@ class OrderDetailView extends GetView<OrderDetailController> {
                   style: TextStyle(
                     color: Colors.black,
                   ),
-                )
+                ),
               ],
             ),
             const Padding(padding: EdgeInsets.symmetric(vertical: 4)),
-            product.note == null
+            product.note.isBlank
                 ? const SizedBox.shrink()
                 : Text(
                     'Note: ${product.note}',
@@ -472,27 +511,27 @@ class OrderDetailView extends GetView<OrderDetailController> {
     );
   }
 
-  Widget _buildChoiceColumn(List<Choice> choices) {
+  Widget _buildChoiceColumn(List<Variant> variants) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
             child: Column(
-          children: choices.map((e) => _buildChoice(e)).toList(),
+          children: variants.map((e) => _buildChoice(e)).toList(),
         )),
       ],
     );
   }
 
-  Widget _buildChoice(Choice choice) {
+  Widget _buildChoice(Variant variant) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           child: Container(
-            child: Text('${choice.name}: ${choice.pick}',
+            child: Text('${variant.type}: ${variant.pick}',
                 style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
@@ -500,7 +539,7 @@ class OrderDetailView extends GetView<OrderDetailController> {
           ),
         ),
         Text(
-          '+₱ ${choice.price}',
+          '+₱ ${variant.price}',
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,

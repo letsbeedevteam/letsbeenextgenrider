@@ -5,10 +5,11 @@ import 'package:letsbeenextgenrider/core/error/base/failure.dart';
 import 'package:letsbeenextgenrider/data/app_repository.dart';
 import 'package:letsbeenextgenrider/data/models/order_data.dart';
 import 'package:letsbeenextgenrider/data/models/request/deliver_order_request.dart';
+import 'package:letsbeenextgenrider/ui/base/controller/base_controller.dart';
 import 'package:location/location.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class OrderDetailController extends GetxController
+class OrderDetailController extends BaseController
     with SingleGetTickerProviderMixin {
   static const CLASS_NAME = 'OrderDetailController';
 
@@ -25,6 +26,7 @@ class OrderDetailController extends GetxController
   RxString updateOrderStatusdialogMessage = ''.obs;
   RxBool isLoading = false.obs;
   RxInt currentOrderStatus = 0.obs;
+  List<RxBool> areItemsreadyForCheckout = List<RxBool>();
 
   // GetxController Overrides
   @override
@@ -50,34 +52,25 @@ class OrderDetailController extends GetxController
     await _appRepository.connectSocket()
       ..on('connect', (_) {
         print('connected');
-        // statusMessage.value = 'Connected';
-        // statusColor.value = Colors.green;
-
-        // Future.delayed(Duration(seconds: 3)).then((_) {
-        //   statusMessage.value = '';
-        // });
-        // _receiveNewOrders();
-        // _sendMyOrderLocation();
+        showSnackbarSuccessMessage(
+            'Connected');
         _receiveNewMessages();
       })
       ..on('connecting', (_) {
         print('connecting');
-        // statusMessage.value = 'Connecting';
-        // statusColor.value = Colors.orange;
+        showSnackbarInfoMessage(
+            'Trying to reconnect...');
       })
       ..on('reconnecting', (_) {
         print('reconnecting');
-        // statusMessage.value = 'Reconnecting';
-        // statusColor.value = Colors.orange;
+        showSnackbarInfoMessage(
+            'Trying to reconnect...');
       })
       ..on('disconnect', (_) {
         print('disconnected');
-        // statusMessage.value = 'Disconnected';
-        // statusColor.value = Colors.red;
+        showSnackbarErrorMessage('Disconnected. Try refreshing');
       })
       ..on('error', (_) {
-        // statusMessage.value = 'Something went wrong';
-        // statusColor.value = Colors.red;
         print('socket error = $_');
       });
   }
@@ -96,17 +89,23 @@ class OrderDetailController extends GetxController
     OrderData order,
   ) async {
     isLoading.value = true;
-    await _appRepository.pickupOrder(order.id).then((response) async {
-      if (response.data != null) {
-        this.order.value = response.data;
-        isLoading.value = false;
-        updateUiFromCurrentOrderStatus();
-        update();
-      }
-    }).catchError((error) {
-      print('${(error as Failure).errorMessage}');
-      isLoading.value = false;
-    });
+    showSnackbarInfoMessage('Updating status...');
+    addDisposableFromFuture(
+      await _appRepository.pickupOrder(order.id).then((response) async {
+        if (response.data != null) {
+          this.order.value = response.data;
+          isLoading.value = false;
+          updateUiFromCurrentOrderStatus();
+          showSnackbarSuccessMessage('Order status updated!');
+          // update();
+        }
+      }).catchError(
+        (error) {
+          isLoading.value = false;
+          showSnackbarErrorMessage((error as Failure).errorMessage);
+        },
+      ),
+    );
   }
 
   void deliverOrder(
@@ -114,29 +113,39 @@ class OrderDetailController extends GetxController
     List<LocationsRequestData> locations,
   ) async {
     isLoading.value = true;
-    _appRepository.getCurrentPosition().then((currentLocation) {
-      _locations.add(LocationsRequestData(
-          lat: currentLocation.latitude,
-          lng: currentLocation.longitude,
-          datetime: DateTime.now().toUtc()));
-    });
-    await _appRepository
-        .deliverOrder(order.id, locations)
-        .then((response) async {
-      if (response.data != null) {
-        this.order.value = response.data;
-        isLoading.value = false;
-        updateUiFromCurrentOrderStatus();
-        update();
-        goBackToDashboard();
-      }
-    }).catchError((error) {
-      print('${(error as Failure).errorMessage}');
-      isLoading.value = false;
-    });
+    showSnackbarInfoMessage('Updating status...');
+    addDisposableFromFuture(
+      _appRepository.getCurrentPosition().then(
+        (currentLocation) {
+          _locations.add(LocationsRequestData(
+              lat: currentLocation.latitude,
+              lng: currentLocation.longitude,
+              datetime: DateTime.now().toUtc()));
+        },
+      ),
+    );
+    addDisposableFromFuture(
+      await _appRepository
+          .deliverOrder(order.id, locations)
+          .then((response) async {
+        if (response.data != null) {
+          this.order.value = response.data;
+          isLoading.value = false;
+          updateUiFromCurrentOrderStatus();
+          showSnackbarSuccessMessage('Order status updated!');
+          // update();
+          goBackToDashboard();
+        }
+      }).catchError(
+        (error) {
+          isLoading.value = false;
+          showSnackbarErrorMessage((error as Failure).errorMessage);
+        },
+      ),
+    );
   }
 
-  Future _canceLocationTimer() {
+  Future<void> _canceLocationTimer() {
     print('$CLASS_NAME, _canceLocationTimer');
     return Future.value({_locationTimer?.cancel()});
   }
@@ -144,18 +153,21 @@ class OrderDetailController extends GetxController
   void _sendMyOrderLocation() {
     print('$CLASS_NAME, sendMyOrderLocation');
     _locationTimer = Timer.periodic(Duration(seconds: 5), (timer) {
-      _appRepository.getCurrentPosition().then((currentLocation) {
+      addDisposableFromFuture(
+          _appRepository.getCurrentPosition().then((currentLocation) {
         _locations.add(LocationsRequestData(
             lat: currentLocation.latitude,
             lng: currentLocation.longitude,
             datetime: DateTime.now().toUtc()));
-        _appRepository
-            .sendCurrentOrderLocation(
-                currentLocation.latitude, currentLocation.longitude)
-            .catchError((error) {
-          Get.snackbar('Oops!', (error as Failure).errorMessage);
-        });
-      });
+        addDisposableFromFuture(
+          _appRepository
+              .sendCurrentOrderLocation(
+                  currentLocation.latitude, currentLocation.longitude)
+              .catchError(
+                (error) {},
+              ),
+        );
+      }));
     });
   }
 
@@ -165,43 +177,37 @@ class OrderDetailController extends GetxController
     if (order.value.store.type == 'mart') {
       switch (currentOrderStatus.value) {
         case 0:
-          {
-            hasStartedShopping.value = true;
-            updateUiFromCurrentOrderStatus();
-          }
+          hasStartedShopping.value = true;
+          updateUiFromCurrentOrderStatus();
           break;
         case 1:
-          {
+          bool isReadyForCheckout = false;
+          areItemsreadyForCheckout.forEach((element) {
+            isReadyForCheckout = element.value;
+          });
+          if (isReadyForCheckout) {
             pickUpOrder(order.value);
+          } else {
+            showSnackbarErrorMessage('Some items are not selected');
           }
           break;
         case 2:
-          {
-            deliverOrder(order.value, _locations);
-          }
+          deliverOrder(order.value, _locations);
           break;
         default:
-          {
-            goBackToDashboard();
-          }
+          goBackToDashboard();
           break;
       }
     } else {
       switch (currentOrderStatus.value) {
         case 0:
-          {
-            pickUpOrder(order.value);
-          }
+          pickUpOrder(order.value);
           break;
         case 1:
-          {
-            deliverOrder(order.value, _locations);
-          }
+          deliverOrder(order.value, _locations);
           break;
         default:
-          {
-            goBackToDashboard();
-          }
+          goBackToDashboard();
           break;
       }
     }
@@ -303,7 +309,17 @@ class OrderDetailController extends GetxController
     } else if (await canLaunch(defaultMapUri)) {
       await launch(defaultMapUri);
     } else {
-      throw 'Could not launch';
+      print('Could not launch');
     }
+  }
+
+  @override
+  void onRefresh() async {
+    clearDisposables();
+    await _appRepository.disconnectSocket();
+    await _canceLocationTimer();
+    updateUiFromCurrentOrderStatus();
+    _initSocket();
+    _sendMyOrderLocation();
   }
 }

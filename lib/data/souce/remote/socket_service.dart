@@ -33,6 +33,8 @@ class SocketService {
     this.socket = IO.io(Config.SOCKET, <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': true,
+      'pingTimeout': 5000,
+      'pingInterval': 10000,
       'extraHeaders': {
         'x-auth-token': _sharedPref.read(SharedPref.RIDER_ACCESS_TOKEN)
       }

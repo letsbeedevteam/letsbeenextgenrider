@@ -1,29 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_state_manager/get_state_manager.dart';
-import 'package:letsbeenextgenrider/ui/base/view/base_tab_view2.dart';
-import 'package:letsbeenextgenrider/ui/dashboard/history/widgets/order_history_item.dart';
-import 'package:letsbeenextgenrider/ui/dashboard/status/status_view.dart';
-import 'history_controller.dart';
+import 'package:get/get.dart';
+import 'package:letsbeenextgenrider/ui/base/view/base_refresh_tab_view.dart';
+import 'package:letsbeenextgenrider/ui/base/view/base_view.dart';
 
-class HistoryView extends StatelessWidget {
+import 'history_controller.dart';
+import 'widgets/order_history_item.dart';
+
+class HistoryView extends BaseView<HistoryController> {
   @override
-  Widget build(Object context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: _Body(),
-    );
-  }
+  Widget get body => Padding(
+        padding: const EdgeInsets.only(
+          left: 16,
+          right: 16,
+          bottom: 16,
+          top: 32,
+        ),
+        child: _Body(),
+      );
 }
 
-class _Body extends BaseTabView2<HistoryController> {
+class _Body extends BaseRefreshTabView<HistoryController> {
   @override
   List<Widget> get tabViews => [
         Obx(
-          () => controller.ordersToday.value.isEmpty
-              ? Center(
-                  child: Text('No orders to display'),
-                )
-              : ListView.separated(
+          () => RefreshIndicator(
+            onRefresh: () async {
+              controller.onRefresh();
+            },
+            child: NotificationListener(
+              onNotification: (notification) {
+                if (notification is ScrollEndNotification &&
+                    notification.metrics.pixels ==
+                        notification.metrics.maxScrollExtent) {
+                  controller.getTodayHistory();
+                }
+                return false;
+              },
+              child: ListView.separated(
                   itemBuilder: (context, index) {
                     return OrderHistoryItem(
                       vsync: controller,
@@ -35,13 +48,24 @@ class _Body extends BaseTabView2<HistoryController> {
                         padding: const EdgeInsets.symmetric(vertical: 8));
                   },
                   itemCount: controller.ordersToday.value.length),
+            ),
+          ),
         ),
         Obx(
-          () => controller.ordersYesterday.value.isEmpty
-              ? Center(
-                  child: Text('No orders to display'),
-                )
-              : ListView.separated(
+          () => RefreshIndicator(
+            onRefresh: () async {
+              controller.onRefresh();
+            },
+            child: NotificationListener(
+              onNotification: (notification) {
+                if (notification is ScrollEndNotification &&
+                    notification.metrics.pixels ==
+                        notification.metrics.maxScrollExtent) {
+                  controller.getYesterdayHistory();
+                }
+                return false;
+              },
+              child: ListView.separated(
                   itemBuilder: (context, index) {
                     return OrderHistoryItem(
                       vsync: controller,
@@ -53,13 +77,24 @@ class _Body extends BaseTabView2<HistoryController> {
                         padding: const EdgeInsets.symmetric(vertical: 8));
                   },
                   itemCount: controller.ordersYesterday.value.length),
+            ),
+          ),
         ),
         Obx(
-          () => controller.ordersThisWeek.value.isEmpty
-              ? Center(
-                  child: Text('No orders to display'),
-                )
-              : ListView.separated(
+          () => RefreshIndicator(
+            onRefresh: () async {
+              controller.onRefresh();
+            },
+            child: NotificationListener(
+              onNotification: (notification) {
+                if (notification is ScrollEndNotification &&
+                    notification.metrics.pixels ==
+                        notification.metrics.maxScrollExtent) {
+                  controller.getThisWeekHistory();
+                }
+                return false;
+              },
+              child: ListView.separated(
                   itemBuilder: (context, index) {
                     return OrderHistoryItem(
                       vsync: controller,
@@ -71,13 +106,24 @@ class _Body extends BaseTabView2<HistoryController> {
                         padding: const EdgeInsets.symmetric(vertical: 8));
                   },
                   itemCount: controller.ordersThisWeek.value.length),
+            ),
+          ),
         ),
         Obx(
-          () => controller.ordersLastWeek.value.isEmpty
-              ? Center(
-                  child: Text('No orders to display'),
-                )
-              : ListView.separated(
+          () => RefreshIndicator(
+            onRefresh: () async {
+              controller.onRefresh();
+            },
+            child: NotificationListener(
+              onNotification: (notification) {
+                if (notification is ScrollEndNotification &&
+                    notification.metrics.pixels ==
+                        notification.metrics.maxScrollExtent) {
+                  controller.getLastWeekHistory();
+                }
+                return false;
+              },
+              child: ListView.separated(
                   itemBuilder: (context, index) {
                     return OrderHistoryItem(
                       vsync: controller,
@@ -89,26 +135,36 @@ class _Body extends BaseTabView2<HistoryController> {
                         padding: const EdgeInsets.symmetric(vertical: 8));
                   },
                   itemCount: controller.ordersLastWeek.value.length),
-        )
+            ),
+          ),
+        ),
       ];
 
   @override
   List<Widget> get tabs => [
         buildTab(
-          iconPath: 'history_today_icon.svg',
-          iconDescription: 'a suitcase',
+          iconPathActive: 'today_active.svg',
+          iconPathInActive: 'today_inactive.svg',
+          title: 'Today',
+          index: 0,
         ),
         buildTab(
-          iconPath: 'history_yesterday_icon.svg',
-          iconDescription: 'a receipt',
+          iconPathActive: 'yesterday_active.svg',
+          iconPathInActive: 'yesterday_inactive.svg',
+          title: 'Yesterday',
+          index: 1,
         ),
         buildTab(
-          iconPath: 'history_this_week_icon.svg',
-          iconDescription: 'an arrow with clock hands',
+          iconPathActive: 'this_week_active.svg',
+          iconPathInActive: 'this_week_inactive.svg',
+          title: 'This Week',
+          index: 2,
         ),
         buildTab(
-          iconPath: 'history_last_week_icon.svg',
-          iconDescription: 'an arrow with clock hands',
+          iconPathActive: 'last_week_active.svg',
+          iconPathInActive: 'last_week_inactive.svg',
+          title: 'Last Week',
+          index: 3,
         ),
       ];
 }
