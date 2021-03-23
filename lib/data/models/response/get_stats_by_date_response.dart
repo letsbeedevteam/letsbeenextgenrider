@@ -15,7 +15,7 @@ class GetStatsByDateResponse implements BaseResponse {
   });
 
   @override
-  int status;
+  String status;
   List<GetStatsData> data;
 
   factory GetStatsByDateResponse.fromJson(Map<String, dynamic> json) =>

@@ -87,7 +87,9 @@ class DeliveryController extends BaseController
           .getNearbyOrders(position.latitude, position.longitude)
           .then((response) {
         orders.value.clear();
-        orders.value.addAll(response.data);
+        response.data.forEach((data) {
+          orders.value.addIf(orders.value.length < 5, data);
+        });
         message.value = orders.value.isEmpty
             ? 'Nothing to see here yet.\nKindly wait for upcoming orders'
             : '';
@@ -103,7 +105,7 @@ class DeliveryController extends BaseController
     print('$CLASS_NAME, _receiveNewOrders');
     appRepository.receiveNewOrder((response) async {
       final orderUpdateResponse = GetNewOrderResponse.fromJson(response);
-      if (orders.value.length < 10) {
+      if (orders.value.length < 5) {
         if (orderUpdateResponse.isNewOrder()) {
           if (orders.value.isNotEmpty) {
             //checks if the new order is already existing on the list

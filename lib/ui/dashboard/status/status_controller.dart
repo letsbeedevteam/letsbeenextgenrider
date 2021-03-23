@@ -53,6 +53,7 @@ class StatusController extends BaseController {
       if (error is Failure) {
         showSnackbarErrorMessage(error.errorMessage);
       }
+      isSwitchEnabled.value = true;
     });
   }
 
@@ -62,8 +63,8 @@ class StatusController extends BaseController {
     isSwitchOn.value = user.riderDetails.status == 3 ? false : true;
     workStatus.value =
         isSwitchOn.value ? 'You are currently at work' : 'You have left work';
-    //do an api call that will update the current switch work status
-    //do an api call that will update the date today
+    workStatusIconPath.value =
+        isSwitchOn.value ? 'at_work.svg' : 'leave_work.svg';
   }
 
   @override

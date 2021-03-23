@@ -16,7 +16,7 @@ class GetNearbyOrdersResponse implements BaseResponse {
   });
 
   @override
-  int status;
+  String status;
   List<OrderData> data;
 
   factory GetNearbyOrdersResponse.fromJson(Map<String, dynamic> json) =>

@@ -3,5 +3,5 @@ abstract class BaseResponse {
         this.status,
     });
     
-    int status;
+    String status;
 }

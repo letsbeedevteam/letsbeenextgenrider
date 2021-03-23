@@ -14,7 +14,7 @@ class RefreshTokenResponse implements BaseResponse {
   });
 
   @override
-  int status;
+  String status;
   RefreshTokenData data;
 
   factory RefreshTokenResponse.fromJson(Map<String, dynamic> json) =>
