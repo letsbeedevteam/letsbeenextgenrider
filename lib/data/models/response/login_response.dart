@@ -18,7 +18,7 @@ class LoginResponse implements BaseResponse {
   });
 
   @override
-  int status;
+  String status;
   LoginData data;
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) => LoginResponse(

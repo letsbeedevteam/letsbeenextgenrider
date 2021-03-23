@@ -15,7 +15,7 @@ class GetNewOrderResponse implements BaseResponse {
   });
 
   @override
-  int status;
+  String status;
   OrderData data;
 
   factory GetNewOrderResponse.fromJson(Map<String, dynamic> json) =>

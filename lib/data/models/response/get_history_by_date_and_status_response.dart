@@ -22,7 +22,7 @@ class GetHistoryByDateAndStatusResponse implements BaseResponse {
   });
 
   @override
-  int status;
+  String status;
   List<GetHistoryData> data;
 
   factory GetHistoryByDateAndStatusResponse.fromJson(

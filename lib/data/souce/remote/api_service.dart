@@ -57,14 +57,14 @@ class ApiService extends GetxController {
 
     print('getNearbyOrders: ${response.body}');
 
-    int status = json.decode(response.body)['status'];
-    String message = json.decode(response.body)['message'];
+    String status = json.decode(response.body)['status'];
+    String message = json.decode(response.body)['error_message'];
 
     switch (status) {
-      case 200:
+      case 'OK':
         return getNearbyOrdersResponseFromJson(response.body);
         break;
-      case 401:
+      case 'NOT_FOUND':
         throw UnauthorizedException('Token Expired');
         break;
       default:
@@ -87,14 +87,14 @@ class ApiService extends GetxController {
 
     print('getCurrentOrder: ${response.body}');
 
-    int status = json.decode(response.body)['status'];
-    String message = json.decode(response.body)['message'];
+    String status = json.decode(response.body)['status'];
+    String message = json.decode(response.body)['error_message'];
 
     switch (status) {
-      case 200:
+      case 'OK':
         return getActiveOrderResponseFromJson(response.body);
         break;
-      case 401:
+      case 'EXPIRED':
         throw UnauthorizedException('Token Expired');
         break;
       default:
@@ -117,14 +117,14 @@ class ApiService extends GetxController {
 
     print('acceptOrder: ${response.body}');
 
-    int status = json.decode(response.body)['status'];
-    String message = json.decode(response.body)['message'];
+    String status = json.decode(response.body)['status'];
+    String message = json.decode(response.body)['error_message'];
 
     switch (status) {
-      case 200:
+      case 'OK':
         return updateOrderStatusResponseFromJson(response.body);
         break;
-      case 401:
+      case 'EXPIRED':
         throw UnauthorizedException('Token Expired');
         break;
       default:
@@ -147,14 +147,14 @@ class ApiService extends GetxController {
 
     print('pickupOrder: ${response.body}');
 
-    int status = json.decode(response.body)['status'];
-    String message = json.decode(response.body)['message'];
+    String status = json.decode(response.body)['status'];
+    String message = json.decode(response.body)['error_message'];
 
     switch (status) {
-      case 200:
+      case 'OK':
         return updateOrderStatusResponseFromJson(response.body);
         break;
-      case 401:
+      case 'EXPIRED':
         throw UnauthorizedException('Token Expired');
         break;
       default:
@@ -176,14 +176,14 @@ class ApiService extends GetxController {
 
     print('deliverOrder: ${response.body}');
 
-    int status = json.decode(response.body)['status'];
-    String message = json.decode(response.body)['message'];
+    String status = json.decode(response.body)['status'];
+    String message = json.decode(response.body)['error_message'];
 
     switch (status) {
-      case 200:
+      case 'OK':
         return updateOrderStatusResponseFromJson(response.body);
         break;
-      case 401:
+      case 'EXPIRED':
         throw UnauthorizedException('Token Expired');
         break;
       default:
@@ -201,11 +201,11 @@ class ApiService extends GetxController {
         body: jsonEncode(request.toJson()));
 
     print('RefreshToken: ${response.body}');
-    int status = json.decode(response.body)['status'];
-    String message = json.decode(response.body)['message'];
+    String status = json.decode(response.body)['status'];
+    String message = json.decode(response.body)['error_message'];
 
     switch (status) {
-      case 200:
+      case 'OK':
         return refreshTokenResponseFromJson(response.body);
         break;
       default:
@@ -231,14 +231,14 @@ class ApiService extends GetxController {
 
     print('getStatsByDate: ${response.body}');
 
-    int status = json.decode(response.body)['status'];
-    String message = json.decode(response.body)['message'];
+    String status = json.decode(response.body)['status'];
+    String message = json.decode(response.body)['error_message'];
 
     switch (status) {
-      case 200:
+      case 'OK':
         return getStatsByDateResponseFromJson(response.body);
         break;
-      case 401:
+      case 'EXPIRED':
         throw UnauthorizedException('Token Expired');
         break;
       default:
@@ -266,14 +266,14 @@ class ApiService extends GetxController {
     print(
         'getHistoryByDateAndStatus:\nrequest = ${jsonEncode(request.toJson())}\nresponse = ${response.body}');
 
-    int status = json.decode(response.body)['status'];
-    String message = json.decode(response.body)['message'];
+    String status = json.decode(response.body)['status'];
+    String message = json.decode(response.body)['error_message'];
 
     switch (status) {
-      case 200:
+      case 'OK':
         return getHistoryByDateAndStatusResponseFromJson(response.body);
         break;
-      case 401:
+      case 'EXPIRED':
         throw UnauthorizedException('Token Expired');
         break;
       default:
@@ -296,14 +296,14 @@ class ApiService extends GetxController {
 
     print('updateWorkStatus: ${response.body}');
 
-    int status = json.decode(response.body)['status'];
-    String message = json.decode(response.body)['message'];
+    String status = json.decode(response.body)['status'];
+    String message = json.decode(response.body)['error_message'];
 
     switch (status) {
-      case 200:
+      case 'OK':
         return true;
         break;
-      case 401:
+      case 'EXPIRED':
         throw UnauthorizedException('Token Expired');
         break;
       default:
@@ -326,14 +326,14 @@ class ApiService extends GetxController {
 
     print('sendOrderLocation: ${response.body}');
 
-    int status = json.decode(response.body)['status'];
-    String message = json.decode(response.body)['message'];
+    String status = json.decode(response.body)['status'];
+    String message = json.decode(response.body)['error_message'];
 
     switch (status) {
-      case 200:
+      case 'OK':
         return true;
         break;
-      case 401:
+      case 'EXPIRED':
         throw UnauthorizedException('Token Expired');
         break;
       default:

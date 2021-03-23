@@ -87,25 +87,32 @@ class AppRepository {
   }
 
 // ApiService
-  Future login(LoginRequest loginRequest) {
-    return apiService.login(loginRequest).then((response) {
-      if (response.status == 200) {
-        sharedPref.saveRiderInfo(
-          id: response.data.id,
-          name: response.data.name,
-          email: response.data.email,
-          status: response.data.riderDetails.status,
-          cellphoneNumber: response.data.cellphoneNumber,
-          accessToken: response.data.accessToken,
-          role: response.data.role,
-          photo: response.data.riderDetails.photo,
-          brand: response.data.riderDetails.motorcycleDetails.brand,
-          model: response.data.riderDetails.motorcycleDetails.model,
-          color: response.data.riderDetails.motorcycleDetails.color,
-          plateNumber: response.data.riderDetails.motorcycleDetails.plateNumber,
-        );
-      }
-    });
+  Future login(LoginRequest loginRequest) async {
+    if (await networkInfo.isConnected) {
+      return apiService.login(loginRequest).then((response) {
+        if (response.status == 'OK') {
+          sharedPref.saveRiderInfo(
+            id: response.data.id,
+            name: response.data.name,
+            email: response.data.email,
+            status: response.data.riderDetails.status,
+            cellphoneNumber: response.data.cellphoneNumber,
+            accessToken: response.data.accessToken,
+            role: response.data.role,
+            photo: response.data.riderDetails.photo,
+            brand: response.data.riderDetails.motorcycleDetails.brand,
+            model: response.data.riderDetails.motorcycleDetails.model,
+            color: response.data.riderDetails.motorcycleDetails.color,
+            plateNumber:
+                response.data.riderDetails.motorcycleDetails.plateNumber,
+          );
+        } else {
+          throw ServerFailure('Something went wrong');
+        }
+      });
+    } else {
+      throw ConnectionFailure('You don\'t have internet access');
+    }
   }
 
   Future<GetActiveOrderResponse> getCurrentOrder() async {

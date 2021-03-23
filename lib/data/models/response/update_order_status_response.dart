@@ -13,7 +13,7 @@ class UpdateOrderStatusResponse implements BaseResponse {
   UpdateOrderStatusResponse({this.status, this.data, this.message});
 
   @override
-  int status;
+  String status;
   OrderData data;
   String message;
 

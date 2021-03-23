@@ -25,8 +25,8 @@ class Config {
   //Network
   // static const BASE_URL = 'https://quiet-meadow-89567.herokuapp.com'; // cloud
   static const NAMESPACE = 'rider';
-  static const BASE_URL = 'http://18.166.234.218:8000'; // staging
-  // static const BASE_URL = 'http://192.168.100.14:8000'; // local
+  // static const BASE_URL = 'http://18.166.234.218:8080'; // staging
+  static const BASE_URL = 'http://192.168.0.100:8000'; // local
   // static const BASE_URL = 'http://192.168.0.17:8000'; // demo
   static const SIGN_IN = '/auth/$NAMESPACE/signin';
   static const REFRESH_ACCESS_TOKEN = '$BASE_URL/auth/$NAMESPACE/refresh-token';
@@ -36,7 +36,8 @@ class Config {
   static const PICKUP_ORDER = '$BASE_URL/${NAMESPACE}s/order/pick-up';
   static const DELIVER_ORDER = '$BASE_URL/${NAMESPACE}s/order/delivered';
   static const UPDATE_WORK_STATUS = '$BASE_URL/${NAMESPACE}s/status';
-  static const SEND_CURRENT_LOCATION_ORDER = '$BASE_URL/${NAMESPACE}s/order/location';
+  static const SEND_CURRENT_LOCATION_ORDER =
+      '$BASE_URL/${NAMESPACE}s/order/location';
   static String getNearbyOrders(
     double lat,
     double lng,
