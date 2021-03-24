@@ -25,6 +25,7 @@ class OrderData {
     this.riderId,
     this.status,
     this.contractType,
+    this.note,
     this.reason,
     this.createdAt,
     this.updatedAt,
@@ -43,6 +44,7 @@ class OrderData {
   dynamic riderId;
   String status;
   String contractType;
+  String note;
   dynamic reason;
   DateTime createdAt;
   DateTime updatedAt;
@@ -66,6 +68,7 @@ class OrderData {
         riderId: json["rider_id"],
         status: json["status"],
         contractType: json["contract_type"],
+        note: json["note"],
         reason: json["reason"],
         createdAt: DateTime.parse(json["createdAt"]),
         updatedAt: DateTime.parse(json["updatedAt"]),
@@ -84,6 +87,8 @@ class OrderData {
         "user_id": userId,
         "rider_id": riderId,
         "status": status,
+        "contract_type": contractType,
+        "note": note,
         "reason": reason,
         "createdAt": createdAt.toIso8601String(),
         "updatedAt": updatedAt.toIso8601String(),

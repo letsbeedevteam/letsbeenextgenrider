@@ -300,6 +300,21 @@ class _Body extends BaseView<OrderDetailController> {
               '${controller.order.value.address.completeAddress}',
             ),
           ),
+          controller.order.value.note.isBlank
+              ? const SizedBox.shrink()
+              : const Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                ),
+          controller.order.value.note.isBlank
+              ? const SizedBox.shrink()
+              : Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                  ),
+                  child: Text(
+                    '${controller.order.value.note}',
+                  ),
+                ),
           const Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
           ),
