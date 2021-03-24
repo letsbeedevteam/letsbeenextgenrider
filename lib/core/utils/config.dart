@@ -16,17 +16,15 @@ class Config {
   static const RIDER_CELLPHONE_NUMBER = "cellphone_number";
   static const RIDER_ACCESS_TOKEN = 'access_token';
   static const IS_LOGGEDIN = 'isLoggedIn';
-
-  //Routes
-
+  
   //Colors
   static const LETSBEE_COLOR = 0xFDD96E;
 
   //Network
   // static const BASE_URL = 'https://quiet-meadow-89567.herokuapp.com'; // cloud
   static const NAMESPACE = 'rider';
-  // static const BASE_URL = 'http://18.166.234.218:8080'; // staging
-  static const BASE_URL = 'http://192.168.0.100:8000'; // local
+  static const BASE_URL = 'http://18.166.234.218:8080'; // staging
+  // static const BASE_URL = 'http://192.168.0.100:8000'; // local
   // static const BASE_URL = 'http://192.168.0.17:8000'; // demo
   static const SIGN_IN = '/auth/$NAMESPACE/signin';
   static const REFRESH_ACCESS_TOKEN = '$BASE_URL/auth/$NAMESPACE/refresh-token';

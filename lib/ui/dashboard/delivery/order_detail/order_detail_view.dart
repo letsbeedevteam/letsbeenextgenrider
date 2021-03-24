@@ -66,7 +66,8 @@ class _Body extends BaseView<OrderDetailController> {
       );
   AnimatedExpandableContainer _buildDeliveryStatus() {
     return AnimatedExpandableContainer(
-      isExpandedAtFirst: false,
+      isExpandedAtFirst: true,
+      expandingTriggerOnTitleOnly: true,
       vsync: controller,
       expandedIconPath: 'arrow_down_black.svg',
       unexpandedIconPath: 'arrow_up_black.svg',
@@ -309,7 +310,7 @@ class _Body extends BaseView<OrderDetailController> {
 
   AnimatedExpandableContainer _buildOrderDetails() {
     return AnimatedExpandableContainer(
-      isExpandedAtFirst: true,
+      isExpandedAtFirst: false,
       vsync: controller,
       expandedIconPath: 'arrow_down_black.svg',
       unexpandedIconPath: 'arrow_up_black.svg',

@@ -14,11 +14,13 @@ class AnimatedExpandableContainer extends StatelessWidget {
       this.subTitle,
       this.content,
       this.isCircularBorder = true,
+      this.expandingTriggerOnTitleOnly = false,
       this.arrowColor = Colors.black})
       : super(key: key);
 
   final RxBool isExpanded = false.obs;
   final bool isExpandedAtFirst;
+  final bool expandingTriggerOnTitleOnly;
   final TickerProvider vsync;
   final Widget title;
 
@@ -39,75 +41,149 @@ class AnimatedExpandableContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     isExpanded.value = isExpandedAtFirst;
-    return GestureDetector(
-      onTap: () {
-        isExpanded.value = !isExpanded.value;
-      },
-      child: Container(
-        clipBehavior: Clip.hardEdge,
-        decoration: BoxDecoration(
-          borderRadius: isCircularBorder ? BorderRadius.circular(10) : null,
-          color: Colors.white,
-        ),
-        child: Obx(
-          () => AnimatedSize(
-            vsync: vsync,
-            duration: Duration(milliseconds: 100),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
+    return expandingTriggerOnTitleOnly
+        ? Container(
+            clipBehavior: Clip.hardEdge,
+            decoration: BoxDecoration(
+              borderRadius: isCircularBorder ? BorderRadius.circular(10) : null,
+              color: Colors.white,
+            ),
+            child: Obx(
+              () => AnimatedSize(
+                vsync: vsync,
+                duration: Duration(milliseconds: 100),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Stack(
+                          Row(
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    title ?? SizedBox.shrink(),
-                                    Positioned.fill(
-                                      child: Container(
-                                        alignment: Alignment.centerRight,
-                                        padding:
-                                            const EdgeInsets.only(right: 8),
-                                        child: Obx(
-                                          () => SvgPicture.asset(
-                                            isExpanded.value
-                                                ? Config.SVG_PATH +
-                                                    expandedIconPath
-                                                : Config.SVG_PATH +
-                                                    unexpandedIconPath,
-                                            color: arrowColor,
+                                    Stack(
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            isExpanded.value =
+                                                !isExpanded.value;
+                                          },
+                                          child: title ?? SizedBox.shrink(),
+                                        ),
+                                        Positioned.fill(
+                                          child: Container(
+                                            alignment: Alignment.centerRight,
+                                            padding:
+                                                const EdgeInsets.only(right: 8),
+                                            child: Obx(
+                                              () => SvgPicture.asset(
+                                                isExpanded.value
+                                                    ? Config.SVG_PATH +
+                                                        expandedIconPath
+                                                    : Config.SVG_PATH +
+                                                        unexpandedIconPath,
+                                                color: arrowColor,
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                      ),
+                                      ],
                                     ),
+                                    !isExpanded.value
+                                        ? subTitle ?? SizedBox.shrink()
+                                        : const SizedBox.shrink(),
                                   ],
                                 ),
-                                !isExpanded.value
-                                    ? subTitle ?? SizedBox.shrink()
-                                    : const SizedBox.shrink(),
-                              ],
-                            ),
-                          )
+                              )
+                            ],
+                          ),
+                          !isExpanded.value
+                              ? const SizedBox.shrink()
+                              : content ?? const SizedBox.shrink(),
                         ],
                       ),
-                      !isExpanded.value
-                          ? const SizedBox.shrink()
-                          : content ?? const SizedBox.shrink(),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          )
+        : GestureDetector(
+            onTap: () {
+              isExpanded.value = !isExpanded.value;
+            },
+            child: Container(
+              clipBehavior: Clip.hardEdge,
+              decoration: BoxDecoration(
+                borderRadius:
+                    isCircularBorder ? BorderRadius.circular(10) : null,
+                color: Colors.white,
+              ),
+              child: Obx(
+                () => AnimatedSize(
+                  vsync: vsync,
+                  duration: Duration(milliseconds: 100),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Stack(
+                                        children: [
+                                          title ?? SizedBox.shrink(),
+                                          Positioned.fill(
+                                            child: Container(
+                                              alignment: Alignment.centerRight,
+                                              padding: const EdgeInsets.only(
+                                                  right: 8),
+                                              child: Obx(
+                                                () => SvgPicture.asset(
+                                                  isExpanded.value
+                                                      ? Config.SVG_PATH +
+                                                          expandedIconPath
+                                                      : Config.SVG_PATH +
+                                                          unexpandedIconPath,
+                                                  color: arrowColor,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      !isExpanded.value
+                                          ? subTitle ?? SizedBox.shrink()
+                                          : const SizedBox.shrink(),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
+                            !isExpanded.value
+                                ? const SizedBox.shrink()
+                                : content ?? const SizedBox.shrink(),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
-    );
+          );
   }
 }
