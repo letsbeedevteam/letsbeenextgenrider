@@ -18,9 +18,9 @@ abstract class BaseController extends GetxController {
 
   void onRefresh();
 
-  void onViewVisible(){}
+  void onViewVisible() {}
 
-  void onViewHide(){}
+  void onViewHide() {}
 
   @override
   void onClose() {
@@ -36,7 +36,13 @@ abstract class BaseController extends GetxController {
   }
 
   void addDisposableFromFuture(Future disposable) {
-    disposables.add(CancelableOperation.fromFuture(disposable));
+    disposables.add(CancelableOperation.fromFuture(
+      disposable,
+      onCancel: () {
+        print('cancelled');
+        disposable.asStream().listen((event) {}).cancel();
+      },
+    ));
   }
 
   void addDisposable(CancelableOperation disposable) {
@@ -70,6 +76,7 @@ abstract class BaseController extends GetxController {
     SnackBarMessageType type, {
     Duration duration,
   }) {
+    hideSnackbar?.cancel();
     snackBarMessage.value = message;
     switch (type) {
       case SnackBarMessageType.SUCCESS:
@@ -84,7 +91,6 @@ abstract class BaseController extends GetxController {
     }
 
     if (duration != null) {
-      hideSnackbar?.cancel();
       hideSnackbar =
           CancelableOperation.fromFuture(Future.delayed(duration).then((_) {
         if (hideSnackbar.isCanceled) return;

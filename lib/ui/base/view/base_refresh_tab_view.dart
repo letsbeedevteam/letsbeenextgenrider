@@ -68,11 +68,12 @@ abstract class BaseRefreshTabView<T extends BaseRefreshTabController>
                 controller.currentIndex.value == index
                     ? Config.SVG_PATH + iconPathActive
                     : Config.SVG_PATH + iconPathInActive,
-                    height: 25,
+                height: 25,
                 fit: BoxFit.contain,
               ),
               Text(
                 title,
+                textScaleFactor: 1.0,
                 style: TextStyle(
                     fontSize: 10,
                     color: controller.currentIndex.value == index

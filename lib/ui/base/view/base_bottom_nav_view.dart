@@ -65,6 +65,7 @@ abstract class BaseBottomNavView<T extends BaseBottomNavController>
               ),
               Text(
                 label,
+                textScaleFactor: 1.0,
                 style: TextStyle(
                   fontSize: 10,
                   color: controller.currentIndex.value == index

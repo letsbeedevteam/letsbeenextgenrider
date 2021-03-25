@@ -13,7 +13,7 @@ class ChatView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leadingWidth: 70,
+        leadingWidth: 80,
         leading: IconButton(
           onPressed: () {
             Get.back();
@@ -170,109 +170,108 @@ class _Body extends BaseView<ChatController> {
       builder: (_) {
         return _.riderId.value != messageData.userId
             ? Container(
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${_.order.value.user.name}:',
-                    style: const TextStyle(
-                        fontSize: 15, fontWeight: FontWeight.bold),
-                  ),
-                  Padding(padding: const EdgeInsets.symmetric(vertical: 5)),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    constraints: BoxConstraints(
-                      maxWidth: Get.width * 0.6,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: Color(Config.LETSBEE_COLOR).withOpacity(1),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "${messageData.message}",
-                          style: const TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.normal),
-                          textAlign: TextAlign.left,
-                        ),
-                        const Padding(
-                            padding:
-                                const EdgeInsets.symmetric(vertical: 5)),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: Text(
-                              DateFormat('MMMM dd, yyyy h:mm a').format(
-                                  messageData.createdAt.toUtc().toLocal()),
-                              style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.normal,
-                                  fontStyle: FontStyle.italic)),
-                        )
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            )
-            : Container(
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text('Me:',
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${_.order.value.user.name}:',
                       style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.bold)),
-                  const Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    constraints: BoxConstraints(
-                      maxWidth: Get.width * 0.6,
+                          fontSize: 15, fontWeight: FontWeight.bold),
                     ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: Colors.white,
-                      border: Border.all(color: Colors.grey),
+                    Padding(padding: const EdgeInsets.symmetric(vertical: 5)),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      constraints: BoxConstraints(
+                        maxWidth: Get.width * 0.6,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: Color(Config.LETSBEE_COLOR).withOpacity(1),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "${messageData.message}",
+                            style: const TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.normal),
+                            textAlign: TextAlign.left,
+                          ),
+                          const Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 5)),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                                DateFormat('MMMM dd, yyyy h:mm a').format(
+                                    messageData.createdAt.toUtc().toLocal()),
+                                style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.normal,
+                                    fontStyle: FontStyle.italic)),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              )
+            : Container(
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text('Me:',
+                        style: const TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.bold)),
+                    const Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 5),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "${messageData.message}",
-                          style: const TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.normal),
-                          textAlign: TextAlign.left,
-                        ),
-                        const Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5),
-                        ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: messageData.isSent
-                              ? Text(
-                                  DateFormat('MMMM dd, yyyy h:mm a').format(
-                                      messageData.createdAt
-                                          .toUtc()
-                                          .toLocal()),
-                                  style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.normal,
-                                      fontStyle: FontStyle.italic),
-                                )
-                              : const Text('Sending...'),
-                        )
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            );
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      constraints: BoxConstraints(
+                        maxWidth: Get.width * 0.6,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: Colors.white,
+                        border: Border.all(color: Colors.grey),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "${messageData.message}",
+                            style: const TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.normal),
+                            textAlign: TextAlign.left,
+                          ),
+                          const Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 5),
+                          ),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: messageData.isSent
+                                ? Text(
+                                    DateFormat('MMMM dd, yyyy h:mm a').format(
+                                        messageData.createdAt
+                                            .toUtc()
+                                            .toLocal()),
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.normal,
+                                        fontStyle: FontStyle.italic),
+                                  )
+                                : const Text('Sending...'),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              );
       },
     );
   }
