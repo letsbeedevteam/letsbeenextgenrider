@@ -8,6 +8,7 @@ import 'package:letsbeenextgenrider/data/models/request/deliver_order_request.da
 import 'package:letsbeenextgenrider/ui/base/controller/base_controller.dart';
 import 'package:location/location.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:math';
 
 class OrderDetailController extends BaseController
     with SingleGetTickerProviderMixin {
@@ -37,7 +38,8 @@ class OrderDetailController extends BaseController
     _initSocket();
     _sendMyOrderLocation();
     super.onInit();
-  } 
+  }
+
 
   @override
   void onClose() async {

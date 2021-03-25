@@ -6,7 +6,7 @@ class GetNewMessageResponse {
         this.data,
     });
 
-    int status;
+    String status;
     MessageData data;
 
     factory GetNewMessageResponse.fromJson(Map<String, dynamic> json) => GetNewMessageResponse(

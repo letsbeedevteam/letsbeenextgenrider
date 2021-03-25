@@ -122,7 +122,7 @@ class DeliveryController extends BaseController
           await appRepository.showNotification(
             title: 'Hi!',
             body:
-                "Order No. ${orderUpdateResponse.data.id} is now available for delivery",
+                "Order No. ${orderUpdateResponse.data.soId} is now available for delivery",
             payload: "N/A",
           );
         }

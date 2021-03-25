@@ -74,7 +74,6 @@ class ApiService extends GetxController {
   }
 
   Future<GetActiveOrderResponse> getCurrentOrder() async {
-    print('${getStorage.read(SharedPref.RIDER_ACCESS_TOKEN)}');
     final response = await http.get(
       Config.GET_CURRENT_ORDER,
       headers: <String, String>{

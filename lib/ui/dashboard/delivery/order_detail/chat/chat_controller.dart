@@ -100,7 +100,7 @@ class ChatController extends BaseController {
       _appRepository
           .sendMessage(order.value.id, order.value.userId, messageTF.text,
               onComplete: (response) {
-        if (response.status == 200) {
+        if (response.status == 'OK') {
           messages.value.removeWhere((message) => message.isSent == false);
           messages.value.add(response.data);
         }

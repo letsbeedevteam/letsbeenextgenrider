@@ -9,11 +9,11 @@ import 'package:letsbeenextgenrider/data/models/product.dart';
 import 'package:letsbeenextgenrider/routing/pages.dart';
 import 'package:letsbeenextgenrider/ui/base/view/base_view.dart';
 import 'package:letsbeenextgenrider/ui/dashboard/delivery/order_detail/order_detail_controller.dart';
-import 'package:letsbeenextgenrider/core/utils/extensions.dart';
 import 'package:letsbeenextgenrider/ui/dashboard/delivery/order_detail/widgets/delivery_progressbar_big.dart';
 import 'package:letsbeenextgenrider/ui/widget/accept_button.dart';
 import 'package:letsbeenextgenrider/ui/widget/animated_expandable_container.dart';
 import 'package:letsbeenextgenrider/ui/widget/custom_appbar.dart';
+import 'package:letsbeenextgenrider/core/utils/extensions.dart';
 
 import 'widgets/delivery_progressbar_small.dart';
 
@@ -64,6 +64,222 @@ class _Body extends BaseView<OrderDetailController> {
           _buildDeliveryStatus(),
         ],
       );
+
+  AnimatedExpandableContainer _buildOrderDetails() {
+    int numberOfItems = 0;
+    controller.order.value.products.forEach((product) {
+      numberOfItems += product.quantity;
+    });
+    return AnimatedExpandableContainer(
+      isExpandedAtFirst: false,
+      expandingTriggerOnTitleOnly: true,
+      vsync: controller,
+      expandedIconPath: 'arrow_down_black.svg',
+      unexpandedIconPath: 'arrow_up_black.svg',
+      title: Container(
+        padding: const EdgeInsets.all(8.0),
+        color: Colors.white, //needed to take the row size
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Text(
+              'Order No. ${controller.order.value.soId}',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Divider(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              children: [
+                SvgPicture.asset(
+                  Config.SVG_PATH + 'store_icon.svg',
+                  height: 23,
+                  width: 23,
+                ),
+                const Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                  ),
+                ),
+                Text(controller.order.value.store.name),
+              ],
+            ),
+          ),
+          const Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+          ),
+          Obx(
+            () => controller.order.value.timeframe == null ||
+                    controller.order.value.status == 'rider-picked-up' ||
+                    controller.order.value.timeframe.storeEstimatedTime == null
+                ? const SizedBox.shrink()
+                : Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Row(
+                      children: [
+                        SvgPicture.asset(
+                          Config.SVG_PATH + 'preparation_time_icon.svg',
+                          height: 23,
+                          width: 23,
+                        ),
+                        const Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                          ),
+                        ),
+                        Text(
+                            'Preparation time: ${controller.order.value.timeframe.storeEstimatedTime}'),
+                      ],
+                    ),
+                  ),
+          ),
+          Obx(
+            () => controller.order.value.timeframe == null ||
+                    controller.order.value.status == 'rider-picked-up' ||
+                    controller.order.value.timeframe.storeEstimatedTime == null
+                ? const SizedBox.shrink()
+                : const Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                  ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  numberOfItems > 1
+                      ? 'Orders ($numberOfItems items)'
+                      : 'Orders ($numberOfItems item)',
+                ),
+                Obx(
+                  () => Text(
+                    controller.order.value.status == 'rider-picked-up' ||
+                            controller.order.value.status == 'delivered'
+                        ? 'PHP ${controller.order.value.fee.customerTotalPrice}'
+                        : 'PHP ${controller.order.value.fee.sellerTotalPrice}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+          ),
+          Column(
+            children: controller.order.value.products
+                .map((product) => _buildMenuItem(
+                    product, controller.order.value.store.type == 'mart'))
+                .toList(),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SvgPicture.asset(
+                  Config.SVG_PATH + 'payment_method_icon.svg',
+                  height: 23,
+                  width: 23,
+                ),
+                const Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                  ),
+                ),
+                Text(
+                  controller.order.value.payment.method
+                      .asReadablePaymentMethod(),
+                ),
+              ],
+            ),
+          ),
+          const Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+          ),
+        ],
+      ),
+    );
+  }
+
+  AnimatedExpandableContainer _buildCustomerDetails() {
+    return AnimatedExpandableContainer(
+      isExpandedAtFirst: true,
+      expandingTriggerOnTitleOnly: true,
+      vsync: controller,
+      expandedIconPath: 'arrow_down_black.svg',
+      unexpandedIconPath: 'arrow_up_black.svg',
+      title: Container(
+        padding: const EdgeInsets.all(8.0),
+        color: Colors.white, //needed to take the whole row size
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Text(
+              'Customer Details',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Divider(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(controller.order.value.user.name),
+          ),
+          const Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(
+              '${controller.order.value.user.cellphoneNumber}',
+            ),
+          ),
+          const Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(
+              '${controller.order.value.address.completeAddress}',
+            ),
+          ),
+          controller.order.value.address.note.isBlank
+              ? const SizedBox.shrink()
+              : const Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                ),
+          controller.order.value.address.note.isBlank
+              ? const SizedBox.shrink()
+              : Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                  ),
+                  child: Text(
+                    '${controller.order.value.address.note}',
+                  ),
+                ),
+          const Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+          ),
+        ],
+      ),
+    );
+  }
+
   AnimatedExpandableContainer _buildDeliveryStatus() {
     return AnimatedExpandableContainer(
       isExpandedAtFirst: true,
@@ -105,7 +321,22 @@ class _Body extends BaseView<OrderDetailController> {
               () => controller.hasStartedShopping.value &&
                       controller.order.value.status != 'rider-picked-up'
                   ? Text('You are currently shopping at...')
-                  : Text('You are on your way to...'),
+                  : controller.order.value.status == 'rider-picked-up'
+                      ? Row(
+                          children: [
+                            Text('To receive '),
+                            Text(
+                              controller.order.value.payment.status == 'paid'
+                                  ? 'PHP 0.00 '
+                                  : 'PHP ${controller.order.value.fee.customerTotalPrice} ',
+                              style: const TextStyle(
+                                color: Colors.green,
+                              ),
+                            ),
+                            Text('at'),
+                          ],
+                        )
+                      : Text('You are on your way to...'),
             ),
             const Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
@@ -256,187 +487,39 @@ class _Body extends BaseView<OrderDetailController> {
     );
   }
 
-  AnimatedExpandableContainer _buildCustomerDetails() {
-    return AnimatedExpandableContainer(
-      isExpandedAtFirst: true,
-      vsync: controller,
-      expandedIconPath: 'arrow_down_black.svg',
-      unexpandedIconPath: 'arrow_up_black.svg',
-      title: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Text(
-              'Customer Details',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ),
-      content: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Divider(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Text(controller.order.value.user.name),
-          ),
-          const Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Text(
-              '${controller.order.value.user.cellphoneNumber}',
-            ),
-          ),
-          const Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Text(
-              '${controller.order.value.address.completeAddress}',
-            ),
-          ),
-          controller.order.value.note.isBlank
-              ? const SizedBox.shrink()
-              : const Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                ),
-          controller.order.value.note.isBlank
-              ? const SizedBox.shrink()
-              : Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                  ),
-                  child: Text(
-                    '${controller.order.value.note}',
-                  ),
-                ),
-          const Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-          ),
-        ],
-      ),
-    );
-  }
-
-  AnimatedExpandableContainer _buildOrderDetails() {
-    return AnimatedExpandableContainer(
-      isExpandedAtFirst: false,
-      vsync: controller,
-      expandedIconPath: 'arrow_down_black.svg',
-      unexpandedIconPath: 'arrow_up_black.svg',
-      title: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Text(
-              'Order No. ${controller.order.value.id}',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ),
-      content: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Divider(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Text(controller.order.value.store.name),
-          ),
-          const Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  controller.order.value.status.asReadableOrderStatus(),
-                  style: TextStyle(fontStyle: FontStyle.italic),
-                ),
-                Obx(
-                  () => Text(
-                    controller.order.value.status == 'rider-picked-up' ||
-                            controller.order.value.status == 'delivered'
-                        ? 'PHP ${controller.order.value.fee.customerTotalPrice}'
-                        : 'PHP ${controller.order.value.fee.sellerTotalPrice}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Mode of Payment',
-                ),
-                Text(
-                  controller.order.value.payment.method
-                      .asReadablePaymentMethod(),
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ),
-          const Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-          ),
-          Column(
-            children: controller.order.value.products
-                .map((product) => _buildMenuItem(
-                    product, controller.order.value.store.type == 'mart'))
-                .toList(),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildMenuItem(Product product, bool isMart) {
     RxBool isChecked = false.obs;
     controller.areItemsreadyForCheckout.addIf(isMart, isChecked);
     return Center(
       child: Container(
-        padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
+        padding: const EdgeInsets.only(left: 8, right: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       isMart
                           ? Obx(
-                              () =>
-                                  isMart && controller.hasStartedShopping.value
-                                      ? Obx(
-                                          () => Checkbox(
-                                            value: isChecked.value,
-                                            onChanged: (value) {
-                                              isChecked.value = value;
-                                            },
-                                          ),
-                                        )
-                                      : const SizedBox.shrink(),
+                              () => isMart &&
+                                      controller.hasStartedShopping.value
+                                  ? Obx(
+                                      () => Container(
+                                        margin: const EdgeInsets.only(right: 8),
+                                        height: 16,
+                                        width: 16,
+                                        child: Checkbox(
+                                          value: isChecked.value,
+                                          onChanged: (value) {
+                                            isChecked.value = value;
+                                          },
+                                        ),
+                                      ),
+                                    )
+                                  : const SizedBox.shrink(),
                             )
                           : const SizedBox.shrink(),
                       Text(
@@ -449,11 +532,33 @@ class _Body extends BaseView<OrderDetailController> {
                       Flexible(
                         child: Wrap(
                           children: [
-                            Column(
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
                                   '${product.name}',
                                   style: TextStyle(color: Colors.black),
+                                ),
+                                Obx(
+                                  () => Text(
+                                    controller.order.value.status ==
+                                                'rider-picked-up' ||
+                                            controller.order.value.status ==
+                                                'delivered'
+                                        ? (product.quantity *
+                                                    double.tryParse(product
+                                                        .customerPrice) ??
+                                                0.0)
+                                            .toStringAsFixed(2)
+                                        : (product.quantity *
+                                                    double.tryParse(
+                                                        product.sellerPrice) ??
+                                                0.0)
+                                            .toStringAsFixed(2),
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
@@ -472,12 +577,6 @@ class _Body extends BaseView<OrderDetailController> {
                         ),
                       ),
                     ],
-                  ),
-                ),
-                Text(
-                  product.price,
-                  style: TextStyle(
-                    color: Colors.black,
                   ),
                 ),
               ],
@@ -513,16 +612,27 @@ class _Body extends BaseView<OrderDetailController> {
       children: [
         Expanded(
           child: Container(
-            child: Text(additional.name,
-                style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14)),
+            child: Text(
+              additional.name,
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 14,
+              ),
+            ),
           ),
         ),
-        Text('+₱ ${additional.price}',
-            style: TextStyle(
-                color: Colors.black, fontWeight: FontWeight.bold, fontSize: 14))
+        Obx(
+          () => Text(
+            controller.order.value.status == 'rider-picked-up' ||
+                    controller.order.value.status == 'delivered'
+                ? '${additional.customerPrice}'
+                : '${additional.sellerPrice}',
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 14,
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -547,19 +657,25 @@ class _Body extends BaseView<OrderDetailController> {
       children: [
         Expanded(
           child: Container(
-            child: Text('${variant.type}: ${variant.pick}',
-                style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14)),
+            child: Text(
+              '${variant.type}: ${variant.pick}',
+              style: const TextStyle(
+                color: Colors.grey,
+                fontSize: 14,
+              ),
+            ),
           ),
         ),
-        Text(
-          '+₱ ${variant.price}',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
+        Obx(
+          () => Text(
+            controller.order.value.status == 'rider-picked-up' ||
+                    controller.order.value.status == 'delivered'
+                ? '${variant.customerPrice}'
+                : '${variant.sellerPrice}',
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 14,
+            ),
           ),
         ),
       ],
