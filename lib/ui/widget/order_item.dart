@@ -71,7 +71,7 @@ class OrderItem extends StatelessWidget {
                   child: Container(
                     width: 70,
                     alignment: Alignment.center,
-                    child: Text('#${order.id}'),
+                    child: Text('#${order.soId}'),
                   ),
                 ),
                 const Padding(

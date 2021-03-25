@@ -412,7 +412,7 @@ class AppRepository {
         SocketService.FETCH_ALL_MESSAGES, request.toJson(), ack: (response) {
       print(response);
       final getMessagesResponse = GetMessagesResponse.fromJson(response);
-      if (getMessagesResponse.status == 200) {
+      if (getMessagesResponse.status == 'OK') {
         onSuccess(getMessagesResponse);
       } else {
         print("Failed to fetch all messages");

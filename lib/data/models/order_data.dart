@@ -20,6 +20,7 @@ class OrderData {
     this.address,
     this.payment,
     this.id,
+    this.soId,
     this.storeId,
     this.userId,
     this.riderId,
@@ -39,6 +40,7 @@ class OrderData {
   OrderAddress address;
   Payment payment;
   int id;
+  int soId;
   int storeId;
   int userId;
   dynamic riderId;
@@ -63,6 +65,7 @@ class OrderData {
         address: OrderAddress.fromJson(json["address"]),
         payment: Payment.fromJson(json["payment"]),
         id: json["id"],
+        soId: json["so_id"],
         storeId: json["store_id"],
         userId: json["user_id"],
         riderId: json["rider_id"],
@@ -83,6 +86,7 @@ class OrderData {
         "address": address.toJson(),
         "payment": payment.toJson(),
         "id": id,
+        "so_id": soId,
         "store_id": storeId,
         "user_id": userId,
         "rider_id": riderId,
