@@ -16,7 +16,9 @@ class StatusController extends BaseController {
 
   final AppRepository appRepository;
 
-  StatusController({@required this.appRepository});
+  StatusController({
+    @required this.appRepository,
+  });
 
   RxBool isSwitchOn = false.obs;
   RxBool isSwitchEnabled = true.obs;

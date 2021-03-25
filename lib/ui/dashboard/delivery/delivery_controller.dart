@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:letsbeenextgenrider/core/error/base/failure.dart';
 import 'package:letsbeenextgenrider/core/error/failures.dart';
 import 'package:letsbeenextgenrider/data/app_repository.dart';
+import 'package:letsbeenextgenrider/data/models/login_data.dart';
 import 'package:letsbeenextgenrider/data/models/order_data.dart';
 import 'package:letsbeenextgenrider/data/models/response/get_new_order_response.dart';
 import 'package:letsbeenextgenrider/routing/pages.dart';
@@ -83,19 +84,26 @@ class DeliveryController extends BaseController
 
   Future<void> _getNearbyOrders() async {
     return appRepository.getCurrentPosition().then((position) async {
-      await appRepository
-          .getNearbyOrders(position.latitude, position.longitude)
-          .then((response) {
-        orders.value.clear();
-        response.data.forEach((data) {
-          orders.value.addIf(orders.value.length < 5, data);
+      final LoginData user = appRepository.getUser();
+      if (user.riderDetails.status != 3) {
+        await appRepository
+            .getNearbyOrders(position.latitude, position.longitude)
+            .then((response) {
+          orders.value.clear();
+          response.data.forEach((data) {
+            orders.value.addIf(orders.value.length < 5, data);
+          });
+          message.value = orders.value.isEmpty
+              ? 'Nothing to see here yet.\nKindly wait for upcoming orders'
+              : '';
+        }).catchError((error) {
+          print('$error');
         });
-        message.value = orders.value.isEmpty
-            ? 'Nothing to see here yet.\nKindly wait for upcoming orders'
-            : '';
-      }).catchError((error) {
-        print('$error');
-      });
+      } else {
+        orders.value.clear();
+        message.value =
+            'Nothing to see here yet.\nUpdate your status to receive orders';
+      }
     }).catchError((error) {
       showSnackbarErrorMessage((error as Failure).errorMessage);
     });
