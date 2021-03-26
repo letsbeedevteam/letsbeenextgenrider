@@ -25,13 +25,6 @@ class DashboardController extends BaseBottomNavController {
 
   DashboardController({@required this.appRepository});
 
-  void logOut() {
-    print('$CLASS_NAME, logOut');
-    appRepository.logOut().then((_) {
-      Get.offAllNamed(Routes.LOGIN_ROUTE);
-    });
-  }
-
   @override
   int get tabLength => 4;
 

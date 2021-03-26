@@ -71,7 +71,7 @@ class _Body extends BaseView<OrderDetailController> {
       numberOfItems += product.quantity;
     });
     return AnimatedExpandableContainer(
-      isExpandedAtFirst: false,
+      isExpandedAtFirst: true,
       expandingTriggerOnTitleOnly: true,
       vsync: controller,
       expandedIconPath: 'arrow_down_black.svg',
@@ -324,7 +324,7 @@ class _Body extends BaseView<OrderDetailController> {
                   : controller.order.value.status == 'rider-picked-up'
                       ? Row(
                           children: [
-                            Text('To receive '),
+                            const Text('To receive '),
                             Text(
                               controller.order.value.payment.status == 'paid'
                                   ? 'PHP 0.00 '
@@ -333,10 +333,10 @@ class _Body extends BaseView<OrderDetailController> {
                                 color: Colors.green,
                               ),
                             ),
-                            Text('at'),
+                            const Text('at'),
                           ],
                         )
-                      : Text('You are on your way to...'),
+                      : const Text('You are on your way to...'),
             ),
             const Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
