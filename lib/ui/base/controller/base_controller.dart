@@ -36,13 +36,7 @@ abstract class BaseController extends GetxController {
   }
 
   void addDisposableFromFuture(Future disposable) {
-    disposables.add(CancelableOperation.fromFuture(
-      disposable,
-      onCancel: () {
-        print('cancelled');
-        disposable.asStream().listen((event) {}).cancel();
-      },
-    ));
+    disposables.add(CancelableOperation.fromFuture(disposable));
   }
 
   void addDisposable(CancelableOperation disposable) {

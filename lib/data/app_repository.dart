@@ -505,7 +505,8 @@ class AppRepository {
   }
 
   Future<void> logOut() async {
-    await disconnectSocket();
-    sharedPref.clearUserInfo();
+    return await disconnectSocket().then((_) {
+      sharedPref.clearUserInfo();
+    });
   }
 }

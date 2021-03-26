@@ -40,46 +40,6 @@ class HistoryController extends BaseRefreshTabController
   int get tabLength => 4;
 
   @override
-  void onInit() {
-    ordersTodayScrollController = ScrollController();
-    ordersTodayScrollController.addListener(() {
-      if (ordersTodayScrollController.offset >=
-              ordersTodayScrollController.position.maxScrollExtent &&
-          !ordersTodayScrollController.position.outOfRange) {
-        getTodayHistory();
-      }
-    });
-
-    ordersYesterdayScrollController = ScrollController();
-    ordersYesterdayScrollController.addListener(() {
-      if (ordersYesterdayScrollController.offset >=
-              ordersYesterdayScrollController.position.maxScrollExtent &&
-          !ordersYesterdayScrollController.position.outOfRange) {
-        getYesterdayHistory();
-      }
-    });
-
-    ordersThisWeekScrollController = ScrollController();
-    ordersThisWeekScrollController.addListener(() {
-      if (ordersThisWeekScrollController.offset >=
-              ordersThisWeekScrollController.position.maxScrollExtent &&
-          !ordersThisWeekScrollController.position.outOfRange) {
-        getThisWeekHistory();
-      }
-    });
-
-    ordersLastWeekScrollController = ScrollController();
-    ordersLastWeekScrollController.addListener(() {
-      if (ordersLastWeekScrollController.offset >=
-              ordersLastWeekScrollController.position.maxScrollExtent &&
-          !ordersLastWeekScrollController.position.outOfRange) {
-        getLastWeekHistory();
-      }
-    });
-    super.onInit();
-  }
-
-  @override
   void onClose() {
     ordersTodayScrollController.dispose();
     ordersYesterdayScrollController.dispose();
@@ -180,12 +140,23 @@ class HistoryController extends BaseRefreshTabController
           .getHistoryByDate(
               from: DateTime(now.year, now.month, now.day, 0, 0, 0),
               to: now,
-              page: ordersTodayPageNumber)
+              page: (ordersToday.value.length * 0.1).toInt())
           .then((response) {
-        if (response.data.isNotEmpty) {
-          ordersTodayPageNumber += 1;
+        if ((ordersToday.value.length * 0.1).toInt() == 0) {
+          ordersToday.value.clear();
         }
-        ordersToday.value.addAll(response.data);
+
+        //Check if last orderid in the list is equal to the order id from the response
+        //before adding to list.
+        //Check last index only for lightweight computation.
+        //Can be refactored and improved.
+        if (ordersToday.value.isNotEmpty) {
+          if (ordersToday.value.last.orderId != response.data.last.orderId) {
+            ordersToday.value.addAll(response.data);
+          }
+        } else {
+          ordersToday.value.addAll(response.data);
+        }
 
         isLoading.value = false;
         todayHistoryMessage.value = ordersToday.value.isNotEmpty
@@ -215,13 +186,25 @@ class HistoryController extends BaseRefreshTabController
                   yesterday.year, yesterday.month, yesterday.day, 0, 0, 0),
               to: DateTime(
                   yesterday.year, yesterday.month, yesterday.day, 23, 59, 59),
-              page: ordersYesterdayPageNumber)
+              page: (ordersYesterday.value.length * 0.1).toInt())
           .then((response) {
-        ordersYesterday.value.addAll(response.data);
-        isLoading.value = false;
-        if (response.data.isNotEmpty) {
-          ordersYesterdayPageNumber += 1;
+        if ((ordersYesterday.value.length * 0.1).toInt() == 0) {
+          ordersYesterday.value.clear();
         }
+
+        //Check if last orderid in the list is equal to the order id from the response
+        //before adding to list.
+        //Check last index only for lightweight computation.
+        //Can be refactored and improved.
+        if (ordersYesterday.value.isNotEmpty) {
+          if (ordersYesterday.value.last.orderId !=
+              response.data.last.orderId) {
+            ordersYesterday.value.addAll(response.data);
+          }
+        } else {
+          ordersYesterday.value.addAll(response.data);
+        }
+        isLoading.value = false;
         yesterdayHistoryMessage.value = ordersYesterday.value.isNotEmpty
             ? ''
             : 'Nothing to see here yet.\nStart accepting deliveries!';
@@ -249,16 +232,28 @@ class HistoryController extends BaseRefreshTabController
               from: DateTime(
                   thisSunday.year, thisSunday.month, thisSunday.day, 0, 0, 0),
               to: now,
-              page: ordersThisWeekPageNumber)
+              page: (ordersThisWeek.value.length * 0.1).toInt())
           .then((response) {
-        ordersThisWeek.value.addAll(response.data);
-        if (response.data.isNotEmpty) {
-          ordersThisWeekPageNumber += 1;
+        if ((ordersThisWeek.value.length * 0.1).toInt() == 0) {
+          ordersThisWeek.value.clear();
         }
+
+        //Check if last orderid in the list is equal to the order id from the response
+        //before adding to list.
+        //Check last index only for lightweight computation.
+        //Can be refactored and improved.
+        if (ordersThisWeek.value.isNotEmpty) {
+          if (ordersThisWeek.value.last.orderId != response.data.last.orderId) {
+            ordersThisWeek.value.addAll(response.data);
+          }
+        } else {
+          ordersThisWeek.value.addAll(response.data);
+        }
+        isLoading.value = false;
         thisweekHistoryMessage.value = ordersThisWeek.value.isNotEmpty
             ? ''
             : 'Nothing to see here yet.\nStart accepting deliveries!';
-        isLoading.value = false;
+
         showSnackbarSuccessMessage('History updated!');
       }).catchError(
         (error) {
@@ -287,11 +282,22 @@ class HistoryController extends BaseRefreshTabController
                   prevSunday.year, prevSunday.month, prevSunday.day, 0, 0, 0),
               to: DateTime(
                   prevSat.year, prevSat.month, prevSat.day, 23, 59, 59),
-              page: ordersLastWeekPageNumber)
+              page: (ordersLastWeek.value.length * 0.1).toInt())
           .then((response) {
-        ordersLastWeek.value.addAll(response.data);
-        if (response.data.isNotEmpty) {
-          ordersLastWeekPageNumber += 1;
+        if ((ordersLastWeek.value.length * 0.1).toInt() == 0) {
+          ordersLastWeek.value.clear();
+        }
+
+        //Check if last orderid in the list is equal to the order id from the response
+        //before adding to list.
+        //Check last index only for lightweight computation.
+        //Can be refactored and improved.
+        if (ordersLastWeek.value.isNotEmpty) {
+          if (ordersLastWeek.value.last.orderId != response.data.last.orderId) {
+            ordersLastWeek.value.addAll(response.data);
+          }
+        } else {
+          ordersLastWeek.value.addAll(response.data);
         }
         isLoading.value = false;
         lastweekHistoryMessage.value = ordersLastWeek.value.isNotEmpty

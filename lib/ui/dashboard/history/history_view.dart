@@ -32,7 +32,10 @@ class _Body extends BaseRefreshTabView<HistoryController> {
                 if (notification is ScrollEndNotification &&
                     notification.metrics.pixels ==
                         notification.metrics.maxScrollExtent) {
-                  controller.getTodayHistory();
+                  if (controller.ordersToday.value.isNotEmpty &&
+                      controller.ordersToday.value.length >= 10) {
+                    controller.getTodayHistory();
+                  }
                 }
                 return false;
               },
@@ -73,7 +76,10 @@ class _Body extends BaseRefreshTabView<HistoryController> {
                 if (notification is ScrollEndNotification &&
                     notification.metrics.pixels ==
                         notification.metrics.maxScrollExtent) {
-                  controller.getYesterdayHistory();
+                  if (controller.ordersToday.value.isNotEmpty &&
+                      controller.ordersToday.value.length >= 10) {
+                    controller.getYesterdayHistory();
+                  }
                 }
                 return false;
               },
@@ -114,7 +120,10 @@ class _Body extends BaseRefreshTabView<HistoryController> {
                 if (notification is ScrollEndNotification &&
                     notification.metrics.pixels ==
                         notification.metrics.maxScrollExtent) {
-                  controller.getThisWeekHistory();
+                  if (controller.ordersToday.value.isNotEmpty &&
+                      controller.ordersToday.value.length >= 10) {
+                    controller.getThisWeekHistory();
+                  }
                 }
                 return false;
               },
@@ -155,7 +164,10 @@ class _Body extends BaseRefreshTabView<HistoryController> {
                 if (notification is ScrollEndNotification &&
                     notification.metrics.pixels ==
                         notification.metrics.maxScrollExtent) {
-                  controller.getLastWeekHistory();
+                  if (controller.ordersToday.value.isNotEmpty &&
+                      controller.ordersToday.value.length >= 10) {
+                    controller.getLastWeekHistory();
+                  }
                 }
                 return false;
               },
